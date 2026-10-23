@@ -1,0 +1,1474 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Emerald Grey Assessment Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: a prototype bar above a device stage; each screen renders inside a
+   device frame (desktop, tablet, phone) that uses container queries, so the phone and
+   tablet layouts are faithful even when viewed on a large monitor. */
+:root {
+  --paper: #F2F0EB;        /* warm stone ground */
+  --surface: #FCFBF8;      /* cards and sheets */
+  --sunk: #E9E6DF;         /* wells, inputs, table heads */
+  --line: #DAD5CB;
+  --ink: #1E2925;          /* emerald grey ink */
+  --ink-2: #4B5752;
+  --ink-3: #727C77;
+  --emerald: #0D5A45;
+  --emerald-2: #187A5E;
+  --emerald-tint: #DFECE5;
+  --on-emerald: #F7F5F0;
+  --brass: #9C7B45;        /* restrained secondary accent for SBM guidance */
+  --brass-tint: #F1E8D8;
+  --ok: #276447;      --ok-bg: #E0EEE5;
+  --slight: #6E5D12;  --slight-bg: #F2EBCB;
+  --strong: #8E4519;  --strong-bg: #F6E2D3;
+  --extreme: #8A2727; --extreme-bg: #F4DADA;
+  --info: #2A5674;    --info-bg: #DDE8F0;
+  --muted: #5F6461;   --muted-bg: #E6E4DF;
+  --shadow: 0 1px 2px rgba(30,41,37,.06), 0 8px 24px rgba(30,41,37,.06);
+  --font-display: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-body: "Figtree", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r-s: 6px; --r-m: 10px; --r-l: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111714; --surface: #18201C; --sunk: #212A26; --line: #2F3A35;
+    --ink: #ECEAE4; --ink-2: #B8BEB9; --ink-3: #8C958F;
+    --emerald: #6CCBA8; --emerald-2: #4FB08D; --emerald-tint: #1B3A2F; --on-emerald: #0B1310;
+    --brass: #D2B47E; --brass-tint: #33291A;
+    --ok: #8FD3B0; --ok-bg: #1C3529; --slight: #E2CF7A; --slight-bg: #353016;
+    --strong: #EFA77A; --strong-bg: #3D2618; --extreme: #F09A9A; --extreme-bg: #3F1F1F;
+    --info: #96C3E3; --info-bg: #1C2E3C; --muted: #B3B8B4; --muted-bg: #2A302D;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111714; --surface: #18201C; --sunk: #212A26; --line: #2F3A35;
+  --ink: #ECEAE4; --ink-2: #B8BEB9; --ink-3: #8C958F;
+  --emerald: #6CCBA8; --emerald-2: #4FB08D; --emerald-tint: #1B3A2F; --on-emerald: #0B1310;
+  --brass: #D2B47E; --brass-tint: #33291A;
+  --ok: #8FD3B0; --ok-bg: #1C3529; --slight: #E2CF7A; --slight-bg: #353016;
+  --strong: #EFA77A; --strong-bg: #3D2618; --extreme: #F09A9A; --extreme-bg: #3F1F1F;
+  --info: #96C3E3; --info-bg: #1C2E3C; --muted: #B3B8B4; --muted-bg: #2A302D;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 15px/1.5 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; text-wrap: balance; margin: 0; color: var(--ink); }
+h1 { font-size: 1.95rem; line-height: 1.15; }
+h2 { font-size: 1.4rem; line-height: 1.2; }
+h3 { font-size: 1.12rem; line-height: 1.25; }
+h4 { font-family: var(--font-body); font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+p { margin: 0; }
+a { color: var(--emerald); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--emerald-2); outline-offset: 2px; border-radius: 4px; }
+.num, .mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-3); }
+.small { font-size: .84rem; }
+.xsmall { font-size: .76rem; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.stack-l { display: flex; flex-direction: column; gap: 20px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.spread { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.grow { flex: 1 1 auto; min-width: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ---------- Prototype bar ---------- */
+.proto-bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px;
+}
+.proto-inner { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; max-width: 1320px; margin: 0 auto; }
+.wordmark { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.proto-inner > .wordmark { margin-right: auto; }
+.wordmark-mark { width: 28px; height: 28px; border-radius: 50%; background: var(--emerald); position: relative; flex: none; }
+.wordmark-mark::after { content: ""; position: absolute; inset: 7px 7px 7px 13px; border-radius: 0 14px 14px 0; background: var(--on-emerald); opacity: .9; }
+.wordmark b { font-family: var(--font-display); font-weight: 500; font-size: 1.08rem; letter-spacing: .01em; }
+.wordmark span { font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-3); display: block; line-height: 1; }
+.screen-nav { display: flex; gap: 4px; overflow-x: auto; flex: 1 1 100%; order: 3; min-width: 0; padding-bottom: 2px; scrollbar-width: thin; }
+.screen-nav button {
+  border: 1px solid transparent; background: none; padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  white-space: nowrap; font-size: .86rem; color: var(--ink-2);
+}
+.screen-nav button small { display: block; font-size: .64rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); line-height: 1.1; }
+.screen-nav button[aria-current="page"] { background: var(--emerald-tint); color: var(--emerald); border-color: transparent; font-weight: 600; }
+.screen-nav button:hover { border-color: var(--line); }
+.device-toggle { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.device-toggle button { border: 0; background: none; padding: 5px 12px; font-size: .8rem; cursor: pointer; color: var(--ink-2); }
+.device-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+/* ---------- Stage and device frames ---------- */
+.stage {
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 22px 60px;
+}
+.stage-caption { max-width: 1320px; margin: 0 auto 14px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; align-items: baseline; }
+.stage-caption p { max-width: 70ch; color: var(--ink-2); font-size: .9rem; }
+.device { container-type: inline-size; margin: 0 auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+.device[data-device="desktop"] { max-width: 1320px; }
+.device[data-device="tablet"] { max-width: 1080px; border-radius: 26px; border-width: 10px; border-color: var(--ink); }
+.device[data-device="phone"] { max-width: 400px; border-radius: 34px; border-width: 9px; border-color: var(--ink); }
+@media (max-width: 520px) {
+  .device[data-device] { border-width: 1px; border-color: var(--line); border-radius: 14px; }
+  .stage { padding-block: 12px 40px; }
+}
+
+/* ---------- Shared components ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: 18px; min-width: 0; }
+.card-tight { padding: 14px; }
+.card h3 + p { margin-top: 4px; }
+.divider { height: 1px; background: var(--line); border: 0; margin: 4px 0; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  padding: 8px 14px; border-radius: 999px; cursor: pointer; font-size: .88rem; font-weight: 500; text-decoration: none; white-space: nowrap;
+}
+.btn:hover { border-color: var(--ink-3); }
+.btn-primary { background: var(--emerald); border-color: var(--emerald); color: var(--on-emerald); }
+.btn-primary:hover { background: var(--emerald-2); border-color: var(--emerald-2); }
+.btn-quiet { border-color: transparent; background: none; color: var(--emerald); padding-inline: 8px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn-s { padding: 5px 11px; font-size: .8rem; }
+.icon { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 7px; border-radius: 999px; font-size: .76rem; font-weight: 600; line-height: 1.6; white-space: nowrap; }
+.chip .glyph { font-family: var(--font-data); font-size: .72rem; }
+.c-ok { background: var(--ok-bg); color: var(--ok); }
+.c-slight { background: var(--slight-bg); color: var(--slight); }
+.c-strong { background: var(--strong-bg); color: var(--strong); }
+.c-extreme { background: var(--extreme-bg); color: var(--extreme); }
+.c-info { background: var(--info-bg); color: var(--info); }
+.c-muted { background: var(--muted-bg); color: var(--muted); }
+.c-emerald { background: var(--emerald-tint); color: var(--emerald); }
+.c-brass { background: var(--brass-tint); color: var(--brass); }
+.c-outline { border: 1px dashed var(--ink-3); color: var(--ink-2); background: none; }
+.tag { display: inline-block; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; padding: 1px 7px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label, .field .label { font-size: .8rem; font-weight: 600; color: var(--ink-2); }
+.field .hint { font-size: .76rem; color: var(--ink-3); }
+.input, select.input, textarea.input {
+  width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m);
+  padding: 9px 11px; min-height: 40px;
+}
+textarea.input { min-height: 84px; resize: vertical; line-height: 1.5; }
+.input:focus { border-color: var(--emerald-2); outline: none; box-shadow: 0 0 0 3px var(--emerald-tint); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@container (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: minmax(0, 1fr); } }
+
+.seg { display: inline-flex; background: var(--sunk); border-radius: 999px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: none; border-radius: 999px; padding: 5px 12px; font-size: .82rem; cursor: pointer; color: var(--ink-2); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.pill-check { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 999px; padding: 7px 13px; cursor: pointer; font-size: .86rem; background: var(--surface); }
+.pill-check[aria-pressed="true"] { border-color: var(--emerald-2); background: var(--emerald-tint); color: var(--emerald); font-weight: 600; }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .86rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); font-weight: 600; background: var(--sunk); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 11px 13px; border-radius: var(--r-m); font-size: .86rem; }
+.notice-info { background: var(--info-bg); color: var(--ink); }
+.notice-warn { background: var(--slight-bg); color: var(--ink); }
+.notice-calm { background: var(--emerald-tint); color: var(--ink); }
+.notice-muted { background: var(--sunk); color: var(--ink-2); }
+.notice .icon { margin-top: 2px; }
+
+.sync { display: inline-flex; align-items: center; gap: 7px; font-size: .8rem; color: var(--ink-2); white-space: nowrap; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-bg); flex: none; }
+.sync[data-state="offline"] .sync-dot { background: var(--slight); box-shadow: 0 0 0 3px var(--slight-bg); }
+.sync[data-state="saving"] .sync-dot { background: var(--info); box-shadow: 0 0 0 3px var(--info-bg); }
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-size: .74rem; font-weight: 700; flex: none; }
+.av-iza { background: var(--emerald-tint); color: var(--emerald); }
+.av-alfie { background: var(--brass-tint); color: var(--brass); }
+.av-client { background: var(--info-bg); color: var(--info); }
+
+.photo {
+  aspect-ratio: 4/3; max-width: 100%; border-radius: var(--r-m); position: relative; overflow: hidden;
+  background: linear-gradient(135deg, var(--sunk), var(--line));
+  display: flex; align-items: flex-end; padding: 8px; font-size: .74rem; color: var(--ink-2);
+}
+.photo.thermal { background: linear-gradient(120deg, #2b2a6b 0%, #7a2a7e 35%, #d4573a 65%, #f2c14e 100%); color: #fff; }
+.photo.wall { background: linear-gradient(160deg, var(--sunk) 0%, var(--line) 60%, var(--brass-tint) 100%); }
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.photo span { position: relative; background: color-mix(in srgb, var(--surface) 85%, transparent); color: var(--ink); padding: 2px 7px; border-radius: 4px; }
+.photo.thermal span { background: rgba(0,0,0,.45); color: #fff; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 50;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 999px; font-size: .86rem; box-shadow: var(--shadow);
+  max-width: calc(100vw - 32px);
+}
+.modal-back { position: fixed; inset: 0; background: rgba(15,22,19,.45); z-index: 40; display: grid; place-items: center; padding: 16px; }
+.modal { background: var(--surface); border-radius: var(--r-l); max-width: 720px; width: 100%; max-height: calc(100vh - 32px); overflow: auto; padding: 22px; box-shadow: var(--shadow); }
+
+/* ---------- Assessor shell ---------- */
+.shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 720px; }
+.side { background: var(--surface); border-right: 1px solid var(--line); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+.side .wordmark { padding: 0 8px 16px; }
+.side-link { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: var(--r-m); color: var(--ink-2); text-decoration: none; font-size: .9rem; cursor: pointer; border: 0; background: none; text-align: left; }
+.side-link:hover { background: var(--sunk); }
+.side-link[aria-current="page"] { background: var(--emerald-tint); color: var(--emerald); font-weight: 600; }
+.side-link .count { margin-left: auto; font-size: .74rem; font-family: var(--font-data); color: var(--ink-3); }
+.side-foot { margin-top: auto; padding: 12px 8px 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.main { container-type: inline-size; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.topline { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.eyebrow { font-size: .74rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-3); font-weight: 600; }
+@container (max-width: 860px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .side { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 10px; align-items: center; }
+  .side .wordmark, .side-foot { display: none; }
+  .side-link { white-space: nowrap; }
+  .main { padding: 18px 16px 32px; }
+}
+
+/* Dashboard */
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; text-align: left; cursor: pointer; }
+.kpi:hover { border-color: var(--emerald-2); }
+.kpi b { font-family: var(--font-display); font-size: 2rem; font-weight: 500; line-height: 1.1; }
+.kpi span { font-size: .82rem; color: var(--ink-2); }
+.kpi small { font-size: .74rem; color: var(--ink-3); }
+.dash-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@container (max-width: 1000px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .dash-grid { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 560px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.list { display: flex; flex-direction: column; }
+.list-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.list-item:last-child { border-bottom: 0; }
+.date-block { width: 50px; text-align: center; border-radius: var(--r-m); background: var(--sunk); padding: 5px 0; line-height: 1.1; }
+.date-block b { display: block; font-family: var(--font-display); font-size: 1.25rem; font-weight: 500; }
+.date-block small { font-size: .66rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+.progress { height: 6px; background: var(--sunk); border-radius: 99px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--emerald-2); border-radius: 99px; }
+.stage-steps { display: flex; gap: 4px; }
+.stage-steps i { flex: 1; height: 5px; border-radius: 3px; background: var(--sunk); }
+.stage-steps i.on { background: var(--emerald-2); }
+
+/* Profile */
+.profile-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px 20px; }
+.fact .k { font-size: .74rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+.fact .v { font-size: .92rem; }
+.profile-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@container (max-width: 980px) { .profile-grid, .profile-head { grid-template-columns: minmax(0, 1fr); } }
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 12px; position: relative; padding-bottom: 14px; }
+.tl::before { content: ""; position: absolute; left: 7px; top: 14px; bottom: 0; width: 2px; background: var(--line); }
+.tl:last-child::before { display: none; }
+.tl-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--emerald-2); background: var(--surface); margin-top: 3px; position: relative; z-index: 1; }
+.tl-dot.done { background: var(--emerald-2); }
+.tl-dot.later { border-color: var(--line); }
+.scope-group { display: flex; flex-direction: column; gap: 0; }
+.scope-row { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .88rem; }
+.scope-row:last-child { border-bottom: 0; }
+.scope-code { font-family: var(--font-data); font-size: .78rem; color: var(--ink-3); }
+.switch { width: 34px; height: 20px; border-radius: 99px; background: var(--line); position: relative; border: 0; cursor: pointer; flex: none; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); transition: left .15s; }
+.switch[aria-checked="true"] { background: var(--emerald-2); }
+.switch[aria-checked="true"]::after { left: 17px; }
+@container (max-width: 560px) { .scope-row { grid-template-columns: 34px minmax(0, 1fr) auto; } .scope-row .chip { grid-column: 2 / -1; justify-self: start; } }
+.locked { border: 1px dashed var(--brass); background: var(--brass-tint); }
+
+/* Phone shell (client) */
+.phone { display: flex; flex-direction: column; min-height: 760px; background: var(--paper); }
+.phone-top { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.phone-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.phone-foot { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 10px 18px; display: flex; gap: 10px; }
+.tabbar { position: sticky; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); }
+.tabbar button { border: 0; background: none; padding: 9px 4px 11px; font-size: .72rem; color: var(--ink-3); display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+.tabbar button[aria-current="page"] { color: var(--emerald); font-weight: 600; }
+.tabbar .icon { width: 20px; height: 20px; }
+.steps-bar { display: flex; gap: 4px; }
+.steps-bar i { flex: 1; height: 4px; border-radius: 2px; background: var(--line); }
+.steps-bar i.on { background: var(--emerald-2); }
+.choice-list { display: flex; flex-direction: column; gap: 8px; }
+.choice { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); cursor: pointer; text-align: left; width: 100%; }
+.choice[aria-pressed="true"] { border-color: var(--emerald-2); background: var(--emerald-tint); }
+.choice .box { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--ink-3); display: grid; place-items: center; flex: none; }
+.choice[aria-pressed="true"] .box { background: var(--emerald-2); border-color: var(--emerald-2); }
+.choice[aria-pressed="true"] .box::after { content: ""; width: 9px; height: 5px; border-left: 2px solid var(--on-emerald); border-bottom: 2px solid var(--on-emerald); transform: rotate(-45deg) translate(1px, -1px); }
+.upload { border: 1.5px dashed var(--line); border-radius: var(--r-l); padding: 18px; text-align: center; background: var(--surface); display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.file-row { display: flex; gap: 10px; align-items: center; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); font-size: .86rem; }
+
+/* Visit (tablet) shell */
+.visit-top { display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.visit { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 760px; }
+.rooms { background: var(--surface); border-right: 1px solid var(--line); padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; }
+.room-btn { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: var(--r-m); border: 1px solid transparent; background: none; text-align: left; cursor: pointer; width: 100%; }
+.room-btn:hover { background: var(--sunk); }
+.room-btn[aria-current="true"] { background: var(--emerald-tint); border-color: transparent; }
+.room-btn b { font-weight: 600; font-size: .92rem; }
+.room-btn small { font-size: .74rem; color: var(--ink-3); }
+.visit-main { padding: 20px 22px 40px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+@container (max-width: 820px) {
+  .visit { grid-template-columns: minmax(0, 1fr); }
+  .rooms { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+  .room-btn { min-width: 150px; }
+  .rooms .rooms-actions { display: none; }
+  .visit-main { padding: 16px; }
+}
+.point-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.point { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); }
+.point .scope-code { font-size: .72rem; }
+.prompt { border-left: 3px solid var(--brass); background: var(--brass-tint); padding: 12px 14px; border-radius: 0 var(--r-m) var(--r-m) 0; display: flex; flex-direction: column; gap: 8px; }
+.prompt ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; font-size: .88rem; }
+.reading-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+.reading-val { font-family: var(--font-data); font-size: 1.3rem; font-weight: 500; }
+.reading-val small { font-size: .78rem; color: var(--ink-3); margin-left: 3px; }
+.ctx { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .78rem; color: var(--ink-3); grid-column: 1 / -1; }
+.ctx b { color: var(--ink-2); font-weight: 600; }
+.quick-note { display: flex; gap: 8px; align-items: flex-start; }
+.mic { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; cursor: pointer; flex: none; color: var(--emerald); }
+.mic[aria-pressed="true"] { background: var(--extreme-bg); color: var(--extreme); border-color: transparent; }
+.sample-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.sample-row:last-child { border-bottom: 0; }
+.sample-row > .chip { align-self: start; }
+
+/* Bedroom */
+.bed-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@container (max-width: 900px) { .bed-layout { grid-template-columns: minmax(0, 1fr); } }
+.mattress { position: relative; padding: 34px 10px 10px; border-radius: 18px; background: var(--sunk); }
+.mattress::before { content: "Headboard wall"; position: absolute; top: 8px; left: 0; right: 0; text-align: center; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+.pillows { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 18px 8px; }
+.pillows i { height: 12px; border-radius: 8px; background: var(--line); }
+.mgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.cell { min-height: 92px; border-radius: var(--r-m); border: 2px solid transparent; padding: 8px 9px; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; cursor: pointer; text-align: left; background: var(--surface); }
+.cell[aria-pressed="true"] { border-color: var(--ink); }
+.cell .pos { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.cell .v { font-family: var(--font-data); font-size: 1.05rem; font-weight: 500; }
+.cell .v small { font-size: .7rem; color: var(--ink-3); }
+.cell .lab { font-size: .7rem; font-weight: 600; }
+.cell.k-none { background: var(--ok-bg); } .cell.k-none .lab { color: var(--ok); }
+.cell.k-slight { background: var(--slight-bg); } .cell.k-slight .lab { color: var(--slight); }
+.cell.k-strong { background: var(--strong-bg); } .cell.k-strong .lab { color: var(--strong); }
+.cell.k-extreme { background: var(--extreme-bg); } .cell.k-extreme .lab { color: var(--extreme); }
+.cell.k-nc { background: var(--surface); } .cell.k-nc .lab { color: var(--ink-2); }
+.cell.k-nm { background: repeating-linear-gradient(135deg, var(--surface) 0 6px, var(--sunk) 6px 12px); } .cell.k-nm .lab { color: var(--ink-3); }
+.compare-v { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; font-family: var(--font-data); font-size: .86rem; }
+.compare-v .arrow { color: var(--ink-3); }
+.axes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.axis { background: var(--sunk); border-radius: var(--r-m); padding: 8px 10px; }
+.axis .k { font-size: .7rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+.axis .v { font-family: var(--font-data); font-size: 1.05rem; }
+.axis.res { background: var(--emerald-tint); }
+.coverage { position: relative; height: 54px; margin-top: 6px; }
+.coverage .track { position: absolute; left: 0; right: 0; top: 18px; height: 16px; border-radius: 4px; background: repeating-linear-gradient(135deg, var(--sunk) 0 5px, var(--line) 5px 10px); }
+.coverage .cov { position: absolute; top: 18px; height: 16px; background: var(--emerald-2); border-radius: 4px; opacity: .85; }
+.coverage .band { position: absolute; top: 0; font-size: .64rem; color: var(--ink-2); transform: translateX(-50%); white-space: nowrap; }
+.coverage .tick { position: absolute; top: 14px; width: 1px; height: 24px; background: var(--ink); }
+.coverage .axislab { position: absolute; top: 38px; font-size: .64rem; color: var(--ink-3); transform: translateX(-50%); white-space: nowrap; font-family: var(--font-data); }
+.plan > svg { width: 100%; height: auto; display: block; }
+.plan > svg text { font-family: var(--font-body); }
+.pin { cursor: pointer; }
+
+/* Finding editor */
+.editor { display: grid; grid-template-columns: 250px minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+@container (max-width: 1180px) { .editor { grid-template-columns: minmax(0, 1fr) 300px; } .editor .finding-list { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
+@container (max-width: 820px) { .editor { grid-template-columns: minmax(0, 1fr); } }
+.finding-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: var(--r-m); cursor: pointer; border: 1px solid transparent; background: none; text-align: left; width: 100%; }
+.finding-item:hover { background: var(--sunk); }
+.finding-item[aria-current="true"] { background: var(--surface); border-color: var(--line); box-shadow: var(--shadow); }
+.ref-card { border: 1px solid var(--line); border-radius: var(--r-m); padding: 12px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); }
+.ref-card.sbm { border-color: var(--brass); }
+.band-scale { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; font-size: .66rem; text-align: center; }
+.band-scale div { padding: 4px 2px; border-radius: 3px; }
+.band-scale .here { outline: 2px solid var(--ink); outline-offset: -2px; font-weight: 700; }
+.priority-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@container (max-width: 560px) { .priority-pick { grid-template-columns: minmax(0, 1fr); } }
+
+/* Report */
+.report-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr) 270px; gap: 18px; align-items: start; }
+@container (max-width: 1180px) { .report-layout { grid-template-columns: minmax(0, 1fr) 270px; } .report-layout .outline { display: none; } }
+@container (max-width: 860px) { .report-layout { grid-template-columns: minmax(0, 1fr); } }
+.paper { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; box-shadow: var(--shadow); padding: 44px 48px; display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+@container (max-width: 640px) { .paper { padding: 26px 20px; } }
+.paper .cover { border-bottom: 1px solid var(--line); padding-bottom: 22px; display: flex; flex-direction: column; gap: 10px; }
+.paper h1 { font-size: 2.3rem; }
+.paper p, .paper li { max-width: 68ch; line-height: 1.65; }
+.paper section { display: flex; flex-direction: column; gap: 10px; }
+.paper h2 { color: var(--emerald); }
+.draft-mark { align-self: flex-start; }
+.checklist { display: flex; flex-direction: column; gap: 8px; }
+.check { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .86rem; }
+.check .st { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: .7rem; font-weight: 700; }
+.st-ok { background: var(--ok-bg); color: var(--ok); }
+.st-wait { background: var(--slight-bg); color: var(--slight); }
+.action-item { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.action-item:last-child { border-bottom: 0; }
+.action-n { width: 28px; height: 28px; border-radius: 50%; background: var(--emerald); color: var(--on-emerald); display: grid; place-items: center; font-family: var(--font-display); font-size: .95rem; }
+.kv { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 4px 12px; font-size: .86rem; }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; }
+@container (max-width: 480px) { .kv { grid-template-columns: minmax(0, 1fr); } .kv dd { margin-bottom: 6px; } }
+
+/* Portal */
+.portal-hero { background: var(--emerald); color: var(--on-emerald); border-radius: var(--r-l); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.portal-hero h2 { color: var(--on-emerald); }
+.portal-hero p { opacity: .9; font-size: .92rem; }
+.ring { width: 64px; height: 64px; flex: none; }
+.act { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.act.done { opacity: .78; }
+.act.done h3 { text-decoration: line-through; text-decoration-color: var(--ink-3); }
+.tick { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink-3); background: var(--surface); cursor: pointer; display: grid; place-items: center; flex: none; }
+.tick[aria-checked="true"] { background: var(--emerald-2); border-color: var(--emerald-2); }
+.tick[aria-checked="true"]::after { content: ""; width: 10px; height: 6px; border-left: 2px solid var(--on-emerald); border-bottom: 2px solid var(--on-emerald); transform: rotate(-45deg) translate(1px, -1px); }
+.bubble { padding: 11px 13px; border-radius: 14px; font-size: .9rem; max-width: 88%; }
+.bubble.me { background: var(--emerald-tint); align-self: flex-end; border-bottom-right-radius: 4px; }
+.bubble.them { background: var(--surface); border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+</style>
+</head>
+<body>
+<header class="proto-bar">
+  <div class="proto-inner">
+    <a class="wordmark" href="#dashboard" data-action="go" data-screen="dashboard"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Assessment Studio</span></div></a>
+    <nav class="screen-nav" id="screen-nav" aria-label="Prototype screens"></nav>
+    <div class="device-toggle" id="device-toggle" role="group" aria-label="Preview device"></div>
+  </div>
+</header>
+<main class="stage">
+  <div class="stage-caption" id="caption"></div>
+  <div class="device" id="device" data-device="desktop"><div id="screen"></div></div>
+</main>
+<div id="overlay"></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   Emerald Grey Assessment Studio: connected screen prototype
+   All client data below is fictional sample content for design review.
+   ========================================================================= */
+
+const ICONS = {
+  home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 010 6.8M18 14.8c1.8.8 3 2.5 3.5 5.2"/>',
+  cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  flask: '<path d="M9 3h6M10 3v6l-5.5 9.5A1.6 1.6 0 005.9 21h12.2a1.6 1.6 0 001.4-2.5L14 9V3"/><path d="M7.5 15h9"/>',
+  doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  book: '<path d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2z"/><path d="M4 19V5M9 7h6"/>',
+  gauge: '<path d="M4 17a8 8 0 1116 0"/><path d="M12 17l4-5"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
+  upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v4h16v-4"/>',
+  download: '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 20h16"/>',
+  lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>',
+  list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  grid: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.3h16M4 14.6h16M9.3 4v16M14.6 4v16"/>',
+  wifi: '<path d="M2.5 9a14 14 0 0119 0M5.5 12.5a9.5 9.5 0 0113 0M8.7 15.8a4.7 4.7 0 016.6 0"/><path d="M12 19.5h.01"/>',
+  cloudoff: '<path d="M3 3l18 18"/><path d="M8 7.5A6 6 0 0118 10a4 4 0 01.9 7.7M15 19H7a4.5 4.5 0 01-1.6-8.7"/>',
+  file: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>',
+  shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
+  photo: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8"/>',
+  bed: '<path d="M3 18V7M3 13h18v5M21 18v-3a3 3 0 00-3-3h-7v1"/><circle cx="7" cy="10.5" r="1.8"/>'
+};
+const icon = (n, extra = "") => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" ${extra}>${ICONS[n] || ""}</svg>`;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = (n, d = 0) => Number(n).toLocaleString("en-GB", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+/* ---------- Standard of Building Biology Testing Methods, SBM-2024 ---------- */
+const SBM = [
+  { code: "A", title: "Fields, waves and radiation", points: [
+    ["A1", "AC electric fields and body voltage"], ["A2", "AC magnetic fields"], ["A3", "Radio-frequency radiation"],
+    ["A4", "Static electric fields"], ["A5", "Static magnetic fields"], ["A6", "Radioactivity and radon"],
+    ["A7", "Geological disturbances (measured)"], ["A8", "Sound and vibration"], ["A9", "Lighting"] ] },
+  { code: "B", title: "Indoor pollutants and climate", points: [
+    ["B1", "Formaldehyde and other gases"], ["B2", "Solvents and other VOCs"], ["B3", "Pesticides and other SVOCs"],
+    ["B4", "Metals and similar"], ["B5", "Particles and fibres"], ["B6", "Indoor climate"] ] },
+  { code: "C", title: "Fungi, bacteria and allergens", points: [
+    ["C1", "Mould, spores and metabolites"], ["C2", "Yeasts and metabolites"], ["C3", "Bacteria and metabolites"], ["C4", "Allergens"] ] },
+  { code: "S", title: "Supporting modules", points: [
+    ["S1", "Water quality"], ["S2", "Moisture investigation"], ["S3", "Building defects"], ["S4", "Materials"], ["S5", "Ventilation"] ] }
+];
+const POINT_NAME = Object.fromEntries(SBM.flatMap(g => g.points));
+
+const COVERAGE = {
+  measured:     { label: "Measured", glyph: "●", cls: "c-emerald" },
+  inspected:    { label: "Visually inspected", glyph: "◐", cls: "c-info" },
+  awaiting:     { label: "Awaiting laboratory results", glyph: "◔", cls: "c-slight" },
+  referred:     { label: "Referred to specialist", glyph: "↗", cls: "c-brass" },
+  excluded:     { label: "Not included", glyph: "–", cls: "c-muted" },
+  inaccessible: { label: "Not accessible", glyph: "×", cls: "c-outline" }
+};
+const covChip = s => { const c = COVERAGE[s]; return `<span class="chip ${c.cls}"><span class="glyph" aria-hidden="true">${c.glyph}</span>${c.label}</span>`; };
+
+const EVAL = {
+  none:    { label: "No anomaly", client: "Within guidance", cls: "c-ok" },
+  slight:  { label: "Slight anomaly", client: "Worth improving", cls: "c-slight" },
+  strong:  { label: "Strong anomaly", client: "A priority", cls: "c-strong" },
+  extreme: { label: "Extreme anomaly", client: "A high priority", cls: "c-extreme" },
+  nc:      { label: "Not classified", client: "Not classified", cls: "c-outline" },
+  pro:     { label: "Professional assessment", client: "Our assessment", cls: "c-info" },
+  nm:      { label: "Not measured", client: "Not measured", cls: "c-outline" }
+};
+const evalChip = (k, client = false) => `<span class="chip ${EVAL[k].cls}">${client ? EVAL[k].client : EVAL[k].label}</span>`;
+
+const KIND = { spot: "Spot reading", overnight: "Overnight monitoring", screening: "Screening result", lab: "Laboratory analysis" };
+const CERT = { observation: "Observation", confirmed: "Confirmed finding" };
+
+/* Reference library. Sample entries for interface design only: every value must be
+   confirmed against the licensed edition of each source before release. */
+const REF = {
+  "sbm-ef":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "AC electric field, potential-free", method: "potential-free", unit: "V/m", bands: [1, 5, 50], conditions: "Sleeping area. Potential-free three-axis probe, bed positions, circuits in their usual night-time state." },
+  "sbm-bv":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "Body voltage against earth", method: "body-voltage", unit: "mV", bands: [10, 100, 1000], conditions: "Sleeping area. Person lying in usual sleeping position, high-impedance voltmeter." },
+  "sbm-mf":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "AC magnetic field, resultant of three axes", method: "three-axis", unit: "nT", bands: [20, 100, 500], conditions: "Sleeping area. Resultant of X, Y and Z axes. Long-term monitoring preferred where loads vary." },
+  "sbm-rf":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "Radio-frequency power density, peak", method: "peak", unit: "µW/m²", bands: [0.1, 10, 1000], conditions: "Sleeping area. Peak values, sum of all sources. Applies only where the instrument covers the relevant frequencies." },
+  "sbm-co2":  { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "Carbon dioxide", method: "any", unit: "ppm", bands: [600, 1000, 1500], conditions: "Sleeping area. Overnight logging with usual occupancy and window position." },
+  "icnirp-ef":{ kind: "statutory", source: "ICNIRP Guidelines (2010), general public reference level at 50 Hz", edition: "2010", quantity: "AC electric field", method: "any", unit: "V/m", limit: 5000, conditions: "Short-term acute effects. Adopted in UK guidance. Not designed for long-term sleeping exposure." },
+  "icnirp-mf":{ kind: "statutory", source: "ICNIRP Guidelines (2010), general public reference level at 50 Hz", edition: "2010", quantity: "AC magnetic flux density", method: "any", unit: "nT", limit: 200000, conditions: "Short-term acute effects. 200 µT expressed in nT." },
+  "ukhsa-rn": { kind: "statutory", source: "UKHSA radon Action Level for homes", edition: "Current", quantity: "Radon, annual average", method: "long-term", unit: "Bq/m³", limit: 200, conditions: "Annual average from long-term passive detectors. Target level 100 Bq/m³." },
+  "bb-co2":   { kind: "other", source: "Professional comparison value for well-ventilated bedrooms", edition: "Internal 2026", quantity: "Carbon dioxide", method: "any", unit: "ppm", limit: 1000, conditions: "Internal comparison value used by Emerald Grey. Shown for context only." }
+};
+const REF_KIND = { sbm: { label: "SBM sleeping-area precautionary guidance", cls: "c-brass" }, statutory: { label: "Statutory or government reference", cls: "c-info" }, other: { label: "Other reference value", cls: "c-muted" } };
+function classify(value, refId, method) {
+  const r = REF[refId];
+  if (!r || !r.bands || value == null) return "nc";
+  if (r.method !== "any" && method && r.method !== method) return "nc";
+  const [a, b, c] = r.bands;
+  return value < a ? "none" : value < b ? "slight" : value < c ? "strong" : "extreme";
+}
+
+/* ---------- Instruments ---------- */
+const INSTRUMENTS = [
+  { id: "EG-LF-01", name: "Low-frequency field meter", serial: "LF-20931", range: "E-field 1 to 2,000 V/m; magnetic 1 nT to 20 µT, three-axis", cal: "14 Mar 2026", due: "Mar 2027" },
+  { id: "EG-BV-01", name: "Body voltage meter", serial: "BV-11804", range: "1 mV to 20 V AC, 10 MΩ input", cal: "14 Mar 2026", due: "Mar 2027" },
+  { id: "EG-RF-01", name: "RF analyser, broadband", serial: "HF-55210", range: "27 MHz to 6 GHz; peak and RMS detectors", cal: "2 Feb 2026", due: "Feb 2027", fmin: 27, fmax: 6000 },
+  { id: "EG-IAQ-02", name: "Indoor air logger", serial: "IAQ-70218", range: "CO₂ 0 to 5,000 ppm (NDIR); temperature; relative humidity", cal: "10 Jun 2026", due: "Jun 2027" },
+  { id: "EG-PM-01", name: "Optical particle counter", serial: "PC-33017", range: "0.3 to 10 µm, six channels", cal: "21 Jan 2026", due: "Jan 2027" },
+  { id: "EG-MM-01", name: "Moisture meter", serial: "MM-90122", range: "Pin and capacitive modes; wood moisture equivalent", cal: "5 May 2026", due: "May 2027" }
+];
+const inst = id => INSTRUMENTS.find(i => i.id === id);
+
+/* ---------- Sample client ---------- */
+const CLIENT = {
+  name: "Harriet and Tom Ashworth", ref: "EG-2610-ASH", email: "harriet.a@example.co.uk", phone: "07700 900418",
+  address: "14 Larkhill Road, Bristol BS6", package: "Healthy Home Comprehensive", lead: "Iza", support: "Alfie",
+  household: "Two adults, one child (6), one cat", consent: "Consent for optional wellbeing information recorded 2 Oct 2026"
+};
+const PROPERTY = [
+  ["Built", "c. 1934"], ["Type", "Semi-detached, two storeys plus loft"], ["Construction", "Solid brick, lime render to rear"],
+  ["Alterations", "Rear kitchen extension 2017; loft insulated 2019; new windows 2021"], ["Heating", "Gas combi boiler, radiators; electric underfloor in bathroom"],
+  ["Ventilation", "Trickle vents in new windows; bathroom extractor; cooker hood recirculating"], ["Leak history", "Roof valley leak above main bedroom, repaired 2023"],
+  ["Electrical", "Consumer unit replaced 2017; smart meter in hallway"], ["Water", "Mains, combi hot water; jug filter used for drinking"],
+  ["Routines", "Laundry dried indoors in winter; windows usually closed at night; Wi-Fi router in hallway, on all night"]
+];
+const SCOPE = {
+  A1: ["measured", true], A2: ["measured", true], A3: ["measured", true], A4: ["inspected", true], A5: ["excluded", false],
+  A6: ["awaiting", true], A7: ["excluded", false], A8: ["excluded", false], A9: ["measured", true],
+  B1: ["awaiting", true], B2: ["awaiting", true], B3: ["excluded", false], B4: ["excluded", false], B5: ["measured", true], B6: ["measured", true],
+  C1: ["awaiting", true], C2: ["excluded", false], C3: ["excluded", false], C4: ["inspected", true],
+  S1: ["awaiting", true], S2: ["measured", true], S3: ["referred", true], S4: ["inspected", true], S5: ["measured", true]
+};
+const PACKAGES = {
+  "Sleep Sanctuary": ["A1", "A2", "A3", "A9", "B6", "S5"],
+  "Healthy Home Essentials": ["A1", "A2", "A3", "B1", "B2", "B6", "C1", "S2", "S5"],
+  "Healthy Home Comprehensive": ["A1", "A2", "A3", "A4", "A6", "A9", "B1", "B2", "B5", "B6", "C1", "C4", "S1", "S2", "S3", "S4", "S5"]
+};
+
+const ROOMS = [
+  { id: "bed1", name: "Main bedroom", type: "bedroom", floor: "First floor", by: "Iza",
+    points: { A1: "measured", A2: "measured", A3: "measured", A6: "awaiting", A9: "measured", B6: "measured", C1: "inspected", S5: "measured" } },
+  { id: "bed2", name: "Children's bedroom", type: "bedroom", floor: "First floor", by: "Alfie",
+    points: { A1: "measured", A2: "measured", A3: "measured", A9: "measured", B6: "measured", S5: "measured" } },
+  { id: "bath", name: "Bathroom", type: "bathroom", floor: "First floor", by: "Alfie",
+    points: { B6: "measured", C1: "awaiting", S2: "measured", S3: "referred", S5: "measured", S4: "inspected" } },
+  { id: "kitchen", name: "Kitchen", type: "kitchen", floor: "Ground floor", by: "Iza",
+    points: { B5: "measured", B6: "measured", S1: "awaiting", S5: "measured", B1: "awaiting" } },
+  { id: "living", name: "Living room", type: "living", floor: "Ground floor", by: "Iza",
+    points: { B1: "awaiting", B2: "awaiting", B5: "measured", B6: "measured", A3: "measured", C4: "inspected" } },
+  { id: "loft", name: "Loft", type: "loft", floor: "Loft", by: "Alfie", inaccessible: "Hatch boarded over by stored items; client to clear before follow-up",
+    points: { C1: "inaccessible", S2: "inaccessible", S3: "inaccessible" } }
+];
+const PROMPTS = {
+  bedroom: { title: "Bedroom checks around the bed", items: ["Nine-point mattress grid for electric and magnetic fields", "Body voltage in usual sleeping position, before and after switching off bedside circuits", "RF peak and RMS at pillow height, note devices left on overnight", "Overnight CO₂, temperature and humidity logger beside the bed", "Light at night: street light, standby LEDs, blackout"], cta: "Open bedroom measurement grid" },
+  bathroom: { title: "Bathroom extraction and moisture", items: ["Extractor flow rate at the grille, with door closed", "Overrun timer after the light is switched off", "Surface moisture at window reveal, ceiling corners and behind the WC", "Sealant and grout condition; signs of past leaks", "Relative humidity 20 minutes after a shower, if possible"] },
+  kitchen: { title: "Kitchen water and cooking air", items: ["Water samples: cold mains tap, first draw and flushed", "Filtered water from the jug, if used for drinking", "Cooker hood: extracting or recirculating, filter condition", "Particle readings during and after cooking, if the household agrees", "Gas hob: CO and NO₂ screening"] },
+  living: { title: "Living room materials", items: ["Air sample for formaldehyde and VOCs, windows closed for 8 hours beforehand", "New furniture, flooring or treatments in the last 12 months", "Wireless devices and their usual positions"] },
+  loft: { title: "Loft and roof space", items: ["Roof underside: staining, daylight, damp timber", "Insulation coverage and ventilation at eaves", "Previous leak areas noted in client history"] }
+};
+
+const READINGS = [
+  { id: "R-031", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 38, unit: "V/m", ref: "sbm-ef", method: "potential-free", methodLabel: "Potential-free, three-axis probe", inst: "EG-LF-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 19:42", dur: "60 s", loc: "Grid H-L, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Bedside lamps plugged in, off" }, by: "Iza", phase: "before" },
+  { id: "R-032", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 2.1, unit: "V/m", ref: "sbm-ef", method: "potential-free", methodLabel: "Potential-free, three-axis probe", inst: "EG-LF-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 19:58", dur: "60 s", loc: "Grid H-L, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Circuit 7 (first floor sockets) switched off" }, by: "Iza", phase: "after" },
+  { id: "R-033", room: "bed1", point: "A1", label: "Body voltage, lying on left side of bed", value: 420, unit: "mV", ref: "sbm-bv", method: "body-voltage", methodLabel: "Body voltage against earth", inst: "EG-BV-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 19:50", dur: "2 min", loc: "Left side, usual sleeping position", cond: { occupancy: "Tom lying in bed", windows: "Closed", heating: "On", appliances: "Bedside lamps plugged in" }, by: "Iza", phase: "before" },
+  { id: "R-036", room: "bed1", point: "A3", label: "RF power density at pillow, peak", value: 840, unit: "µW/m²", ref: "sbm-rf", method: "peak", methodLabel: "Peak detector, max hold, 3 min", inst: "EG-RF-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 20:10", dur: "3 min", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Router on, DECT base on landing, phones in airplane mode" }, by: "Iza", phase: "before" },
+  { id: "R-040", room: "bed1", point: "B6", label: "CO₂ overnight maximum", value: 1450, unit: "ppm", ref: "sbm-co2", method: "any", methodLabel: "NDIR logger, 1 min interval", inst: "EG-IAQ-02", kind: "overnight", cert: "confirmed", when: "9 to 10 Oct 2026, 22:00 to 07:00", dur: "9 h", loc: "Bedside table, 1 m from pillows", cond: { occupancy: "Two adults", windows: "Closed, trickle vents closed", heating: "Timed off 23:00", appliances: "Normal" }, by: "Iza", phase: "before" },
+  { id: "R-041", room: "bed1", point: "C1", label: "Staining at ceiling corner above wardrobe", value: null, unit: "", ref: null, method: null, methodLabel: "Visual inspection with moisture meter", inst: "EG-MM-01", kind: "spot", cert: "observation", when: "9 Oct 2026, 19:30", dur: "", loc: "North-east ceiling corner", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Faint tide-mark consistent with 2023 roof valley leak. Surface reads dry. No visible growth." },
+  { id: "R-051", room: "bath", point: "S5", label: "Extractor flow at grille", value: 9, unit: "l/s", ref: null, method: "any", methodLabel: "Flow hood, door closed", inst: "EG-IAQ-02", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 17:20", dur: "60 s", loc: "Ceiling grille", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "Underfloor on", appliances: "Fan on boost" }, by: "Alfie", phase: "before", note: "Approved Document F expects 15 l/s intermittent for a bathroom." },
+  { id: "R-052", room: "bath", point: "S2", label: "Surface moisture, window reveal", value: 28, unit: "WME %", ref: null, method: "any", methodLabel: "Pin meter, wood moisture equivalent", inst: "EG-MM-01", kind: "screening", cert: "observation", when: "9 Oct 2026, 17:31", dur: "", loc: "Left reveal, 10 cm above sill", cond: { occupancy: "Shower used 07:30", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Alfie", phase: "before" },
+  { id: "R-061", room: "kitchen", point: "B5", label: "PM2.5 during cooking", value: 46, unit: "µg/m³", ref: null, method: "any", methodLabel: "Optical counter, 1 min average", inst: "EG-PM-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 18:15", dur: "15 min", loc: "Centre of room, 1.2 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Gas hob, hood on recirculation" }, by: "Iza", phase: "before" }
+];
+const SAMPLES = [
+  { ref: "EG-2610-ASH-W01", room: "kitchen", what: "Water, cold mains tap, unfiltered, first draw", method: "250 ml, metals panel; stood overnight", lab: "Severn Analytical Ltd", date: "10 Oct 2026, 07:05", status: "At laboratory", st: "awaiting" },
+  { ref: "EG-2610-ASH-W02", room: "kitchen", what: "Water, cold mains tap, unfiltered, flushed 2 min", method: "250 ml, metals panel", lab: "Severn Analytical Ltd", date: "10 Oct 2026, 07:09", status: "At laboratory", st: "awaiting" },
+  { ref: "EG-2610-ASH-W03", room: "kitchen", what: "Water, jug filter, filtered", method: "250 ml, metals panel", lab: "Severn Analytical Ltd", date: "10 Oct 2026, 07:12", status: "At laboratory", st: "awaiting" },
+  { ref: "EG-2610-ASH-A01", room: "living", what: "Air, formaldehyde and VOCs", method: "Active pump, DNPH and Tenax tubes, 2 h", lab: "Indoor Air Lab UK", date: "9 Oct 2026, 16:00", status: "Results received 21 Oct", st: "measured" },
+  { ref: "EG-2610-ASH-M01", room: "bath", what: "Air, mould spores, with outdoor reference", method: "Impaction cassette, 75 l", lab: "Mycology Services", date: "9 Oct 2026, 17:40", status: "Results received 19 Oct", st: "measured" },
+  { ref: "EG-2610-ASH-R01", room: "bed1", what: "Radon, three-month passive detector", method: "Alpha-track detector", lab: "Radon Measurement Service", date: "9 Oct 2026", status: "Deployed; return due 9 Jan 2027", st: "awaiting" }
+];
+
+/* Bedroom grid data: row-major, head row first, left to right */
+const GRID_POS = ["Head left", "Head centre", "Head right", "Middle left", "Middle centre", "Middle right", "Foot left", "Foot centre", "Foot right"];
+const GRID = {
+  ef:  { label: "Electric field, potential-free", unit: "V/m", ref: "sbm-ef", method: "potential-free", inst: "EG-LF-01",
+         before: [38, 22, 9, 14, 8, 4, 6, 3, 2], after: [2.1, 1.6, 0.9, 1.2, 0.8, 0.5, 0.7, 0.4, 0.3] },
+  efg: { label: "Electric field, earthed probe", unit: "V/m", ref: "sbm-ef", method: "earthed", inst: "EG-LF-01",
+         before: [64, 41, 18, 22, 12, 7, 9, 5, 4], after: [3.2, 2.4, 1.5, 1.9, 1.1, 0.8, 0.9, 0.6, 0.5] },
+  bv:  { label: "Body voltage", unit: "mV", ref: "sbm-bv", method: "body-voltage", inst: "EG-BV-01",
+         before: [420, null, null, 380, null, null, 260, null, null], after: [18, null, null, 14, null, null, 11, null, null] },
+  mf:  { label: "Magnetic field, three axes", unit: "nT", ref: "sbm-mf", method: "three-axis", inst: "EG-LF-01",
+         before: [[12, 8, 15], [10, 7, 12], [8, 6, 9], [9, 6, 10], [7, 5, 8], [6, 4, 7], [6, 4, 6], [5, 4, 5], [5, 3, 5]],
+         after:  [[11, 8, 14], [10, 6, 12], [8, 6, 9], [9, 6, 9], [7, 5, 8], [6, 4, 7], [6, 4, 6], [5, 4, 5], [5, 3, 5]] }
+};
+const resultant = a => Math.sqrt(a[0] ** 2 + a[1] ** 2 + a[2] ** 2);
+
+/* Findings and recommendations */
+const EXPLANATIONS = [
+  { id: "x-ef", title: "Electric fields from wiring near the bed", text: "Electric fields are present wherever wiring and plugged-in cables carry voltage, even when nothing is switched on. Around the bed they tend to come from cables behind the headboard, bedside lamps and extension leads. The body picks up a small voltage from these fields, which we measure as body voltage. Many people find that reducing these fields where they sleep is a simple, low-cost change." },
+  { id: "x-dect", title: "Cordless phone base stations", text: "Many cordless (DECT) phone bases transmit continuously, whether or not a call is being made. Because they sit in hallways and on landings, they are often one of the stronger radio-frequency sources in a home. Moving the base, or choosing a model with a low-emission mode, is usually a straightforward change." },
+  { id: "x-co2", title: "Fresh air overnight", text: "Carbon dioxide builds up overnight in a closed bedroom as we breathe. Higher levels are commonly associated with a heavier feeling on waking. Even a small, steady supply of fresh air, through trickle vents or a slightly open window, often makes a noticeable difference." },
+  { id: "x-ext", title: "Bathroom extraction", text: "A bathroom fan needs to move enough air, for long enough, to clear the moisture from a shower before it settles on cooler surfaces. When it falls short, damp tends to linger around windows and in corners, which can encourage mould over time." }
+];
+const FINDINGS = [
+  { id: "f1", room: "Main bedroom", title: "Electric fields and body voltage at the head of the bed", point: "A1", status: "draft", readings: ["R-031", "R-032", "R-033"], priority: "start",
+    found: "Electric fields at the head of the bed measured 38 V/m (potential-free) with body voltage of 420 mV in Tom's usual sleeping position. The main sources were an extension lead behind the headboard and two bedside lamps. With circuit 7 switched off, the field at the pillow fell to 2.1 V/m and body voltage to 18 mV.",
+    why: "", what: "Move the extension lead away from the headboard and unplug both bedside lamps at night. If you would like a longer-term solution, a qualified electrician can fit a demand switch to circuit 7, which switches the circuit off automatically when nothing is drawing power.",
+    cost: "Free to £350", specialist: "Optional: qualified electrician for a demand switch", by: "Iza", edited: "Today, 09:12" },
+  { id: "f2", room: "Main bedroom", title: "Radio-frequency levels at the pillow", point: "A3", status: "draft", readings: ["R-036"], priority: "start", found: "Peak RF at the pillow measured 840 µW/m², mainly from the cordless phone base on the landing and the Wi-Fi router in the hallway.", why: "", what: "", cost: "Free to £60", specialist: "No", by: "Iza", edited: "Yesterday" },
+  { id: "f3", room: "Main bedroom", title: "Carbon dioxide overnight", point: "B6", status: "approved", readings: ["R-040"], priority: "next", found: "CO₂ rose steadily overnight and reached 1,450 ppm by 05:10 with windows and trickle vents closed.", why: "", what: "", cost: "Free", specialist: "No", by: "Iza", edited: "21 Oct" },
+  { id: "f4", room: "Bathroom", title: "Extractor fan moving less air than needed", point: "S5", status: "approved", readings: ["R-051", "R-052"], priority: "start", found: "", why: "", what: "", cost: "£180 to £450", specialist: "Yes: electrician", by: "Alfie", edited: "21 Oct" },
+  { id: "f5", room: "Loft", title: "Roof valley above main bedroom", point: "S3", status: "draft", readings: [], priority: "later", found: "", why: "", what: "", cost: "£150 to £600", specialist: "Yes: roofer", by: "Alfie", edited: "20 Oct" }
+];
+
+const ACTIONS = [
+  { id: "a1", pr: "start", title: "Move the extension lead from behind your headboard", room: "Main bedroom", cost: "Free", who: "You", minutes: "10 minutes", why: "This was the largest source of electric fields around your pillows." },
+  { id: "a2", pr: "start", title: "Unplug the bedside lamps at night", room: "Main bedroom", cost: "Free", who: "You", minutes: "Every evening", why: "Plugged-in lamp cables carry voltage even when the lamp is off." },
+  { id: "a3", pr: "start", title: "Run the bathroom fan for 20 minutes after showers", room: "Bathroom", cost: "Free", who: "You", minutes: "Daily", why: "This helps clear moisture before it settles on the window reveal." },
+  { id: "a4", pr: "next", title: "Open the bedroom trickle vents at night", room: "Main bedroom", cost: "Free", who: "You", minutes: "Once", why: "CO₂ reached 1,450 ppm by early morning with the vents closed." },
+  { id: "a5", pr: "next", title: "Move the cordless phone base off the landing", room: "Landing", cost: "Free to £60", who: "You", minutes: "15 minutes", why: "It was the strongest radio-frequency source at your pillow." },
+  { id: "a6", pr: "next", title: "Replace the bathroom extractor fan", room: "Bathroom", cost: "£180 to £450", who: "Electrician", minutes: "Half a day", why: "The current fan moves about 9 l/s; a bathroom needs at least 15 l/s." },
+  { id: "a7", pr: "later", title: "Ask a roofer to check the valley above the main bedroom", room: "Roof", cost: "£150 to £600", who: "Roofer", minutes: "Visit", why: "Past staining is dry today, and a check gives peace of mind before winter." }
+];
+const PRIORITY = { start: { label: "Start here", sub: "Simple changes with the biggest benefit" }, next: { label: "Next steps", sub: "Worth arranging over the coming weeks" }, later: { label: "When convenient", sub: "Longer-term improvements" } };
+
+/* ---------- Prototype state ---------- */
+const SCREENS = [
+  { id: "dashboard", label: "Dashboard", who: "Assessor", device: "desktop", note: "Desktop. The working day at a glance: visits, assessments in progress, laboratory results, reports awaiting review and client follow-ups." },
+  { id: "profile", label: "Client and property", who: "Assessor", device: "desktop", note: "Desktop. One record per client and property, linking visits, questionnaire answers, documents, scope and reports. Optional wellbeing information is held separately and access-controlled." },
+  { id: "questionnaire", label: "Pre-visit questionnaire", who: "Client", device: "phone", note: "Phone. The client describes concerns, chooses rooms and shares documents before the visit. Answers flow straight into the property record." },
+  { id: "room", label: "Room assessment", who: "Assessor", device: "tablet", note: "Tablet, on site. Room by room, with observations, readings, photographs, samples and recommendations in one place. Works offline and saves automatically." },
+  { id: "bedroom", label: "Bedroom grid", who: "Assessor", device: "tablet", note: "Tablet, on site. Nine-point mattress grid, electric-field methods recorded separately, three-axis magnetic readings, body voltage, RF coverage and before-and-after comparison." },
+  { id: "finding", label: "Finding editor", who: "Assessor", device: "desktop", note: "Desktop. Turn readings into a reviewed finding and recommendation, evaluated against a reference library that keeps SBM guidance separate from statutory limits." },
+  { id: "report", label: "Report preview", who: "Assessor", device: "desktop", note: "Desktop. Review the branded report before publication. Outstanding results and unapproved findings are surfaced before anything is issued." },
+  { id: "portal", label: "Client portal", who: "Client", device: "phone", note: "Phone. The client sees where to begin, works through a manageable action plan, downloads the report and asks questions. Internal notes never appear here." }
+];
+const S = {
+  screen: "dashboard", device: null, online: true, pending: 0, savedAt: "10:42", saving: false,
+  room: "bed1", gridQty: "ef", phase: "compare", cell: 0, mic: false, planPin: null,
+  qStep: 0, qRooms: { "Main bedroom": true, "Children's bedroom": true, "Bathroom": true }, qConcerns: { "Sleep": true, "Damp or mould": true },
+  qConsent: true, qFiles: ["Damp survey 2023.pdf", "Electrical installation certificate.pdf"], qSent: false,
+  scope: Object.fromEntries(Object.entries(SCOPE).map(([k, v]) => [k, v[1]])), pkg: "Healthy Home Comprehensive",
+  findingId: "f1", conflict: true, explanationOpen: false, priority: "start",
+  checks: { scope: false, refs: true }, versions: [
+    { v: "v1.0", label: "Interim report", date: "20 Oct 2026", by: "Iza", note: "Issued with laboratory results pending. Reference set SBM-2024 / UK 2026.1." }
+  ],
+  portalTab: "home", done: { a1: true }, photos: {}, messages: [
+    { me: true, text: "We moved the extension lead last night. Is it fine to keep the lamp on a timer instead of unplugging it?", when: "Yesterday, 21:04" },
+    { me: false, text: "Thank you for letting us know, that is a lovely first step. A plug-in timer still leaves the cable live up to the timer, so unplugging at the wall, or a switched socket, is the better option. We can measure the difference at your follow-up visit.", when: "Today, 08:40 · Iza" }
+  ],
+  toast: null
+};
+const findingById = id => FINDINGS.find(f => f.id === id);
+
+/* =========================================================================
+   Screens
+   ========================================================================= */
+function syncBadge() {
+  const st = S.saving ? "saving" : S.online ? "online" : "offline";
+  const text = S.saving ? "Saving…" : S.online ? `All changes synced · ${S.savedAt}` : `Offline · saved on this device · ${S.pending} change${S.pending === 1 ? "" : "s"} waiting to sync`;
+  return `<span class="sync" id="sync" data-state="${st}" role="status"><span class="sync-dot" aria-hidden="true"></span><span>${text}</span></span>`;
+}
+
+function assessorShell(active, body) {
+  const links = [["dashboard", "home", "Dashboard"], ["profile", "users", "Clients", "24"], ["visits", "cal", "Visits", "6"], ["lab", "flask", "Laboratory", "9"], ["finding", "doc", "Findings"], ["report", "book", "Reports", "3"], ["instruments", "gauge", "Instruments", "6"]];
+  return `<div class="shell">
+    <aside class="side" aria-label="Workspace">
+      <div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Assessors</span></div></div>
+      ${links.map(([id, ic, label, n]) => `<button class="side-link" data-action="side" data-target="${id}" ${active === id ? 'aria-current="page"' : ""}>${icon(ic)}<span>${label}</span>${n ? `<span class="count">${n}</span>` : ""}</button>`).join("")}
+      <div class="side-foot">
+        ${syncBadge()}
+        <div class="row"><span class="avatar av-iza">IZ</span><div class="small"><b>Iza</b><div class="muted xsmall">Lead assessor · MFA on</div></div></div>
+      </div>
+    </aside>
+    <div class="main">${body}</div>
+  </div>`;
+}
+
+/* ---------- 1. Dashboard ---------- */
+function screenDashboard() {
+  const visits = [
+    { d: "24", m: "Oct", t: "09:30", who: "Priya Raman", where: "Hove BN3", pkg: "Sleep Sanctuary", a: "iza", q: "Questionnaire complete" },
+    { d: "27", m: "Oct", t: "13:00", who: "The Okafor family", where: "Lewes BN7", pkg: "Healthy Home Comprehensive", a: "alfie", q: "Questionnaire 3 of 8 sections" },
+    { d: "30", m: "Oct", t: "10:00", who: "Margaret Ellis", where: "Brighton BN1", pkg: "Healthy Home Essentials", a: "iza", q: "Questionnaire not started" }
+  ];
+  const progress = [
+    { who: "Harriet and Tom Ashworth", stage: 4, note: "Report v1.1 in review · 2 findings in draft", target: "report" },
+    { who: "Daniel Whitcombe", stage: 3, note: "Visit complete · 6 of 9 rooms written up", target: "room" },
+    { who: "Sophie and Mae Lindqvist", stage: 2, note: "Visit 1 Nov · property research in progress", target: "profile" }
+  ];
+  const lab = [
+    ["EG-2610-ASH-W01", "Ashworth", "Water, first draw", "At laboratory", "12 days"],
+    ["EG-2610-ASH-R01", "Ashworth", "Radon, 3 months", "Deployed", "Due 9 Jan"],
+    ["EG-2609-WHI-A02", "Whitcombe", "Formaldehyde and VOCs", "At laboratory", "8 days"],
+    ["EG-2609-WHI-M01", "Whitcombe", "Mould, tape lift", "Result received", "Ready to review"]
+  ];
+  const follow = [
+    ["Harriet Ashworth", "Asked about lamp timers", "Answered today", "c-ok"],
+    ["Daniel Whitcombe", "Uploaded 3 progress photographs", "New", "c-info"],
+    ["James Patel", "Repeat visit due in November", "Book visit", "c-slight"]
+  ];
+  return assessorShell("dashboard", `
+    <div class="topline">
+      <div class="stack" style="gap:4px"><span class="eyebrow">Friday 23 October 2026</span><h1>Good morning, Iza</h1><p class="muted">Alfie is working on the Whitcombe write-up. Two reports need your review.</p></div>
+      <div class="row"><button class="btn" data-action="go" data-screen="profile">${icon("users")}Clients</button><button class="btn btn-primary" data-action="toast" data-msg="New assessment started for a new client record">${icon("plus")}New assessment</button></div>
+    </div>
+    <div class="kpis">
+      ${[["3", "Upcoming visits", "Next: tomorrow 09:30", "profile"], ["5", "Assessments in progress", "2 with Alfie", "room"], ["9", "Outstanding laboratory results", "1 ready to review", "room"], ["2", "Reports awaiting review", "Ashworth v1.1, Whitcombe", "report"], ["4", "Client follow-ups", "1 question, 3 photo uploads", "portal"]]
+        .map(([n, l, s, t]) => `<button class="kpi" data-action="go" data-screen="${t}"><b class="num">${n}</b><span>${l}</span><small>${s}</small></button>`).join("")}
+    </div>
+    <div class="dash-grid">
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-visits">
+          <div class="spread"><h3 id="h-visits">Upcoming visits</h3><button class="btn btn-quiet btn-s" data-action="toast" data-msg="Calendar opens in the live app">View calendar</button></div>
+          <div class="list">${visits.map(v => `
+            <div class="list-item">
+              <div class="date-block"><b>${v.d}</b><small>${v.m}</small></div>
+              <div class="grow"><div><b>${v.who}</b> <span class="muted small">· ${v.where} · ${v.t}</span></div><div class="small muted">${v.pkg} · ${v.q}</div></div>
+              <span class="avatar av-${v.a}" title="${v.a === "iza" ? "Iza" : "Alfie"}">${v.a === "iza" ? "IZ" : "AL"}</span>
+            </div>`).join("")}</div>
+        </section>
+        <section class="card stack" aria-labelledby="h-prog">
+          <h3 id="h-prog">Assessments in progress</h3>
+          <div class="list">${progress.map(p => `
+            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto">
+              <div class="stack" style="gap:6px">
+                <div class="spread"><b>${p.who}</b><span class="small muted">${["Questionnaire", "Research", "Visit", "Write-up", "Review", "Issued"][p.stage]}</span></div>
+                <div class="stage-steps" aria-label="Stage ${p.stage + 1} of 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i <= p.stage ? "on" : ""}"></i>`).join("")}</div>
+                <span class="small muted">${p.note}</span>
+              </div>
+              <button class="btn btn-s" data-action="go" data-screen="${p.target}">Open</button>
+            </div>`).join("")}</div>
+        </section>
+      </div>
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-lab">
+          <div class="spread"><h3 id="h-lab">Outstanding laboratory results</h3><span class="chip c-slight">9 open</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Sample</th><th>Status</th></tr></thead><tbody>
+            ${lab.map(r => `<tr><td><div class="mono xsmall">${r[0]}</div><div class="small">${r[1]} · ${r[2]}</div></td><td><div class="small">${r[3]}</div><div class="xsmall muted">${r[4]}</div></td></tr>`).join("")}
+          </tbody></table></div>
+        </section>
+        <section class="card stack" aria-labelledby="h-rev">
+          <h3 id="h-rev">Reports awaiting review</h3>
+          <div class="list">
+            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b>Ashworth</b> <span class="tag">v1.1</span><div class="small muted">Prepared by Iza · 2 findings in draft · 3 results outstanding</div></div><button class="btn btn-s btn-primary" data-action="go" data-screen="report">Review</button></div>
+            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b>Whitcombe</b> <span class="tag">v1.0</span><div class="small muted">Prepared by Alfie · ready for second read</div></div><button class="btn btn-s" data-action="go" data-screen="report">Review</button></div>
+          </div>
+        </section>
+        <section class="card stack" aria-labelledby="h-fu">
+          <h3 id="h-fu">Client follow-ups</h3>
+          <div class="list">${follow.map(f => `<div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b class="small">${f[0]}</b><div class="small muted">${f[1]}</div></div><span class="chip ${f[3]}">${f[2]}</span></div>`).join("")}</div>
+        </section>
+      </div>
+    </div>`);
+}
+
+/* ---------- 2. Client and property profile ---------- */
+function screenProfile() {
+  const pkgOptions = Object.keys(PACKAGES).map(p => `<option ${p === S.pkg ? "selected" : ""}>${p}</option>`).join("");
+  const scopeRows = g => g.points.map(([code, name]) => {
+    const on = S.scope[code]; const st = on ? (SCOPE[code][0] === "excluded" ? "inspected" : SCOPE[code][0]) : "excluded";
+    return `<div class="scope-row"><span class="scope-code">${code}</span><span>${name}</span>${covChip(st)}<button class="switch" role="switch" aria-checked="${on}" aria-label="Include ${esc(name)}" data-action="scope" data-code="${code}"></button></div>`;
+  }).join("");
+  return assessorShell("profile", `
+    <div class="profile-head">
+      <div class="stack" style="gap:6px">
+        <span class="eyebrow">Client · ${CLIENT.ref}</span>
+        <h1>${CLIENT.name}</h1>
+        <p class="muted">${CLIENT.address} · ${CLIENT.household}</p>
+        <div class="row" style="margin-top:6px"><span class="chip c-emerald">${CLIENT.package}</span><span class="chip c-muted">Lead: Iza · Support: Alfie</span><span class="chip c-info">Portal active</span></div>
+      </div>
+      <div class="row"><button class="btn" data-action="go" data-screen="questionnaire">${icon("doc")}Questionnaire answers</button><button class="btn btn-primary" data-action="go" data-screen="room">${icon("arrow")}Open visit record</button></div>
+    </div>
+    <div class="profile-grid">
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-prop">
+          <div class="spread"><h3 id="h-prop">Property</h3><span class="xsmall muted">Last edited by Alfie, 18 Oct · from questionnaire and Land Registry title</span></div>
+          <div class="facts">${PROPERTY.map(([k, v]) => `<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div>
+        </section>
+        <section class="card stack" aria-labelledby="h-scope">
+          <div class="spread">
+            <div><h3 id="h-scope">Assessment scope · SBM-2024</h3><p class="small muted">Choose a package, then adjust each point for this visit. Points not included are listed as such in the report and never shown as satisfactory.</p></div>
+            <div class="field" style="min-width:220px"><label for="pkg">Service package</label><select id="pkg" class="input" data-change="pkg">${pkgOptions}</select></div>
+          </div>
+          ${SBM.map(g => `<div class="stack" style="gap:2px"><h4>${g.code === "S" ? g.title : `${g.code} · ${g.title}`}</h4><div class="scope-group">${scopeRows(g)}</div></div>`).join("")}
+        </section>
+      </div>
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-tl">
+          <h3 id="h-tl">Visits and milestones</h3>
+          <div class="timeline">
+            ${[["done", "Questionnaire received", "2 Oct 2026 · 6 rooms, 2 documents"], ["done", "Property research", "6 Oct · Alfie · flood map, radon map, planning history"], ["done", "Visit 1", "9 Oct · Iza and Alfie · 6 rooms, 34 readings, 6 samples"], ["done", "Interim report v1.0 issued", "20 Oct · 3 laboratory results pending"], ["", "Report v1.1 in review", "Adds air and mould results"], ["later", "Radon detectors returned", "Due 9 Jan 2027"], ["later", "Repeat visit", "Planned April 2027 · compare bedroom readings"]]
+              .map(([c, t, s]) => `<div class="tl"><span class="tl-dot ${c}"></span><div><b class="small">${t}</b><div class="xsmall muted">${s}</div></div></div>`).join("")}
+          </div>
+        </section>
+        <section class="card stack" aria-labelledby="h-house">
+          <h3 id="h-house">Household and priorities</h3>
+          <p class="small">"We both wake around 3am and feel heavy in the mornings. There's a musty smell in the bathroom in winter. We'd like our son's room checked too."</p>
+          <div class="row"><span class="chip c-muted">Sleep</span><span class="chip c-muted">Damp or mould</span><span class="chip c-muted">Children's bedroom</span></div>
+        </section>
+        <section class="card stack locked" aria-labelledby="h-well">
+          <div class="spread"><h3 id="h-well">Optional wellbeing information</h3>${icon("lock")}</div>
+          <p class="small">Visible to assigned assessors only. Used to understand priorities. Emerald Grey assessments do not diagnose or treat medical conditions.</p>
+          <dl class="kv"><dt>Sleep</dt><dd>Both wake 3 to 4am most nights</dd><dt>Allergies</dt><dd>Harriet: hay fever, house dust</dd><dt>Sensitivities</dt><dd>None noted</dd></dl>
+          <p class="xsmall muted">${CLIENT.consent} · Access logged</p>
+        </section>
+        <section class="card stack" aria-labelledby="h-docs">
+          <h3 id="h-docs">Documents</h3>
+          ${["Damp survey 2023.pdf · from client", "Electrical installation certificate.pdf · from client", "Radon map extract.pdf · Alfie", "Floor plan sketch.png · Iza"].map(d => `<div class="file-row">${icon("file")}<span class="grow">${d}</span></div>`).join("")}
+        </section>
+        <section class="card stack" aria-labelledby="h-int" style="border-style:dashed">
+          <div class="spread"><h3 id="h-int">Internal notes</h3><span class="tag">Never shared with client</span></div>
+          <p class="small">Tom keen on technical detail; Harriet prefers the short version. Offer a call when v1.1 is issued. <span class="muted">Alfie, 18 Oct</span></p>
+        </section>
+      </div>
+    </div>`);
+}
+
+/* ---------- 3. Pre-visit questionnaire (client, phone) ---------- */
+function screenQuestionnaire() {
+  const steps = ["Welcome", "Your concerns", "Rooms", "Your home", "Routines", "Wellbeing (optional)", "Documents", "Review"];
+  const st = S.qStep;
+  const roomsAll = ["Main bedroom", "Children's bedroom", "Guest bedroom", "Bathroom", "Kitchen", "Living room", "Home office", "Loft", "Cellar"];
+  const concerns = ["Sleep", "Damp or mould", "Air quality", "Electromagnetic fields", "Lighting", "Noise", "Water", "Renovation planning"];
+  let body = "";
+  if (S.qSent) {
+    body = `<div class="stack-l" style="padding-top:20px">
+      <span class="chip c-emerald" style="align-self:flex-start">${icon("check")}Sent to Emerald Grey</span>
+      <h2>Thank you, Harriet</h2>
+      <p>Your answers are now with Iza and Alfie. We will read them carefully before your visit on Thursday 9 October, and we may send one or two questions beforehand.</p>
+      <div class="notice notice-calm">${icon("info")}<span>You can return and update anything until the day of your visit.</span></div>
+      <button class="btn" data-action="qreset">Look over my answers</button></div>`;
+    return phoneShell(body, `<button class="btn btn-primary grow" data-action="go" data-screen="portal">Go to my home portal</button>`);
+  }
+  if (st === 0) body = `
+    <h2>Before we visit</h2>
+    <p>This takes around fifteen minutes. Your answers help us understand your home and what matters most to you, so the visit can focus on the right places.</p>
+    <div class="notice notice-muted">${icon("shield")}<span class="small">Only Iza and Alfie can see your answers. You can save and return at any time, and nothing is shared outside Emerald Grey.</span></div>
+    <div class="stack" style="gap:8px"><h4>What we will ask</h4>${steps.slice(1).map((s, i) => `<div class="row small"><span class="num muted">${i + 1}</span>${s}</div>`).join("")}</div>`;
+  if (st === 1) body = `
+    <h2>What would you like us to look at?</h2>
+    <p class="muted small">Choose any that apply. There are no wrong answers.</p>
+    <div class="row">${concerns.map(c => `<button class="pill-check" aria-pressed="${!!S.qConcerns[c]}" data-action="qconcern" data-v="${esc(c)}">${c}</button>`).join("")}</div>
+    <div class="field"><label for="q-desc">In your own words</label><textarea id="q-desc" class="input" rows="5">We both wake around 3am and feel heavy in the mornings. There's a musty smell in the bathroom in winter. We'd like our son's room checked too.</textarea><span class="hint">Mention anything you have noticed, when it happens and anything you have already tried.</span></div>`;
+  if (st === 2) body = `
+    <h2>Which rooms should we investigate?</h2>
+    <p class="muted small">We usually begin with bedrooms, as that is where you spend the longest unbroken time.</p>
+    <div class="choice-list">${roomsAll.map(r => `<button class="choice" aria-pressed="${!!S.qRooms[r]}" data-action="qroom" data-v="${esc(r)}"><span class="box"></span><span class="grow">${r}</span></button>`).join("")}</div>
+    <button class="btn btn-quiet" data-action="toast" data-msg="Add a room: name and floor">${icon("plus")}Add another room</button>`;
+  if (st === 3) body = `
+    <h2>About your home</h2>
+    <p class="muted small">Approximate answers are perfectly fine. We will check the details during research.</p>
+    <div class="field"><label for="q-age">When was it built?</label><select id="q-age" class="input"><option>Before 1919</option><option selected>1919 to 1944</option><option>1945 to 1979</option><option>1980 to 1999</option><option>2000 or later</option><option>Not sure</option></select></div>
+    <div class="field"><label for="q-cons">Construction, if known</label><input id="q-cons" class="input" value="Brick, rendered at the back"></div>
+    <div class="field"><label for="q-alt">Building work or changes</label><textarea id="q-alt" class="input" rows="3">Kitchen extension 2017, loft insulation 2019, new windows 2021.</textarea></div>
+    <div class="field"><label for="q-heat">Heating</label><input id="q-heat" class="input" value="Gas boiler and radiators, underfloor heating in bathroom"></div>
+    <div class="field"><label for="q-vent">Ventilation</label><input id="q-vent" class="input" value="Bathroom fan, cooker hood, trickle vents"></div>
+    <div class="field"><label for="q-leak">Any leaks, floods or damp, past or present?</label><textarea id="q-leak" class="input" rows="3">Roof leak above our bedroom in 2023, repaired.</textarea></div>`;
+  if (st === 4) body = `
+    <h2>Everyday routines</h2>
+    <p class="muted small">Small habits often shape how a home feels. This helps us interpret what we measure.</p>
+    <div class="grid-2"><div class="field"><label for="q-bed">Usual bedtime</label><input id="q-bed" class="input" value="22:45"></div><div class="field"><label for="q-wake">Usual waking time</label><input id="q-wake" class="input" value="06:45"></div></div>
+    <div class="field"><span class="label">Bedroom windows at night</span><div class="seg" role="group"><button aria-pressed="true" data-action="noop">Closed</button><button aria-pressed="false" data-action="noop">Slightly open</button><button aria-pressed="false" data-action="noop">It varies</button></div></div>
+    <div class="field"><span class="label">Laundry in winter</span><div class="seg" role="group"><button aria-pressed="true" data-action="noop">Dried indoors</button><button aria-pressed="false" data-action="noop">Tumble dryer</button><button aria-pressed="false" data-action="noop">Outside</button></div></div>
+    <div class="field"><label for="q-dev">Devices left on overnight</label><input id="q-dev" class="input" value="Wi-Fi router, phones charging by the bed, baby monitor"></div>`;
+  if (st === 5) body = `
+    <h2>Sleep, allergies and sensitivities</h2>
+    <div class="notice notice-info">${icon("info")}<span class="small">This section is entirely optional. It helps us understand your priorities. Our assessment looks at your home environment and does not diagnose or treat any medical condition.</span></div>
+    <button class="choice" aria-pressed="${S.qConsent}" data-action="qconsent"><span class="box"></span><span class="grow small">I am happy for Emerald Grey to hold this information to tailor my assessment. I can withdraw this at any time.</span></button>
+    <fieldset ${S.qConsent ? "" : "disabled"} style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;${S.qConsent ? "" : "opacity:.5"}">
+      <div class="field"><label for="q-sleep">How do you usually sleep?</label><textarea id="q-sleep" class="input" rows="3">We both wake between 3 and 4am most nights.</textarea></div>
+      <div class="field"><label for="q-all">Allergies</label><input id="q-all" class="input" value="Hay fever, house dust (Harriet)"></div>
+      <div class="field"><label for="q-sens">Sensitivities you have noticed</label><input id="q-sens" class="input" placeholder="For example, to scents, cleaning products or particular rooms"></div>
+    </fieldset>`;
+  if (st === 6) body = `
+    <h2>Helpful documents</h2>
+    <p class="muted small">Surveys, electrical certificates, floor plans or photographs of anything that concerns you.</p>
+    <label class="upload" for="q-file">${icon("upload")}<b>Add files</b><span class="small muted">PDF, photos or documents up to 25 MB each</span></label>
+    <input id="q-file" type="file" multiple hidden data-change="qfile">
+    <div class="stack" style="gap:8px">${S.qFiles.map(f => `<div class="file-row">${icon("file")}<span class="grow">${esc(f)}</span><span class="chip c-ok">Uploaded</span></div>`).join("")}</div>`;
+  if (st === 7) body = `
+    <h2>Ready to send</h2>
+    <p class="muted small">Please look over your answers. You can still edit them after sending.</p>
+    ${[["Concerns", Object.keys(S.qConcerns).filter(k => S.qConcerns[k]).join(", ") || "None selected", 1], ["Rooms", Object.keys(S.qRooms).filter(k => S.qRooms[k]).join(", ") || "None selected", 2], ["Your home", "Built 1919 to 1944, brick, extension 2017", 3], ["Routines", "Bed 22:45, windows closed, laundry indoors", 4], ["Wellbeing", S.qConsent ? "Shared with consent" : "Not shared", 5], ["Documents", `${S.qFiles.length} files`, 6]]
+      .map(([k, v, i]) => `<div class="card card-tight spread"><div class="grow"><div class="xsmall muted">${k}</div><div class="small">${esc(v)}</div></div><button class="btn btn-quiet btn-s" data-action="qgo" data-step="${i}">Edit</button></div>`).join("")}`;
+  const foot = `${st > 0 ? `<button class="btn" data-action="qprev">Back</button>` : ""}<button class="btn btn-primary grow" data-action="${st === 7 ? "qsend" : "qnext"}">${st === 0 ? "Begin" : st === 7 ? "Send to Emerald Grey" : "Continue"}</button>`;
+  return phoneShell(`
+    <div class="stack" style="gap:8px"><div class="spread xsmall muted"><span>Step ${st + 1} of ${steps.length} · ${steps[st]}</span><span>Saved</span></div><div class="steps-bar">${steps.map((_, i) => `<i class="${i <= st ? "on" : ""}"></i>`).join("")}</div></div>
+    ${body}`, foot);
+}
+function phoneShell(body, foot) {
+  return `<div class="phone"><div class="phone-top"><div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Your home</span></div></div><span class="avatar av-client">HA</span></div><div class="phone-body">${body}</div>${foot ? `<div class="phone-foot">${foot}</div>` : ""}</div>`;
+}
+
+/* ---------- 4. Room assessment (tablet) ---------- */
+function visitTop(title, sub) {
+  return `<div class="visit-top">
+    <div class="row"><button class="btn btn-s" data-action="go" data-screen="profile">${icon("back")}Ashworth</button><div><b>${title}</b><div class="xsmall muted">${sub}</div></div></div>
+    <div class="row">
+      <span class="row small muted" title="Alfie is working in the Bathroom"><span class="avatar av-alfie" style="width:24px;height:24px;font-size:.62rem">AL</span>Alfie · Bathroom</span>
+      ${syncBadge()}
+      <button class="btn btn-s" data-action="online" aria-pressed="${!S.online}">${S.online ? icon("cloudoff") + "Simulate offline" : icon("wifi") + "Reconnect"}</button>
+    </div></div>`;
+}
+function roomRail() {
+  return `<nav class="rooms" aria-label="Rooms">
+    ${ROOMS.map(r => {
+      const sts = Object.values(r.points);
+      const done = sts.filter(s => s !== "awaiting" && s !== "inaccessible").length;
+      return `<button class="room-btn" data-action="room" data-room="${r.id}" aria-current="${S.room === r.id}"><b>${r.name}</b><small>${r.inaccessible ? "Not accessible" : `${done} of ${sts.length} points recorded`} · ${r.by}</small></button>`;
+    }).join("")}
+    <div class="rooms-actions stack" style="margin-top:10px;gap:6px">
+      <button class="btn btn-s" data-action="toast" data-msg="New room added from template">${icon("plus")}Add room</button>
+      <button class="btn btn-s" data-action="duplicate">${icon("copy")}Duplicate structure</button>
+    </div></nav>`;
+}
+function readingCard(r) {
+  const k = r.value == null ? (r.cert === "observation" ? "pro" : "nm") : classify(r.value, r.ref, r.method);
+  const i = inst(r.inst);
+  return `<div class="reading-card">
+    <div class="stack" style="gap:4px">
+      <div class="row"><span class="scope-code">${r.point}</span><b class="small">${r.label}</b></div>
+      <div class="row"><span class="tag">${KIND[r.kind]}</span><span class="tag">${CERT[r.cert]}</span>${r.phase === "after" ? `<span class="tag">After change</span>` : ""}</div>
+    </div>
+    <div class="stack" style="gap:4px;align-items:flex-end">
+      ${r.value != null ? `<span class="reading-val">${fmt(r.value, r.value < 10 && r.value % 1 ? 1 : 0)}<small>${r.unit}</small></span>` : ""}
+      ${r.ref ? evalChip(k) : r.value != null ? `<span class="chip c-outline">No numerical guideline · write assessment</span>` : evalChip("pro")}
+    </div>
+    ${r.note ? `<p class="small" style="grid-column:1/-1">${esc(r.note)}</p>` : ""}
+    <div class="ctx"><span><b>Where</b> ${r.loc}</span><span><b>When</b> ${r.when}</span>${r.dur ? `<span><b>Duration</b> ${r.dur}</span>` : ""}<span><b>Method</b> ${r.methodLabel}</span><span><b>Instrument</b> ${i.name} · ${i.serial}</span><span><b>Occupancy</b> ${r.cond.occupancy}</span><span><b>Windows</b> ${r.cond.windows}</span><span><b>Heating</b> ${r.cond.heating}</span><span><b>Appliances</b> ${r.cond.appliances}</span><span><b>By</b> ${r.by}</span></div>
+  </div>`;
+}
+function screenRoom() {
+  const room = ROOMS.find(r => r.id === S.room);
+  const prompt = PROMPTS[room.type];
+  const readings = READINGS.filter(r => r.room === room.id);
+  const samples = SAMPLES.filter(s => s.room === room.id);
+  const recs = FINDINGS.filter(f => f.room === room.name);
+  const photos = { bed1: [["", "Headboard wall, extension lead"], ["thermal", "Thermal: NE ceiling corner"], ["wall", "Staining above wardrobe"]], bath: [["wall", "Window reveal"], ["thermal", "Thermal: cold bridge at reveal"], ["", "Extractor grille"]], kitchen: [["", "Cold tap, sample point"], ["", "Cooker hood filter"]], living: [["", "Air sample set-up"]], bed2: [["", "Bed position"]], loft: [] }[room.id] || [];
+  return `${visitTop("Visit 1 · 9 October 2026", "Iza and Alfie · Healthy Home Comprehensive")}
+  <div class="visit">${roomRail()}
+    <div class="visit-main">
+      <div class="spread">
+        <div><span class="eyebrow">${room.floor} · recorded by ${room.by}</span><h2>${room.name}</h2></div>
+        <div class="row">
+          ${room.type === "bedroom" ? `<button class="btn btn-primary" data-action="go" data-screen="bedroom">${icon("bed")}Bedroom grid</button>` : ""}
+          <button class="btn" data-action="modal" data-modal="reading">${icon("plus")}Add reading</button>
+          <button class="btn" data-action="modal" data-modal="csv">${icon("upload")}Import CSV</button>
+        </div>
+      </div>
+      ${room.inaccessible ? `<div class="notice notice-warn">${icon("info")}<span><b>Not accessible.</b> ${room.inaccessible}. The points below will be reported as not accessible, never as satisfactory.</span></div>` : ""}
+      <section class="stack" aria-labelledby="h-pts"><h4 id="h-pts">Assessment points in this room</h4>
+        <div class="point-strip">${Object.entries(room.points).map(([c, s]) => `<div class="point"><span class="scope-code">${c}</span><span class="small"><b>${POINT_NAME[c]}</b></span>${covChip(s)}</div>`).join("")}</div>
+      </section>
+      ${prompt ? `<div class="prompt"><b class="small">${prompt.title}</b><ul>${prompt.items.map(i => `<li>${i}</li>`).join("")}</ul>${prompt.cta ? `<button class="btn btn-s" style="align-self:flex-start" data-action="go" data-screen="bedroom">${prompt.cta}</button>` : ""}</div>` : ""}
+      <section class="stack" aria-labelledby="h-notes"><h4 id="h-notes">Quick notes</h4>
+        <div class="quick-note"><textarea id="note-${room.id}" class="input" rows="2" data-input="note" placeholder="Type or dictate an observation">${room.id === "bed1" ? "Bed against party wall. Extension lead behind headboard feeding lamps and phone chargers. Client reports waking 3 to 4am." : ""}</textarea>
+        <button class="mic" data-action="mic" aria-pressed="${S.mic}" aria-label="${S.mic ? "Stop dictation" : "Dictate a note"}">${icon("mic")}</button></div>
+        ${S.mic ? `<p class="xsmall muted">Listening. Dictated notes are transcribed on the device and marked as observations until you confirm them.</p>` : ""}
+      </section>
+      <section class="stack" aria-labelledby="h-read"><div class="spread"><h4 id="h-read">Readings and observations (${readings.length})</h4><span class="xsmall muted">Unmeasured items are never shown as satisfactory</span></div>
+        ${readings.length ? readings.map(readingCard).join("") : `<div class="notice notice-muted">${icon("info")}<span class="small">No readings yet in this room.</span></div>`}
+      </section>
+      <div class="grid-2">
+        <section class="card stack" aria-labelledby="h-ph"><div class="spread"><h3 id="h-ph">Photographs</h3><label class="btn btn-s" for="ph-add">${icon("camera")}Add</label><input id="ph-add" type="file" accept="image/*" hidden data-change="roomphoto"></div>
+          <div class="photo-grid">${photos.map(([c, t]) => `<div class="photo ${c}"><span>${t}</span></div>`).join("") || `<p class="small muted">No photographs yet.</p>`}</div></section>
+        <section class="card stack" aria-labelledby="h-sm"><div class="spread"><h3 id="h-sm">Samples</h3><button class="btn btn-s" data-action="toast" data-msg="New sample reference generated: EG-2610-ASH-${room.id.toUpperCase().slice(0, 1)}04">${icon("plus")}Sample</button></div>
+          ${samples.length ? samples.map(s => `<div class="sample-row"><div><div class="mono xsmall">${s.ref}</div><div class="small"><b>${s.what}</b></div><div class="xsmall muted">${s.method} · ${s.lab} · ${s.date}</div></div>${covChip(s.st)}</div>`).join("") : `<p class="small muted">No samples taken in this room.</p>`}
+        </section>
+      </div>
+      <section class="card stack" aria-labelledby="h-rc"><div class="spread"><h3 id="h-rc">Findings and recommendations</h3><button class="btn btn-s" data-action="go" data-screen="finding">Open editor</button></div>
+        ${recs.length ? recs.map(f => `<div class="spread small"><span>${f.title}</span><span class="chip ${f.status === "approved" ? "c-ok" : "c-muted"}">${f.status === "approved" ? "Approved" : "Draft"}</span></div>`).join("") : `<p class="small muted">No findings drafted for this room yet.</p>`}
+      </section>
+    </div></div>`;
+}
+
+/* ---------- 5. Bedroom measurement grid ---------- */
+function cellHTML(qty, i) {
+  const g = GRID[qty];
+  const pick = ph => qty === "mf" ? (g[ph][i] ? resultant(g[ph][i]) : null) : g[ph][i];
+  const b = pick("before"), a = pick("after");
+  const dec = v => v == null ? "" : v < 10 ? fmt(v, 1) : fmt(v);
+  const sel = S.cell === i;
+  if (b == null) return `<button class="cell k-nm" aria-pressed="${sel}" data-action="cell" data-i="${i}"><span class="pos">${GRID_POS[i]}</span><span class="lab">Not measured</span></button>`;
+  const show = S.phase === "after" ? a : b;
+  const k = classify(S.phase === "compare" ? a : show, g.ref, g.method);
+  const valueLine = S.phase === "compare"
+    ? `<span class="compare-v"><span>${dec(b)}</span><span class="arrow">→</span><b>${dec(a)}</b><small class="muted">${g.unit}</small></span>`
+    : `<span class="v">${dec(show)}<small> ${g.unit}</small></span>`;
+  return `<button class="cell k-${k}" aria-pressed="${sel}" data-action="cell" data-i="${i}"><span class="pos">${GRID_POS[i]}</span>${valueLine}<span class="lab">${EVAL[k].label}${S.phase === "compare" ? " after" : ""}</span></button>`;
+}
+function planSVG() {
+  const pins = [
+    { id: "p1", x: 150, y: 70, n: "1", label: "Grid head left: 38 V/m before, 2.1 V/m after", kind: "reading" },
+    { id: "p2", x: 248, y: 70, n: "2", label: "Grid head right: 9 V/m before", kind: "reading" },
+    { id: "p3", x: 330, y: 150, n: "3", label: "CO₂ logger on bedside table", kind: "reading" },
+    { id: "s1", x: 200, y: 32, n: "S", label: "Suspected source: extension lead and lamp cables behind headboard", kind: "source" },
+    { id: "s2", x: 26, y: 215, n: "S", label: "Suspected source: DECT base on landing, 2.4 m from pillow", kind: "source" },
+    { id: "c1", x: 360, y: 40, n: "P", label: "Photograph: staining at NE ceiling corner", kind: "photo" }
+  ];
+  const col = k => k === "source" ? "var(--strong)" : k === "photo" ? "var(--info)" : "var(--emerald-2)";
+  const sel = pins.find(p => p.id === S.planPin);
+  return `<svg viewBox="0 0 400 304" role="img" aria-label="Room plan of main bedroom with reading positions and suspected sources">
+    <rect x="10" y="10" width="380" height="270" fill="var(--surface)" stroke="var(--ink-2)" stroke-width="3"/>
+    <line x1="388" y1="90" x2="388" y2="190" stroke="var(--info)" stroke-width="6"/><text x="372" y="140" font-size="10" fill="var(--ink-3)" text-anchor="end">Window</text>
+    <path d="M10 230 h0 M10 230 a 40 40 0 0 1 40 40" fill="none" stroke="var(--ink-3)" stroke-dasharray="3 3"/><text x="56" y="268" font-size="10" fill="var(--ink-3)">Door to landing</text>
+    <rect x="120" y="22" width="160" height="16" rx="3" fill="var(--sunk)" stroke="var(--ink-3)"/>
+    <rect x="120" y="38" width="160" height="200" rx="8" fill="var(--emerald-tint)" stroke="var(--emerald-2)"/>
+    <text x="200" y="150" font-size="12" fill="var(--emerald)" text-anchor="middle">Bed</text>
+    <rect x="80" y="40" width="34" height="34" rx="3" fill="var(--sunk)" stroke="var(--ink-3)"/><rect x="286" y="40" width="34" height="34" rx="3" fill="var(--sunk)" stroke="var(--ink-3)"/>
+    <rect x="320" y="20" width="62" height="40" fill="var(--sunk)" stroke="var(--ink-3)"/><text x="351" y="75" font-size="9" fill="var(--ink-3)" text-anchor="middle">Wardrobe</text>
+    <text x="200" y="298" font-size="9" fill="var(--ink-3)" text-anchor="middle">3.6 m × 4.1 m · north wall is party wall</text>
+    ${pins.map(p => `<g class="pin" data-action="pin" data-pin="${p.id}" tabindex="0" role="button" aria-label="${esc(p.label)}">
+      <circle cx="${p.x}" cy="${p.y}" r="${S.planPin === p.id ? 13 : 11}" fill="${col(p.kind)}" stroke="var(--surface)" stroke-width="2"/>
+      <text x="${p.x}" y="${p.y + 4}" font-size="11" font-weight="700" fill="var(--surface)" text-anchor="middle">${p.n}</text></g>`).join("")}
+  </svg>
+  <div class="row xsmall muted" style="margin-top:8px"><span class="row" style="gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:var(--emerald-2);display:inline-block"></i>Reading</span><span class="row" style="gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:var(--strong);display:inline-block"></i>Suspected source</span><span class="row" style="gap:5px"><i style="width:10px;height:10px;border-radius:50%;background:var(--info);display:inline-block"></i>Photograph</span></div>
+  <p class="small" style="margin-top:6px">${sel ? esc(sel.label) : "Select a marker to see its details. Drag to reposition in the live app."}</p>`;
+}
+function rfPanel() {
+  const i = inst("EG-RF-01");
+  // log scale 10 MHz to 10 GHz
+  const pos = f => ((Math.log10(f) - 1) / 3) * 100;
+  const bands = [["FM", 100], ["Mobile 800", 800], ["DECT", 1900], ["Wi-Fi 2.4", 2450], ["Mobile 3.6", 3600], ["Wi-Fi 5", 5500], ["Wi-Fi 6E", 6500]];
+  return `<div class="stack">
+    <div class="grid-2">
+      <div class="axis"><div class="k">Peak · max hold</div><div class="v">840 <small class="muted">µW/m²</small></div>${evalChip(classify(840, "sbm-rf", "peak"))}</div>
+      <div class="axis"><div class="k">RMS · average</div><div class="v">95 <small class="muted">µW/m²</small></div><span class="chip c-outline">Not classified: guidance uses peak</span></div>
+    </div>
+    <div class="stack" style="gap:2px">
+      <span class="small"><b>Instrument coverage</b> · ${i.name}, ${i.serial} · ${i.range}</span>
+      <div class="coverage" aria-label="Instrument covers 27 MHz to 6 GHz; Wi-Fi 6E above 6 GHz is outside coverage">
+        <div class="track"></div>
+        <div class="cov" style="left:${pos(i.fmin)}%;width:${pos(i.fmax) - pos(i.fmin)}%"></div>
+        ${bands.map(([n, f]) => `<span class="tick" style="left:${pos(f)}%"></span><span class="band" style="left:${pos(f)}%">${n}</span>`).join("")}
+        ${[[10, "10 MHz"], [100, "100 MHz"], [1000, "1 GHz"], [10000, "10 GHz"]].map(([f, l]) => `<span class="axislab" style="left:${Math.min(96, Math.max(4, pos(f)))}%">${l}</span>`).join("")}
+      </div>
+    </div>
+    <div class="notice notice-warn">${icon("info")}<span class="small">Wi-Fi 6E (5.9 to 7.1 GHz) is partly outside this instrument's range. The household router supports 6E, so the reading may understate the total. This caveat carries into the finding and report automatically.</span></div>
+    <div class="table-wrap"><table><thead><tr><th>Source identified</th><th class="num">Peak µW/m²</th><th>Method</th></tr></thead><tbody>
+      <tr><td>DECT base, landing</td><td class="num mono">610</td><td class="small">Audio analysis, frequency-selective</td></tr>
+      <tr><td>Wi-Fi router, hallway</td><td class="num mono">190</td><td class="small">Audio analysis</td></tr>
+      <tr><td>Mobile networks, outdoor</td><td class="num mono">40</td><td class="small">Router and DECT off</td></tr>
+    </tbody></table></div>
+  </div>`;
+}
+function screenBedroom() {
+  const g = GRID[S.gridQty];
+  const qtyTabs = [["ef", "E-field (potential-free)"], ["efg", "E-field (earthed)"], ["bv", "Body voltage"], ["mf", "Magnetic, 3 axes"], ["rf", "Radio frequency"]];
+  let detail = "";
+  if (S.gridQty !== "rf") {
+    const i = S.cell; const ref = REF[g.ref];
+    const b = g.before[i], a = g.after[i];
+    const methodMatch = ref.method === g.method;
+    if (S.gridQty === "mf") {
+      detail = b ? `<div class="stack"><b class="small">${GRID_POS[i]} · three-axis reading</b>
+        <div class="axes">${["X", "Y", "Z"].map((ax, j) => `<div class="axis"><div class="k">${ax} axis</div><div class="v">${b[j]} <small class="muted">nT</small></div></div>`).join("")}<div class="axis res"><div class="k">Resultant</div><div class="v">${fmt(resultant(b), 1)}</div></div></div>
+        <p class="xsmall muted">Resultant = √(X² + Y² + Z²). Magnetic fields depend on current flow, so a 24-hour log is recommended before a confirmed finding. This reading is marked as a spot reading.</p></div>` : "";
+    } else {
+      detail = `<div class="stack"><b class="small">${GRID_POS[i]}</b>
+        ${b == null ? `<div class="notice notice-muted">${icon("info")}<span class="small">Not measured at this position. It will appear as "Not measured" in tables, never as a satisfactory result.</span></div>` : `
+        <div class="grid-2"><div class="axis"><div class="k">Before</div><div class="v">${b} <small class="muted">${g.unit}</small></div></div><div class="axis res"><div class="k">After circuit 7 off</div><div class="v">${a} <small class="muted">${g.unit}</small></div></div></div>`}
+        ${!methodMatch ? `<div class="notice notice-muted">${icon("info")}<span class="small"><b>Not classified.</b> The loaded SBM entry applies to potential-free measurements. Readings with an earthed probe are recorded separately and can be given a written professional assessment.</span></div>` : ""}</div>`;
+    }
+  }
+  return `${visitTop("Main bedroom · bed measurements", "Visit 1 · 9 October 2026 · Iza")}
+  <div class="visit-main">
+    <div class="spread">
+      <div class="row"><button class="btn btn-s" data-action="go" data-screen="room">${icon("back")}Room</button><h2>Bed measurements</h2></div>
+      <div class="seg" role="group" aria-label="Measured quantity">${qtyTabs.map(([k, l]) => `<button aria-pressed="${S.gridQty === k}" data-action="qty" data-q="${k}">${l}</button>`).join("")}</div>
+    </div>
+    <div class="card card-tight spread">
+      <div class="small"><b>Change tested:</b> circuit 7 (first-floor sockets) switched off at the consumer unit, 19:55. Bedside lamps unplugged.</div>
+      ${S.gridQty !== "rf" ? `<div class="seg" role="group" aria-label="Condition">${[["before", "Before"], ["after", "After"], ["compare", "Compare"]].map(([k, l]) => `<button aria-pressed="${S.phase === k}" data-action="phase" data-p="${k}">${l}</button>`).join("")}</div>` : ""}
+    </div>
+    <div class="bed-layout">
+      <section class="stack" aria-labelledby="h-grid">
+        <div class="spread"><h3 id="h-grid">${S.gridQty === "rf" ? "Radio frequency at the pillow" : g.label + " · nine-point grid"}</h3>${S.gridQty !== "rf" ? `<span class="xsmall muted">${inst(g.inst).name} · ${inst(g.inst).serial} · calibrated ${inst(g.inst).cal}</span>` : ""}</div>
+        ${S.gridQty === "rf" ? rfPanel() : `
+        <div class="mattress"><div class="pillows" aria-hidden="true"><i></i><i></i></div><div class="mgrid">${GRID_POS.map((_, i) => cellHTML(S.gridQty, i)).join("")}</div></div>
+        <p class="xsmall muted">Each colour has a text label. ${S.phase === "compare" ? "Labels classify the after value. " : ""}Classification shown only where the method matches the reference entry: ${REF[g.ref].source}.</p>
+        ${detail}`}
+      </section>
+      <div class="stack-l">
+        <section class="card stack plan" aria-labelledby="h-plan"><div class="spread"><h3 id="h-plan">Room plan</h3><button class="btn btn-s" data-action="toast" data-msg="Tap the plan to place a reading, source or photograph">${icon("plus")}Place marker</button></div>${planSVG()}</section>
+        <section class="card stack" aria-labelledby="h-ba"><h3 id="h-ba">Before and after</h3>
+          <div class="table-wrap"><table><thead><tr><th>Head left</th><th class="num">Before</th><th class="num">After</th><th>After, SBM</th></tr></thead><tbody>
+            <tr><td>E-field, potential-free</td><td class="num mono">38 V/m</td><td class="num mono">2.1 V/m</td><td>${evalChip(classify(2.1, "sbm-ef", "potential-free"))}</td></tr>
+            <tr><td>Body voltage</td><td class="num mono">420 mV</td><td class="num mono">18 mV</td><td>${evalChip(classify(18, "sbm-bv", "body-voltage"))}</td></tr>
+            <tr><td>Magnetic, resultant</td><td class="num mono">20.8 nT</td><td class="num mono">19.5 nT</td><td>${evalChip(classify(19.5, "sbm-mf", "three-axis"))}</td></tr>
+            <tr><td>E-field, earthed</td><td class="num mono">64 V/m</td><td class="num mono">3.2 V/m</td><td>${evalChip("nc")}</td></tr>
+          </tbody></table></div>
+          <p class="xsmall muted">Magnetic field is largely unchanged because the circuit carried little current. Comparable readings share position, instrument and method.</p>
+        </section>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 6. Finding and recommendation editor ---------- */
+function screenFinding() {
+  const f = findingById(S.findingId);
+  const rs = f.readings.map(id => READINGS.find(r => r.id === id)).filter(Boolean);
+  const main = rs[0];
+  const refsFor = { A1: ["sbm-ef", "sbm-bv", "icnirp-ef"], A3: ["sbm-rf"], B6: ["sbm-co2", "bb-co2"], S5: [], S3: [] }[f.point] || [];
+  const refCard = id => {
+    const r = REF[id]; const k = REF_KIND[r.kind];
+    const reading = rs.find(x => x.ref === id) || (id === "icnirp-ef" ? rs[0] : id === "bb-co2" ? rs[0] : null);
+    let verdict = "";
+    if (r.bands && reading) {
+      const c = classify(reading.value, id, reading.method);
+      verdict = `<div class="band-scale">${["none", "slight", "strong", "extreme"].map((b, j) => `<div class="${EVAL[b].cls} ${c === b ? "here" : ""}">${EVAL[b].label.replace(" anomaly", "")}<br><span class="mono">${j === 0 ? "<" + r.bands[0] : j === 3 ? "≥" + r.bands[2] : r.bands[j - 1] + " to " + r.bands[j]}</span></div>`).join("")}</div>
+        <span class="small">${fmt(reading.value)} ${r.unit} → ${evalChip(c)}</span>`;
+    } else if (r.limit && reading) {
+      verdict = `<span class="small">Reference ${fmt(r.limit)} ${r.unit}. Measured ${fmt(reading.value)} ${r.unit}: <b>below this reference</b>. This does not mean the sleeping-area guidance is met.</span>`;
+    }
+    return `<div class="ref-card ${r.kind === "sbm" ? "sbm" : ""}"><span class="chip ${k.cls}" style="align-self:flex-start">${k.label}</span><b class="small">${r.quantity}</b><span class="xsmall muted">${r.source} · Edition ${r.edition} · Unit ${r.unit}</span><span class="xsmall">${r.conditions}</span>${verdict}</div>`;
+  };
+  return assessorShell("finding", `
+    <div class="topline"><div><span class="eyebrow">Ashworth · report v1.1</span><h1>Findings and recommendations</h1></div>
+      <div class="row">${syncBadge()}<button class="btn" data-action="go" data-screen="report">${icon("book")}Preview report</button></div></div>
+    ${S.conflict && f.id === "f1" ? `<div class="notice notice-warn" role="alert">${icon("users")}<div class="grow stack" style="gap:6px"><span class="small"><b>Alfie also edited this recommendation</b> at 09:14, changing the cost range to "Free to £400". Your version says "Free to £350". Nothing has been overwritten.</span><div class="row"><button class="btn btn-s" data-action="conflict" data-keep="mine">Keep mine</button><button class="btn btn-s" data-action="conflict" data-keep="theirs">Use Alfie's</button></div></div></div>` : ""}
+    <div class="editor">
+      <nav class="finding-list stack" style="gap:4px" aria-label="Findings">
+        ${FINDINGS.map(x => `<button class="finding-item" data-action="finding" data-id="${x.id}" aria-current="${x.id === f.id}"><span class="xsmall muted">${x.room} · ${x.point}</span><b class="small">${x.title}</b><span class="row" style="gap:6px"><span class="chip ${x.status === "approved" ? "c-ok" : "c-muted"}">${x.status === "approved" ? "Approved" : "Draft"}</span><span class="xsmall muted">${x.by} · ${x.edited}</span></span></button>`).join("")}
+        <button class="btn btn-s" style="margin-top:6px" data-action="toast" data-msg="New finding created from selected readings">${icon("plus")}New finding</button>
+      </nav>
+      <div class="card stack-l">
+        <div class="spread"><div><span class="eyebrow">${f.room} · ${f.point} ${POINT_NAME[f.point]}</span><h2>${f.title}</h2></div><span class="chip ${f.status === "approved" ? "c-ok" : "c-muted"}">${f.status === "approved" ? "Approved" : "Draft"}</span></div>
+        <div class="stack"><h4>Linked evidence</h4>
+          ${rs.length ? `<div class="table-wrap"><table><thead><tr><th>Reading</th><th class="num">Value</th><th>Type</th><th>Evaluation</th></tr></thead><tbody>${rs.map(r => `<tr><td><span class="mono xsmall">${r.id}</span> ${r.label}${r.phase === "after" ? " <span class='tag'>After</span>" : ""}</td><td class="num mono">${r.value ?? ""} ${r.unit}</td><td class="small">${KIND[r.kind]}</td><td>${r.ref ? evalChip(classify(r.value, r.ref, r.method)) : evalChip("pro")}</td></tr>`).join("")}</tbody></table></div>` : `<p class="small muted">No readings linked. A written professional assessment is required.</p>`}
+          <div class="row"><span class="chip c-muted">${icon("photo")}2 photographs</span><span class="chip c-muted">${icon("grid")}Bed grid</span><span class="chip c-muted">${icon("doc")}Room plan</span></div>
+        </div>
+        <div class="field"><label for="fe-found">What we found</label><textarea id="fe-found" class="input" rows="6" data-input="edit">${esc(f.found)}</textarea></div>
+        <div class="field"><div class="spread"><label for="fe-why">Why it matters</label><button class="btn btn-quiet btn-s" data-action="explain">${icon("book")}Insert reusable explanation</button></div>
+          ${S.explanationOpen ? `<div class="card card-tight stack" style="background:var(--sunk)">${EXPLANATIONS.map(x => `<button class="finding-item" data-action="useexplain" data-id="${x.id}"><b class="small">${x.title}</b><span class="xsmall muted">${x.text.slice(0, 110)}…</span></button>`).join("")}</div>` : ""}
+          <textarea id="fe-why" class="input" rows="5" data-input="edit" placeholder="Explain in plain language. Insert a reusable explanation and adapt it to this home.">${esc(f.why)}</textarea><span class="hint">Reusable text stays editable here. Changes apply to this report only.</span></div>
+        <div class="field"><label for="fe-what">What you can do</label><textarea id="fe-what" class="input" rows="5" data-input="edit">${esc(f.what)}</textarea></div>
+        <div class="grid-3">
+          <div class="field"><label for="fe-cost">Likely cost range</label><input id="fe-cost" class="input" value="${esc(f.cost)}" data-input="edit"></div>
+          <div class="field"><label for="fe-spec">Specialist assistance</label><select id="fe-spec" class="input"><option>${esc(f.specialist)}</option><option>No</option><option>Yes: electrician</option><option>Yes: roofer</option><option>Yes: damp specialist</option></select></div>
+          <div class="field"><label for="fe-pt">Evaluation shown to client</label><select id="fe-pt" class="input"><option>Use classification</option><option>Professional assessment only</option></select></div>
+        </div>
+        <div class="field"><span class="label">Priority in action plan</span><div class="priority-pick">${Object.entries(PRIORITY).map(([k, p]) => `<button class="choice" aria-pressed="${(S.priority || f.priority) === k}" data-action="prio" data-p="${k}"><span class="box"></span><span><b class="small">${p.label}</b><br><span class="xsmall muted">${p.sub}</span></span></button>`).join("")}</div></div>
+        <div class="spread"><span class="xsmall muted">Last edited by ${f.by} · ${f.edited} · every change is attributed and versioned</span>
+          <div class="row"><button class="btn" data-action="toast" data-msg="Saved as draft">Save draft</button><button class="btn btn-primary" data-action="approve">${f.status === "approved" ? "Approved" : "Approve finding"}</button></div></div>
+      </div>
+      <aside class="stack" aria-labelledby="h-ref">
+        <h3 id="h-ref">Reference criteria</h3>
+        <p class="xsmall muted">Classifications appear only where the method and available information support them. SBM guidance is shown separately from statutory and other references.</p>
+        ${refsFor.length ? refsFor.map(refCard).join("") : `<div class="ref-card"><b class="small">No applicable numerical guideline</b><span class="small">Write a professional assessment. It will be labelled as such in the report.</span><textarea class="input" rows="4" aria-label="Professional assessment">Flow at the grille is below the rate expected for a bathroom, and surface moisture at the window reveal is elevated the morning after showering.</textarea></div>`}
+        ${main && main.inst === "EG-RF-01" ? `<div class="notice notice-warn">${icon("info")}<span class="small">Instrument coverage ends at 6 GHz. Caveat included in the report text.</span></div>` : ""}
+        <div class="notice notice-muted">${icon("info")}<span class="xsmall">Reference values in this prototype are placeholders for design review. Each entry is confirmed against the licensed edition before release.</span></div>
+      </aside>
+    </div>`);
+}
+
+/* ---------- 7. Report preview ---------- */
+function screenReport() {
+  const outstanding = SAMPLES.filter(s => s.st === "awaiting");
+  const drafts = FINDINGS.filter(f => f.status !== "approved");
+  const ready = drafts.length === 0 && S.checks.scope && S.checks.refs;
+  const notCovered = Object.entries(S.scope).filter(([, on]) => !on).map(([c]) => `${c} ${POINT_NAME[c]}`);
+  return assessorShell("report", `
+    <div class="topline"><div><span class="eyebrow">Ashworth · ${CLIENT.ref}</span><h1>Report preview</h1></div>
+      <div class="row"><div class="seg" role="group" aria-label="Format"><button aria-pressed="true" data-action="noop">Online report</button><button aria-pressed="false" data-action="toast" data-msg="PDF preview renders from the same approved content">PDF</button></div></div></div>
+    <div class="report-layout">
+      <nav class="outline card card-tight stack" aria-label="Report sections">
+        <h4>Sections</h4>
+        ${["Executive summary", "Scope and limitations", "Room-by-room findings", "Supporting evidence", "Measurement tables", "Action plan", "Reference criteria", "Appendix: instruments"].map((s, i) => `<a class="side-link" href="#report" data-action="noop">${i + 1}. ${s}</a>`).join("")}
+      </nav>
+      <article class="paper" aria-label="Report draft">
+        <span class="chip c-slight draft-mark">Draft v1.1 · not visible to client</span>
+        <div class="cover"><div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>where home meets health</span></div></div>
+          <h1>Your Healthy Home Assessment</h1><p class="muted">14 Larkhill Road, Bristol · Prepared for Harriet and Tom Ashworth · Visit 9 October 2026 · Assessors Iza and Alfie</p></div>
+        <section><h2>Executive summary</h2>
+          <p>Thank you for welcoming us into your home. Much of what we measured sits comfortably within our guidance, and the two areas that stood out are very manageable.</p>
+          <p>Around the head of your bed, electric fields come mainly from an extension lead and lamp cables behind the headboard. When we switched off the bedside circuit, levels at your pillows fell to a small fraction of the original reading, so a few simple changes here are likely to make a meaningful difference. In the bathroom, moisture lingers after showers because the extractor fan moves less air than the room needs.</p>
+          <p>Your action plan begins with three free steps you can take this week. Some laboratory results are still with the laboratory, and we will add them in an update.</p></section>
+        <section><h2>Scope and limitations</h2>
+          <p>This assessment followed the Standard of Building Biology Testing Methods, SBM-2024, for the points listed below. It looks at your home environment and does not diagnose or treat any medical condition.</p>
+          <div class="table-wrap"><table><thead><tr><th>Point</th><th>Status</th></tr></thead><tbody>
+            ${["A1", "A3", "A6", "B1", "C1", "S3", "A5"].map(c => `<tr><td>${c} ${POINT_NAME[c]}</td><td>${covChip(S.scope[c] ? SCOPE[c][0] : "excluded")}</td></tr>`).join("")}
+            <tr><td>Loft: mould, moisture, defects</td><td>${covChip("inaccessible")}</td></tr>
+          </tbody></table></div>
+          <p class="small muted">Not included in this visit: ${notCovered.slice(0, 6).join(", ")}${notCovered.length > 6 ? ` and ${notCovered.length - 6} more` : ""}. Points not measured carry no evaluation.</p></section>
+        <section><h2>Main bedroom</h2>
+          <h3>Electric fields at the head of the bed</h3>
+          <dl class="kv"><dt>What we found</dt><dd>${FINDINGS[0].found}</dd><dt>Evaluation</dt><dd>${evalChip("strong")} before; ${evalChip("slight")} after switching off. SBM-2024 sleeping-area precautionary guidance. Well below the ICNIRP statutory reference of 5,000 V/m, which addresses short-term effects.</dd><dt>What you can do</dt><dd>${FINDINGS[0].what}</dd><dt>Likely cost</dt><dd>${FINDINGS[0].cost}</dd><dt>Specialist</dt><dd>${FINDINGS[0].specialist}</dd></dl>
+          <div class="photo-grid"><div class="photo"><span>Headboard wall</span></div><div class="photo thermal"><span>Thermal: NE corner</span></div></div></section>
+        <section><h2>Measurement table · main bedroom</h2>
+          <div class="table-wrap"><table><thead><tr><th>Measurement</th><th class="num">Value</th><th>Type</th><th>Evaluation</th><th>Reference</th></tr></thead><tbody>
+            ${READINGS.filter(r => r.room === "bed1").map(r => `<tr><td>${r.label}${r.phase === "after" ? " (after)" : ""}</td><td class="num mono">${r.value != null ? fmt(r.value, r.value % 1 ? 1 : 0) + " " + r.unit : "Observation"}</td><td class="small">${KIND[r.kind]}</td><td>${r.ref ? evalChip(classify(r.value, r.ref, r.method)) : evalChip("pro")}</td><td class="xsmall">${r.ref ? REF[r.ref].edition + " sleeping areas" : "Written assessment"}</td></tr>`).join("")}
+            <tr><td>Radon</td><td class="num">Awaiting results</td><td class="small">${KIND.lab}</td><td>${covChip("awaiting")}</td><td class="xsmall">UKHSA Action Level; SBM-2024</td></tr>
+          </tbody></table></div></section>
+        <section><h2>Your action plan</h2>
+          ${ACTIONS.slice(0, 4).map((a, i) => `<div class="action-item"><span class="action-n">${i + 1}</span><div><b>${a.title}</b><div class="small muted">${PRIORITY[a.pr].label} · ${a.room} · ${a.cost} · ${a.who}</div><p class="small">${a.why}</p></div></div>`).join("")}
+        </section>
+      </article>
+      <aside class="stack-l">
+        <section class="card stack" aria-labelledby="h-pre"><h3 id="h-pre">Before publishing</h3>
+          <div class="checklist">
+            <div class="check"><span class="st ${drafts.length ? "st-wait" : "st-ok"}">${drafts.length ? "!" : "✓"}</span><div><b>${drafts.length ? `${drafts.length} findings still in draft` : "All findings approved"}</b>${drafts.length ? `<div class="xsmall muted">${drafts.map(d => d.title).join("; ")}</div><button class="btn btn-quiet btn-s" data-action="go" data-screen="finding">Review findings</button>` : ""}</div></div>
+            <div class="check"><span class="st st-wait">${outstanding.length}</span><div><b>${outstanding.length} laboratory results outstanding</b><div class="xsmall muted">${outstanding.map(s => s.ref.slice(-3) + " " + s.what.split(",")[0]).join(" · ")}</div><div class="xsmall">Listed in the report as awaiting results.</div></div></div>
+            <div class="check"><button class="st ${S.checks.scope ? "st-ok" : "st-wait"}" style="border:0;cursor:pointer" data-action="check" data-k="scope" aria-label="Mark scope reviewed">${S.checks.scope ? "✓" : "○"}</button><div><b>Scope and limitations reviewed</b><div class="xsmall muted">Includes not included and not accessible points</div></div></div>
+            <div class="check"><button class="st ${S.checks.refs ? "st-ok" : "st-wait"}" style="border:0;cursor:pointer" data-action="check" data-k="refs" aria-label="Confirm reference set">${S.checks.refs ? "✓" : "○"}</button><div><b>Reference set frozen</b><div class="xsmall muted">SBM-2024 / UK 2026.1 saved with this version</div></div></div>
+            <div class="check"><span class="st st-ok">✓</span><div><b>Internal notes excluded</b><div class="xsmall muted">3 internal notes will not be published</div></div></div>
+          </div>
+          <button class="btn btn-primary" ${ready ? "" : "disabled"} data-action="publish">Publish v1.1 to client portal</button>
+          ${ready ? "" : `<span class="xsmall muted">Publishing becomes available when every finding is approved and both checks are confirmed.</span>`}
+        </section>
+        <section class="card stack" aria-labelledby="h-ver"><h3 id="h-ver">Version history</h3>
+          ${S.versions.slice().reverse().map(v => `<div class="stack" style="gap:2px"><div class="spread"><b class="small">${v.v} · ${v.label}</b><span class="xsmall muted">${v.date}</span></div><span class="xsmall muted">${v.by} · ${v.note}</span></div>`).join('<hr class="divider">')}
+        </section>
+      </aside>
+    </div>`);
+}
+
+/* ---------- 8. Client portal ---------- */
+function screenPortal() {
+  const total = ACTIONS.length, doneN = ACTIONS.filter(a => S.done[a.id]).length;
+  const ring = `<svg class="ring" viewBox="0 0 36 36" aria-label="${doneN} of ${total} actions complete"><circle cx="18" cy="18" r="15.5" fill="none" stroke="color-mix(in srgb, var(--on-emerald) 25%, transparent)" stroke-width="3.5"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--on-emerald)" stroke-width="3.5" stroke-dasharray="${(doneN / total) * 97.4} 97.4" transform="rotate(-90 18 18)" stroke-linecap="round"/><text x="18" y="21.5" text-anchor="middle" font-size="9" fill="var(--on-emerald)" font-family="IBM Plex Mono, monospace">${doneN}/${total}</text></svg>`;
+  const actCard = a => `<div class="act ${S.done[a.id] ? "done" : ""}">
+    <div class="row" style="align-items:flex-start;flex-wrap:nowrap"><button class="tick" role="checkbox" aria-checked="${!!S.done[a.id]}" aria-label="Mark ${esc(a.title)} as done" data-action="done" data-id="${a.id}"></button><div class="grow stack" style="gap:4px"><h3>${a.title}</h3><p class="small muted">${a.why}</p></div></div>
+    <div class="row xsmall"><span class="chip c-muted">${a.room}</span><span class="chip c-muted">${a.cost}</span><span class="chip ${a.who === "You" ? "c-emerald" : "c-brass"}">${a.who === "You" ? "You can do this" : "Needs " + a.who.toLowerCase()}</span></div>
+    ${S.photos[a.id] ? `<div class="photo" style="aspect-ratio:16/9"><img src="${S.photos[a.id]}" alt="Your progress photograph"><span>Your progress photo</span></div>` : ""}
+    <label class="btn btn-quiet btn-s" style="align-self:flex-start" for="pp-${a.id}">${icon("camera")}${S.photos[a.id] ? "Replace progress photo" : "Add a progress photo"}</label><input id="pp-${a.id}" type="file" accept="image/*" hidden data-change="progress" data-id="${a.id}">
+  </div>`;
+  let body = "";
+  if (S.portalTab === "home") {
+    const next = ACTIONS.filter(a => a.pr === "start" && !S.done[a.id]);
+    body = `
+      <div class="stack" style="gap:2px"><span class="eyebrow">Good evening</span><h2>Harriet and Tom</h2></div>
+      <div class="portal-hero"><div class="row" style="flex-wrap:nowrap">${ring}<div><h3 style="color:var(--on-emerald)">Your plan is under way</h3><p>${doneN === 0 ? "Three free steps will make the biggest difference." : `${doneN} of ${total} steps done. Lovely progress.`}</p></div></div></div>
+      <section class="stack"><h4>Where to begin</h4>${next.length ? next.slice(0, 3).map(actCard).join("") : `<div class="notice notice-calm">${icon("check")}<span class="small">All your "start here" steps are complete. Your next steps are ready in your plan.</span></div>`}
+        <button class="btn" data-action="ptab" data-t="plan">See your full plan</button></section>
+      <section class="card stack"><h3>Your report</h3><p class="small muted">Interim report v1.0 · issued 20 October 2026. An update with laboratory results is on its way.</p><div class="row"><button class="btn btn-primary btn-s" data-action="ptab" data-t="report">Read online</button><button class="btn btn-s" data-action="toast" data-msg="In the live app this downloads your report as a PDF">${icon("download")}Download PDF</button></div></section>
+      <section class="card stack"><h3>Coming up</h3><p class="small">Radon detectors return on 9 January 2027. Your follow-up visit is planned for April 2027, when we will compare your bedroom readings.</p></section>`;
+  }
+  if (S.portalTab === "plan") body = `<h2>Your action plan</h2><p class="small muted">Take these at your own pace. Each step explains why it helps and roughly what it costs.</p>
+    ${Object.entries(PRIORITY).map(([k, p]) => `<section class="stack"><div><h4>${p.label}</h4><span class="xsmall muted">${p.sub}</span></div>${ACTIONS.filter(a => a.pr === k).map(actCard).join("")}</section>`).join("")}`;
+  if (S.portalTab === "report") body = `<h2>Your report</h2>
+    <div class="row"><span class="chip c-emerald">v1.0 Interim</span><span class="xsmall muted">Issued 20 Oct 2026 · reference set SBM-2024 / UK 2026.1</span></div>
+    <button class="btn" data-action="toast" data-msg="In the live app this downloads your report as a PDF">${icon("download")}Download PDF</button>
+    <section class="card stack"><h3>Main bedroom</h3><p class="small">Electric fields around your pillows came mainly from cables behind the headboard. Switching off the bedside circuit made a large difference.</p>
+      <div class="table-wrap"><table><thead><tr><th>At your pillow</th><th class="num">Before</th><th class="num">After</th></tr></thead><tbody>
+        <tr><td>Electric field</td><td class="num mono">38 V/m</td><td class="num mono">2.1 V/m</td></tr><tr><td>Body voltage</td><td class="num mono">420 mV</td><td class="num mono">18 mV</td></tr></tbody></table></div>
+      <div class="row">${evalChip("strong", true)}<span class="xsmall muted">before</span>${evalChip("slight", true)}<span class="xsmall muted">after, by SBM sleeping-area guidance</span></div>
+      <p class="xsmall muted">Your follow-up visit will add a third column so you can see how things have changed.</p></section>
+    <section class="card stack"><h3>Still to come</h3>${SAMPLES.filter(s => s.st === "awaiting").map(s => `<div class="spread small"><span>${s.what.split(",")[0]}, ${ROOMS.find(r => r.id === s.room).name.toLowerCase()}</span>${covChip("awaiting")}</div>`).join("")}</section>
+    <section class="stack"><h4>Photographs</h4><div class="photo-grid"><div class="photo"><span>Headboard wall</span></div><div class="photo wall"><span>Bathroom window</span></div><div class="photo thermal"><span>Thermal image</span></div></div></section>`;
+  if (S.portalTab === "messages") body = `<h2>Questions</h2><p class="small muted">Iza or Alfie usually reply within one working day.</p>
+    <div class="stack">${S.messages.map(m => `<div class="bubble ${m.me ? "me" : "them"}"><p>${esc(m.text)}</p><div class="xsmall muted" style="margin-top:4px">${m.when}</div></div>`).join("")}</div>
+    <form class="stack" data-form="ask"><label class="small" for="ask-text"><b>Ask a question</b></label><textarea id="ask-text" class="input" rows="3" placeholder="For example, about a step in your plan"></textarea><button class="btn btn-primary" type="submit">Send question</button></form>`;
+  const tabs = [["home", "home", "Home"], ["plan", "list", "Plan"], ["report", "book", "Report"], ["messages", "chat", "Questions"]];
+  return `<div class="phone"><div class="phone-top"><div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Your home</span></div></div><span class="row xsmall muted">${icon("lock")}Private</span></div>
+    <div class="phone-body">${body}</div>
+    <nav class="tabbar" aria-label="Portal">${tabs.map(([k, ic, l]) => `<button data-action="ptab" data-t="${k}" ${S.portalTab === k ? 'aria-current="page"' : ""}>${icon(ic)}${l}</button>`).join("")}</nav></div>`;
+}
+
+/* ---------- Modals ---------- */
+function modalHTML(kind) {
+  if (kind === "reading") return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="spread"><h2 id="m-title">Add reading · Main bedroom</h2><button class="btn btn-s" data-action="close">Close</button></div>
+    <div class="grid-2">
+      <div class="field"><label for="m-pt">Assessment point</label><select id="m-pt" class="input">${SBM.flatMap(g => g.points).map(([c, n]) => `<option>${c} ${n}</option>`).join("")}</select></div>
+      <div class="field"><label for="m-type">Type</label><select id="m-type" class="input">${Object.values(KIND).map(k => `<option>${k}</option>`).join("")}</select></div>
+      <div class="field"><label for="m-val">Value</label><input id="m-val" class="input" inputmode="decimal" placeholder="0.0"></div>
+      <div class="field"><label for="m-unit">Unit</label><select id="m-unit" class="input"><option>V/m</option><option>nT</option><option>mV</option><option>µW/m²</option><option>ppm</option><option>µg/m³</option><option>%RH</option><option>°C</option></select></div>
+      <div class="field"><label for="m-inst">Instrument</label><select id="m-inst" class="input">${INSTRUMENTS.map(i => `<option>${i.id} · ${i.name} · ${i.serial}</option>`).join("")}</select><span class="hint">Calibration valid until Mar 2027</span></div>
+      <div class="field"><label for="m-meth">Method</label><input id="m-meth" class="input" value="Potential-free, three-axis probe"></div>
+      <div class="field"><label for="m-loc">Location</label><input id="m-loc" class="input" value="Grid H-L, pillow height"></div>
+      <div class="field"><label for="m-dur">Duration</label><input id="m-dur" class="input" value="60 s"></div>
+      <div class="field"><label for="m-occ">Occupancy</label><input id="m-occ" class="input" value="Unoccupied"></div>
+      <div class="field"><label for="m-win">Windows</label><select id="m-win" class="input"><option>Closed</option><option>Open</option><option>Trickle vents open</option></select></div>
+      <div class="field"><label for="m-heat">Heating</label><input id="m-heat" class="input" value="On, 19 °C"></div>
+      <div class="field"><label for="m-app">Appliance and circuit states</label><input id="m-app" class="input" value="Bedside lamps plugged in, off"></div>
+    </div>
+    <div class="field"><span class="label">Certainty</span><div class="seg"><button aria-pressed="true" data-action="noop">Observation</button><button aria-pressed="false" data-action="noop">Confirmed finding</button></div></div>
+    <p class="xsmall muted">Date, time and assessor are recorded automatically: 9 Oct 2026, 20:14 · Iza.</p>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="savereading">Save reading</button></div></div>`;
+  if (kind === "csv") return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="spread"><h2 id="m-title">Import instrument data</h2><button class="btn btn-s" data-action="close">Close</button></div>
+    <label class="upload" for="csv-file">${icon("upload")}<b>Choose a CSV file</b><span class="small muted">Logger exports with a timestamp column. Or use the sample below.</span></label><input id="csv-file" type="file" accept=".csv,text/csv" hidden data-change="csv">
+    <div id="csv-preview">${csvPreview(SAMPLE_CSV, "EG-IAQ-02_overnight_bed1.csv")}</div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="importcsv">Import as overnight monitoring</button></div></div>`;
+  return "";
+}
+const SAMPLE_CSV = "timestamp,co2_ppm,temp_c,rh_pct\n2026-10-09 22:00,612,19.8,52\n2026-10-09 23:00,788,19.4,54\n2026-10-10 00:00,941,19.0,55\n2026-10-10 01:00,1083,18.7,56\n2026-10-10 02:00,1196,18.4,57\n2026-10-10 03:00,1288,18.2,58\n2026-10-10 04:00,1371,18.0,58\n2026-10-10 05:00,1450,17.9,59\n2026-10-10 06:00,1402,17.9,59\n2026-10-10 07:00,1105,18.6,57";
+function csvPreview(text, name) {
+  const rows = text.trim().split(/\r?\n/).map(l => l.split(","));
+  const head = rows[0] || [], data = rows.slice(1);
+  const numCol = head.findIndex((h, i) => i > 0 && data.every(r => !isNaN(parseFloat(r[i]))));
+  const vals = numCol > 0 ? data.map(r => parseFloat(r[numCol])) : [];
+  const max = vals.length ? Math.max(...vals) : 0, min = vals.length ? Math.min(...vals) : 0;
+  const w = 600, h = 120, pad = 24;
+  const pts = vals.map((v, i) => [pad + (i / Math.max(1, vals.length - 1)) * (w - pad * 2), h - pad - ((v - min) / Math.max(1, max - min)) * (h - pad * 2)]);
+  return `<div class="stack">
+    <div class="spread small"><b>${esc(name)}</b><span class="muted">${data.length} rows · ${head.length} columns</span></div>
+    <div class="grid-3">${head.map((c, i) => `<div class="field"><label for="map-${i}">${esc(c)}</label><select id="map-${i}" class="input">${["Timestamp", "CO₂ (ppm)", "Temperature (°C)", "Relative humidity (%)", "Ignore"].map((o, j) => `<option ${j === Math.min(i, 3) ? "selected" : ""}>${o}</option>`).join("")}</select></div>`).join("")}</div>
+    ${vals.length > 1 ? `<div class="table-wrap" style="padding:8px"><svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Preview of ${esc(head[numCol])}, ${fmt(min)} to ${fmt(max)}">
+      <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="var(--line)"/>
+      <polyline fill="none" stroke="var(--emerald-2)" stroke-width="2" points="${pts.map(p => p.join(",")).join(" ")}"/>
+      ${pts.length ? `<circle cx="${pts[vals.indexOf(max)][0]}" cy="${pts[vals.indexOf(max)][1]}" r="4" fill="var(--emerald)"/><text x="${pts[vals.indexOf(max)][0]}" y="${pts[vals.indexOf(max)][1] - 8}" font-size="11" text-anchor="middle" fill="var(--ink)">Max ${fmt(max)}</text>` : ""}
+      <text x="${pad}" y="${h - 6}" font-size="10" fill="var(--ink-3)">${esc(data[0][0])}</text><text x="${w - pad}" y="${h - 6}" font-size="10" fill="var(--ink-3)" text-anchor="end">${esc(data[data.length - 1][0])}</text>
+    </svg></div>` : ""}
+    <p class="xsmall muted">Instrument detected from file name: ${inst("EG-IAQ-02").name}, ${inst("EG-IAQ-02").serial}. Imported as overnight monitoring linked to Main bedroom. Context fields can be completed after import.</p></div>`;
+}
+
+/* =========================================================================
+   Rendering and interaction
+   ========================================================================= */
+const RENDER = { dashboard: screenDashboard, profile: screenProfile, questionnaire: screenQuestionnaire, room: screenRoom, bedroom: screenBedroom, finding: screenFinding, report: screenReport, portal: screenPortal };
+function render() {
+  const sc = SCREENS.find(s => s.id === S.screen);
+  const device = S.device || sc.device;
+  document.getElementById("screen-nav").innerHTML = SCREENS.map(s => `<button data-action="go" data-screen="${s.id}" ${s.id === S.screen ? 'aria-current="page"' : ""}><small>${s.who}</small>${s.label}</button>`).join("");
+  document.getElementById("device-toggle").innerHTML = [["desktop", "Desktop"], ["tablet", "Tablet"], ["phone", "Phone"]].map(([k, l]) => `<button data-action="device" data-d="${k}" aria-pressed="${device === k}">${l}</button>`).join("");
+  document.getElementById("caption").innerHTML = `<h2>${sc.label}</h2><p>${sc.note}</p>`;
+  document.getElementById("device").dataset.device = device;
+  document.getElementById("screen").innerHTML = RENDER[S.screen]();
+  document.getElementById("overlay").innerHTML = (S.modal ? `<div class="modal-back" data-action="backdrop">${modalHTML(S.modal)}</div>` : "") + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : "");
+}
+let toastTimer;
+function toast(msg) { S.toast = msg; render(); clearTimeout(toastTimer); toastTimer = setTimeout(() => { S.toast = null; render(); }, 2600); }
+function nowHM() { return new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
+let saveTimer;
+function markEdited() {
+  if (!S.online) { S.pending += 1; } else { S.saving = true; }
+  const el = document.getElementById("sync"); if (el) el.outerHTML = syncBadge();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { S.saving = false; S.savedAt = nowHM(); const e2 = document.getElementById("sync"); if (e2) e2.outerHTML = syncBadge(); }, 700);
+}
+function go(screen) {
+  S.screen = screen; S.device = null; S.modal = null;
+  try { history.replaceState(null, "", "#" + screen); } catch (e) { /* hash optional */ }
+  render(); window.scrollTo({ top: 0 });
+}
+
+const ACT = {
+  go: d => go(d.screen),
+  side: d => go({ dashboard: "dashboard", profile: "profile", visits: "room", lab: "room", finding: "finding", report: "report", instruments: "room" }[d.target] || "dashboard"),
+  device: d => { S.device = d.d; render(); },
+  toast: d => toast(d.msg),
+  noop: () => {},
+  scope: d => { S.scope[d.code] = !S.scope[d.code]; markEdited(); render(); },
+  room: d => { S.room = d.room; render(); },
+  duplicate: () => toast(`Structure of ${ROOMS.find(r => r.id === S.room).name} copied: points, prompts and measurement positions, without readings`),
+  online: () => { S.online = !S.online; if (S.online && S.pending) { const n = S.pending; S.pending = 0; S.savedAt = nowHM(); render(); toast(`${n} change${n === 1 ? "" : "s"} synced`); } else { if (!S.online) S.pending = Math.max(S.pending, 0); render(); } },
+  mic: () => { S.mic = !S.mic; render(); if (!S.mic) { const t = document.getElementById("note-" + S.room); if (t) { t.value += (t.value ? " " : "") + "Dictated: musty smell faint near wardrobe, client confirms only in winter."; markEdited(); } } },
+  modal: d => { S.modal = d.modal; render(); },
+  close: () => { S.modal = null; render(); },
+  backdrop: (d, el, e) => { if (e.target === el) { S.modal = null; render(); } },
+  savereading: () => { S.modal = null; markEdited(); toast(S.online ? "Reading saved and synced" : "Reading saved on this tablet"); },
+  importcsv: () => { S.modal = null; markEdited(); toast("Overnight data imported: 10 points, maximum 1,450 ppm at 05:00"); },
+  qty: d => { S.gridQty = d.q; S.cell = d.q === "bv" ? 0 : S.cell; render(); },
+  phase: d => { S.phase = d.p; render(); },
+  cell: d => { S.cell = +d.i; render(); },
+  pin: d => { S.planPin = d.pin; render(); },
+  finding: d => { S.findingId = d.id; S.priority = null; S.explanationOpen = false; render(); },
+  conflict: d => { S.conflict = false; if (d.keep === "theirs") FINDINGS[0].cost = "Free to £400"; markEdited(); render(); toast(d.keep === "theirs" ? "Alfie's cost range applied. Both versions kept in history." : "Your version kept. Alfie has been notified."); },
+  explain: () => { S.explanationOpen = !S.explanationOpen; render(); },
+  useexplain: d => { const f = findingById(S.findingId); f.why = EXPLANATIONS.find(x => x.id === d.id).text; S.explanationOpen = false; markEdited(); render(); },
+  prio: d => { S.priority = d.p; findingById(S.findingId).priority = d.p; markEdited(); render(); },
+  approve: () => { const f = findingById(S.findingId); f.status = "approved"; f.edited = "Just now"; markEdited(); render(); toast("Finding approved"); },
+  check: d => { S.checks[d.k] = !S.checks[d.k]; render(); },
+  publish: () => { S.versions.push({ v: "v1.1", label: "Full report", date: "23 Oct 2026", by: "Iza", note: "Published to portal. Reference set SBM-2024 / UK 2026.1 frozen with this version." }); render(); toast("Report v1.1 published. Harriet and Tom have been notified."); },
+  qnext: () => { S.qStep = Math.min(7, S.qStep + 1); render(); },
+  qprev: () => { S.qStep = Math.max(0, S.qStep - 1); render(); },
+  qgo: d => { S.qStep = +d.step; render(); },
+  qroom: d => { S.qRooms[d.v] = !S.qRooms[d.v]; render(); },
+  qconcern: d => { S.qConcerns[d.v] = !S.qConcerns[d.v]; render(); },
+  qconsent: () => { S.qConsent = !S.qConsent; render(); },
+  qsend: () => { S.qSent = true; render(); },
+  qreset: () => { S.qSent = false; S.qStep = 7; render(); },
+  ptab: d => { S.portalTab = d.t; render(); },
+  done: d => { S.done[d.id] = !S.done[d.id]; render(); if (S.done[d.id]) toast("Marked as done. Iza and Alfie can see your progress."); }
+};
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-action]");
+  if (!el) return;
+  if (el.tagName === "A") e.preventDefault();
+  const fn = ACT[el.dataset.action];
+  if (fn) fn(el.dataset, el, e);
+});
+document.addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches("g[data-action]")) { e.preventDefault(); ACT[e.target.dataset.action](e.target.dataset); }
+  if (e.key === "Escape" && S.modal) { S.modal = null; render(); }
+});
+document.addEventListener("input", e => { if (e.target.matches("[data-input]")) markEdited(); });
+document.addEventListener("change", e => {
+  const t = e.target, kind = t.dataset.change;
+  if (kind === "pkg") { S.pkg = t.value; const inc = PACKAGES[t.value]; Object.keys(S.scope).forEach(k => { S.scope[k] = inc.includes(k); }); markEdited(); render(); toast(`Scope set from ${t.value}. Adjust any point for this visit.`); }
+  if (kind === "qfile" && t.files.length) { S.qFiles.push(...[...t.files].map(f => f.name)); render(); }
+  if (kind === "roomphoto" && t.files.length) { markEdited(); toast(`Photograph attached to ${ROOMS.find(r => r.id === S.room).name}${S.online ? "" : ", queued for upload"}`); }
+  if (kind === "progress" && t.files[0]) { const id = t.dataset.id; const rd = new FileReader(); rd.onload = () => { S.photos[id] = rd.result; render(); toast("Progress photo shared with Iza and Alfie"); }; rd.readAsDataURL(t.files[0]); }
+  if (kind === "csv" && t.files[0]) { const f = t.files[0]; const rd = new FileReader(); rd.onload = () => { document.getElementById("csv-preview").innerHTML = csvPreview(String(rd.result).slice(0, 200000), f.name); }; rd.readAsText(f); }
+});
+document.addEventListener("submit", e => {
+  if (e.target.matches("[data-form='ask']")) {
+    e.preventDefault();
+    const t = document.getElementById("ask-text");
+    if (!t.value.trim()) { toast("Please write your question first"); return; }
+    S.messages.push({ me: true, text: t.value.trim(), when: "Just now" }); render(); toast("Question sent. We usually reply within one working day.");
+  }
+});
+
+(function start() {
+  const h = (location.hash || "").replace("#", "");
+  if (RENDER[h]) S.screen = h;
+  render();
+  window.addEventListener("hashchange", () => { const k = location.hash.replace("#", ""); if (RENDER[k] && k !== S.screen) go(k); });
+})();
+</script>
+</body>
+</html>
