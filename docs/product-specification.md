@@ -14,7 +14,9 @@ The first release prioritises three things: reliable data capture, report produc
 
 **Context travels with every value.** A reading keeps its location, date and time, instrument, method, duration and conditions (occupancy, windows, heating, appliance and circuit states). The interface distinguishes a spot reading from overnight monitoring, a screening result from laboratory analysis, and an observation from a confirmed finding.
 
-**Classification only where it is supported.** Automatic classification appears only when the measurement method, unit, detector and instrument match a verified reference entry. Otherwise the reading shows "Not classified" with the reason, and the assessor can write a professional assessment.
+**Four result classes.** Every result is an instrument reading, an indicative screening result, a laboratory-confirmed result or a professional observation. The class comes from the equipment register entry and is shown beside the value.
+
+**Classification only where it is supported.** Automatic classification appears only for instrument readings and laboratory-confirmed results whose method, unit and detector match a verified reference entry. Screening results (water strips, lead swabs, the VOC screener, the sound app) are never classified automatically. Otherwise the reading shows "Not classified" with the reason, and the assessor can write a professional assessment.
 
 **SBM guidance is never confused with legal limits.** SBM sleeping-area precautionary guidance, statutory or government references, and other reference values each carry their own label. A reading below a statutory limit is never presented as meeting the precautionary guidance.
 
@@ -60,20 +62,23 @@ Service packages (for example Sleep Sanctuary, Healthy Home Essentials, Healthy 
 | Finding and recommendation editor | Desktop | Linked evidence, what we found, why it matters, what you can do, cost range, specialist need, priority, reusable explanations, reference criteria panel, conflicting-edit resolution |
 | Report preview | Desktop | Branded report, pre-publication checklist (draft findings, outstanding results, scope review, frozen reference set), version history |
 | Client portal | Phone | Where to begin, full action plan by priority, mark actions done, progress photos, report download and online reading, questions |
+| Equipment register | Desktop | All 18 named devices, kits and apps and 4 additional methods by category, with parameters, default result class, checks, details to confirm, limitations and usage guidance |
 
 ## 6. Measurement capture
 
-- **Instrument profiles** record model, serial number, measurement range, frequency coverage where relevant, and calibration date and due date. Readings choose an instrument from the profile list; an instrument past its calibration date shows a warning.
+- **Equipment register** (seeded from `model/equipment-register.ts`, updated 23 October 2026) lists 8 categories, 18 named devices, kits and apps, and 4 additional methods. Each entry records its parameters and units, frequency coverage where relevant, serial number, default result class, required checks (calibration, bump test, batch and expiry), details still to confirm, and limitations that travel with every result. Serial numbers and check records are added by the team and are never pre-filled.
+- **Gas detector.** The Honeywell BW Flex 4 needs a bump test logged before each visit; readings without one are flagged. Its readings always carry the note that it does not replace a qualified gas-safety investigation.
+- **Electric fields** are measured with the ME3951A using the earthed method, and evaluated only against the earthed-method reference entry. Potential-free readings have their own method and reference entry, ready if a potential-free meter is added.
 - **Bedroom grid** uses nine fixed positions (head, middle, foot by left, centre, right). Positions not measured are drawn hatched and labelled "Not measured".
 - **Magnetic fields** store X, Y and Z; the resultant is calculated, never typed.
-- **RF** stores the detector (peak or RMS) and the instrument's frequency coverage. Where a band in use falls outside coverage (for example Wi-Fi 6E above 6 GHz on a 6 GHz meter), a caveat is attached to the finding and report automatically.
+- **RF** stores the detector (peak or average) and which meters were used. The HF38B-W (about 700 MHz to 2.4 GHz) and HFW35C (about 2.4 to 6 GHz) together cover about 700 MHz to 6 GHz. Sources outside that range (FM, DAB, TETRA, Wi-Fi 6E) produce an automatic caveat on the finding and report.
 - **Before and after** readings share a comparison group with a description of the change (for example "circuit 7 switched off at consumer unit"). Repeat visits link to the earlier visit so comparable readings appear side by side.
-- **CSV import** accepts logger exports, maps columns to quantities, previews the series and saves it as overnight monitoring linked to a room and instrument.
+- **CSV import** accepts logger exports (the Aranet4 first), maps columns to quantities, previews the series and saves it as overnight monitoring linked to a room and instrument.
 - **Room templates**: a room's structure (points, prompts, measurement positions) can be duplicated without its readings.
 
 ## 7. Samples and laboratory results
 
-Each sample has a unique reference (`EG-YYMM-CLIENT-TNN`), room, point, matrix, collection location, method, date and time, laboratory and status (planned, collected, deployed, at laboratory, result received, reviewed). Water samples record the outlet, hot or cold supply, filtered or unfiltered, and first-draw or flushed. Laboratory reports attach to the sample, and results become measurements of type "Laboratory analysis". Outstanding samples appear on the dashboard and in the report checklist, and are listed in any interim report as awaiting results.
+Each sample has a unique reference (`EG-YYMM-CLIENT-TNN`), room, point, matrix, collection location, method and equipment, date and time, laboratory (or "On-site screening") and status (planned, collected, deployed, at laboratory, result received, reviewed). Water samples record the outlet, hot or cold supply, filtered or unfiltered, and first-draw or flushed. On-site strip results are indicative; any lead, copper or iron indication prompts a bottle sample for accredited laboratory analysis, linked to the screening sample it confirms. Mould swab and dust results are interpreted alongside moisture, ventilation, visible conditions and building history, never alone. Laboratory reports attach to the sample, and results become measurements of type "Laboratory analysis". Outstanding samples appear on the dashboard and in the report checklist, and are listed in any interim report as awaiting results.
 
 ## 8. Reference library
 
@@ -117,7 +122,7 @@ A single TypeScript codebase: a React progressive web app for both experiences, 
 
 ## 14. Open questions for Emerald Grey
 
-1. Which instruments and logger export formats should be supported first?
+1. Serial numbers and calibration dates for each instrument, the body-voltage multimeter model, the radon detector model, the INKBIRD model and the gas detector's sensor configuration.
 2. Which laboratories do you use, and do any provide results in a structured format?
 3. Should clients see the SBM category names, plain-language labels, or both?
 4. How long should records be retained after the final visit?

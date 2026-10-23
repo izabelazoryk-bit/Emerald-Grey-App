@@ -13,17 +13,19 @@
    device frame (desktop, tablet, phone) that uses container queries, so the phone and
    tablet layouts are faithful even when viewed on a large monitor. */
 :root {
-  --paper: #F2F0EB;        /* warm stone ground */
-  --surface: #FCFBF8;      /* cards and sheets */
-  --sunk: #E9E6DF;         /* wells, inputs, table heads */
-  --line: #DAD5CB;
-  --ink: #1E2925;          /* emerald grey ink */
-  --ink-2: #4B5752;
-  --ink-3: #727C77;
-  --emerald: #0D5A45;
-  --emerald-2: #187A5E;
-  --emerald-tint: #DFECE5;
-  --on-emerald: #F7F5F0;
+  --paper: #F1EEE6;        /* warm stone ground, drawn from the logo cream */
+  --surface: #FBFAF6;      /* cards and sheets */
+  --sunk: #E7E3D8;         /* wells, inputs, table heads */
+  --line: #D6D0C2;
+  --ink: #1C2621;          /* emerald grey ink */
+  --ink-2: #48544D;
+  --ink-3: #6F7972;
+  --emerald: #1E382B;      /* logo green */
+  --emerald-2: #2F5A45;
+  --emerald-tint: #E0E6DC;
+  --on-emerald: #E9E4D3;   /* logo cream, lifted */
+  --brand-green: #1E382B;  /* fixed brand colours for logo surfaces, same in both themes */
+  --brand-cream: #D8D3BF;
   --brass: #9C7B45;        /* restrained secondary accent for SBM guidance */
   --brass-tint: #F1E8D8;
   --ok: #276447;      --ok-bg: #E0EEE5;
@@ -42,7 +44,7 @@
   :root:not([data-theme="light"]) {
     --paper: #111714; --surface: #18201C; --sunk: #212A26; --line: #2F3A35;
     --ink: #ECEAE4; --ink-2: #B8BEB9; --ink-3: #8C958F;
-    --emerald: #6CCBA8; --emerald-2: #4FB08D; --emerald-tint: #1B3A2F; --on-emerald: #0B1310;
+    --emerald: #A3CBB1; --emerald-2: #74A98A; --emerald-tint: #1F3328; --on-emerald: #10201A;
     --brass: #D2B47E; --brass-tint: #33291A;
     --ok: #8FD3B0; --ok-bg: #1C3529; --slight: #E2CF7A; --slight-bg: #353016;
     --strong: #EFA77A; --strong-bg: #3D2618; --extreme: #F09A9A; --extreme-bg: #3F1F1F;
@@ -54,7 +56,7 @@
 :root[data-theme="dark"] {
   --paper: #111714; --surface: #18201C; --sunk: #212A26; --line: #2F3A35;
   --ink: #ECEAE4; --ink-2: #B8BEB9; --ink-3: #8C958F;
-  --emerald: #6CCBA8; --emerald-2: #4FB08D; --emerald-tint: #1B3A2F; --on-emerald: #0B1310;
+  --emerald: #A3CBB1; --emerald-2: #74A98A; --emerald-tint: #1F3328; --on-emerald: #10201A;
   --brass: #D2B47E; --brass-tint: #33291A;
   --ok: #8FD3B0; --ok-bg: #1C3529; --slight: #E2CF7A; --slight-bg: #353016;
   --strong: #EFA77A; --strong-bg: #3D2618; --extreme: #F09A9A; --extreme-bg: #3F1F1F;
@@ -101,9 +103,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .proto-inner { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; max-width: 1320px; margin: 0 auto; }
 .wordmark { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
 .proto-inner > .wordmark { margin-right: auto; }
-.wordmark-mark { width: 28px; height: 28px; border-radius: 50%; background: var(--emerald); position: relative; flex: none; }
-.wordmark-mark::after { content: ""; position: absolute; inset: 7px 7px 7px 13px; border-radius: 0 14px 14px 0; background: var(--on-emerald); opacity: .9; }
-.wordmark b { font-family: var(--font-display); font-weight: 500; font-size: 1.08rem; letter-spacing: .01em; }
+.wordmark .mark { width: 28px; height: auto; flex: none; color: var(--emerald); }
+.wordmark b { font-family: var(--font-display); font-weight: 500; font-size: .98rem; letter-spacing: .16em; text-transform: uppercase; white-space: nowrap; }
+.side .wordmark b { font-size: .88rem; letter-spacing: .12em; }
 .wordmark span { font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-3); display: block; line-height: 1; }
 .screen-nav { display: flex; gap: 4px; overflow-x: auto; flex: 1 1 100%; order: 3; min-width: 0; padding-bottom: 2px; scrollbar-width: thin; }
 .screen-nav button {
@@ -376,12 +378,12 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .axis .k { font-size: .7rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
 .axis .v { font-family: var(--font-data); font-size: 1.05rem; }
 .axis.res { background: var(--emerald-tint); }
-.coverage { position: relative; height: 54px; margin-top: 6px; }
-.coverage .track { position: absolute; left: 0; right: 0; top: 18px; height: 16px; border-radius: 4px; background: repeating-linear-gradient(135deg, var(--sunk) 0 5px, var(--line) 5px 10px); }
-.coverage .cov { position: absolute; top: 18px; height: 16px; background: var(--emerald-2); border-radius: 4px; opacity: .85; }
+.coverage { position: relative; height: 66px; margin-top: 6px; }
+.coverage .track { position: absolute; left: 0; right: 0; top: 28px; height: 16px; border-radius: 4px; background: repeating-linear-gradient(135deg, var(--sunk) 0 5px, var(--line) 5px 10px); }
+.coverage .cov { position: absolute; top: 28px; height: 16px; background: var(--emerald-2); border-radius: 4px; opacity: .85; }
 .coverage .band { position: absolute; top: 0; font-size: .64rem; color: var(--ink-2); transform: translateX(-50%); white-space: nowrap; }
-.coverage .tick { position: absolute; top: 14px; width: 1px; height: 24px; background: var(--ink); }
-.coverage .axislab { position: absolute; top: 38px; font-size: .64rem; color: var(--ink-3); transform: translateX(-50%); white-space: nowrap; font-family: var(--font-data); }
+.coverage .tick { position: absolute; top: 24px; width: 1px; height: 24px; background: var(--ink); }
+.coverage .axislab { position: absolute; top: 50px; font-size: .64rem; color: var(--ink-3); transform: translateX(-50%); white-space: nowrap; font-family: var(--font-data); }
 .plan > svg { width: 100%; height: auto; display: block; }
 .plan > svg text { font-family: var(--font-body); }
 .pin { cursor: pointer; }
@@ -401,6 +403,12 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .priority-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 @container (max-width: 560px) { .priority-pick { grid-template-columns: minmax(0, 1fr); } }
 
+/* Equipment */
+.eq-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.eq-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.eq-detail { position: sticky; top: 90px; }
+@container (max-width: 900px) { .eq-layout { grid-template-columns: minmax(0, 1fr); } .eq-detail { position: static; } }
+
 /* Report */
 .report-layout { display: grid; grid-template-columns: 250px minmax(0, 1fr) 270px; gap: 18px; align-items: start; }
 @container (max-width: 1180px) { .report-layout { grid-template-columns: minmax(0, 1fr) 270px; } .report-layout .outline { display: none; } }
@@ -408,6 +416,9 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .paper { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; box-shadow: var(--shadow); padding: 44px 48px; display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 @container (max-width: 640px) { .paper { padding: 26px 20px; } }
 .paper .cover { border-bottom: 1px solid var(--line); padding-bottom: 22px; display: flex; flex-direction: column; gap: 10px; }
+.cover-brand { background: var(--brand-green); border-radius: 4px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cover-brand img { width: 150px; max-width: 100%; height: auto; display: block; }
+.cover-brand span { color: var(--brand-cream); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; }
 .paper h1 { font-size: 2.3rem; }
 .paper p, .paper li { max-width: 68ch; line-height: 1.65; }
 .paper section { display: flex; flex-direction: column; gap: 10px; }
@@ -445,7 +456,7 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 <body>
 <header class="proto-bar">
   <div class="proto-inner">
-    <a class="wordmark" href="#dashboard" data-action="go" data-screen="dashboard"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Assessment Studio</span></div></a>
+    <a class="wordmark" id="brand" href="#dashboard" data-action="go" data-screen="dashboard" aria-label="Emerald Grey Assessment Studio"></a>
     <nav class="screen-nav" id="screen-nav" aria-label="Prototype screens"></nav>
     <div class="device-toggle" id="device-toggle" role="group" aria-label="Preview device"></div>
   </div>
@@ -492,6 +503,9 @@ const ICONS = {
   photo: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8"/>',
   bed: '<path d="M3 18V7M3 13h18v5M21 18v-3a3 3 0 00-3-3h-7v1"/><circle cx="7" cy="10.5" r="1.8"/>'
 };
+/* The Emerald Grey mark: house and three-leaf plant, redrawn from the logo so it stays crisp at small sizes. */
+const MARK = `<svg class="mark" viewBox="172 30 224 250" fill="none" stroke="currentColor" stroke-width="10" aria-hidden="true"><path d="M182.5 269V135L284 41l101.5 94v134z"/><path d="M284 269v-86"/><path d="M284 106c19 22 19 54 0 77-19-23-19-55 0-77z"/><path d="M222 162c36-4 55 20 62 50-32 4-58-16-62-50z"/><path d="M346 162c-36-4-55 20-62 50 32 4 58-16 62-50z"/></svg>`;
+const logoInner = sub => `${MARK}<div><b>Emerald Grey</b><span>${sub}</span></div>`;
 const icon = (n, extra = "") => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" ${extra}>${ICONS[n] || ""}</svg>`;
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (n, d = 0) => Number(n).toLocaleString("en-GB", { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -529,24 +543,37 @@ const EVAL = {
   extreme: { label: "Extreme anomaly", client: "A high priority", cls: "c-extreme" },
   nc:      { label: "Not classified", client: "Not classified", cls: "c-outline" },
   pro:     { label: "Professional assessment", client: "Our assessment", cls: "c-info" },
-  nm:      { label: "Not measured", client: "Not measured", cls: "c-outline" }
+  nm:      { label: "Not measured", client: "Not measured", cls: "c-outline" },
+  scr:     { label: "Screening only, not classified", client: "Screening only", cls: "c-outline" },
+  noguide: { label: "No numerical guideline", client: "Our assessment", cls: "c-outline" }
 };
+/* Screening results and professional observations are never classified automatically. */
+function readingEval(r) {
+  if (r.result === "observation") return "pro";
+  if (r.result === "screening") return "scr";
+  if (r.value == null) return "nm";
+  if (!r.ref) return "noguide";
+  return classify(r.value, r.ref, r.method);
+}
+const instNames = r => inst(r.inst).name + (r.inst2 ? " and " + inst(r.inst2).name : "");
 const evalChip = (k, client = false) => `<span class="chip ${EVAL[k].cls}">${client ? EVAL[k].client : EVAL[k].label}</span>`;
 
-const KIND = { spot: "Spot reading", overnight: "Overnight monitoring", screening: "Screening result", lab: "Laboratory analysis" };
-const CERT = { observation: "Observation", confirmed: "Confirmed finding" };
+const TIMING = { spot: "Spot reading", overnight: "Overnight monitoring", longterm: "Long-term monitoring" };
+const RESULT = { reading: "Instrument reading", screening: "Indicative screening", lab: "Laboratory-confirmed", observation: "Professional observation" };
+const RESULT_CLS = { reading: "c-emerald", screening: "c-slight", lab: "c-info", observation: "c-brass" };
 
 /* Reference library. Sample entries for interface design only: every value must be
    confirmed against the licensed edition of each source before release. */
 const REF = {
-  "sbm-ef":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "AC electric field, potential-free", method: "potential-free", unit: "V/m", bands: [1, 5, 50], conditions: "Sleeping area. Potential-free three-axis probe, bed positions, circuits in their usual night-time state." },
+  "sbm-ef":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "AC electric field, earthed method (against ground potential)", method: "earthed", unit: "V/m", bands: [1, 5, 50], conditions: "Sleeping area. Meter referenced to earth, bed positions, circuits in their usual night-time state." },
+  "sbm-ef-pf":{ kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "AC electric field, potential-free", method: "potential-free", unit: "V/m", bands: [0.3, 1.5, 10], conditions: "Sleeping area. Potential-free probe. No instrument for this method in the current equipment register." },
   "sbm-bv":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "Body voltage against earth", method: "body-voltage", unit: "mV", bands: [10, 100, 1000], conditions: "Sleeping area. Person lying in usual sleeping position, high-impedance voltmeter." },
-  "sbm-mf":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "AC magnetic field, resultant of three axes", method: "three-axis", unit: "nT", bands: [20, 100, 500], conditions: "Sleeping area. Resultant of X, Y and Z axes. Long-term monitoring preferred where loads vary." },
-  "sbm-rf":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "Radio-frequency power density, peak", method: "peak", unit: "µW/m²", bands: [0.1, 10, 1000], conditions: "Sleeping area. Peak values, sum of all sources. Applies only where the instrument covers the relevant frequencies." },
+  "sbm-mf":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "AC magnetic field, resultant of three axes", method: "three-axis", unit: "nT", bands: [20, 100, 500], conditions: "Sleeping area. Resultant of three orientations. Long-term monitoring preferred where loads vary." },
+  "sbm-rf":   { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "Radio-frequency power density, peak", method: "peak", unit: "µW/m²", bands: [0.1, 10, 1000], conditions: "Sleeping area. Peak values, sum of all sources. Applies to the frequencies the instruments cover." },
   "sbm-co2":  { kind: "sbm", source: "SBM-2024 Building Biology Evaluation Guidelines for Sleeping Areas", edition: "SBM-2024", quantity: "Carbon dioxide", method: "any", unit: "ppm", bands: [600, 1000, 1500], conditions: "Sleeping area. Overnight logging with usual occupancy and window position." },
   "icnirp-ef":{ kind: "statutory", source: "ICNIRP Guidelines (2010), general public reference level at 50 Hz", edition: "2010", quantity: "AC electric field", method: "any", unit: "V/m", limit: 5000, conditions: "Short-term acute effects. Adopted in UK guidance. Not designed for long-term sleeping exposure." },
   "icnirp-mf":{ kind: "statutory", source: "ICNIRP Guidelines (2010), general public reference level at 50 Hz", edition: "2010", quantity: "AC magnetic flux density", method: "any", unit: "nT", limit: 200000, conditions: "Short-term acute effects. 200 µT expressed in nT." },
-  "ukhsa-rn": { kind: "statutory", source: "UKHSA radon Action Level for homes", edition: "Current", quantity: "Radon, annual average", method: "long-term", unit: "Bq/m³", limit: 200, conditions: "Annual average from long-term passive detectors. Target level 100 Bq/m³." },
+  "ukhsa-rn": { kind: "statutory", source: "UKHSA radon Action Level for homes", edition: "Current", quantity: "Radon, annual average", method: "long-term", unit: "Bq/m³", limit: 200, conditions: "Annual average from long-term detectors. Target level 100 Bq/m³." },
   "bb-co2":   { kind: "other", source: "Professional comparison value for well-ventilated bedrooms", edition: "Internal 2026", quantity: "Carbon dioxide", method: "any", unit: "ppm", limit: 1000, conditions: "Internal comparison value used by Emerald Grey. Shown for context only." }
 };
 const REF_KIND = { sbm: { label: "SBM sleeping-area precautionary guidance", cls: "c-brass" }, statutory: { label: "Statutory or government reference", cls: "c-info" }, other: { label: "Other reference value", cls: "c-muted" } };
@@ -558,16 +585,85 @@ function classify(value, refId, method) {
   return value < a ? "none" : value < b ? "slight" : value < c ? "strong" : "extreme";
 }
 
-/* ---------- Instruments ---------- */
-const INSTRUMENTS = [
-  { id: "EG-LF-01", name: "Low-frequency field meter", serial: "LF-20931", range: "E-field 1 to 2,000 V/m; magnetic 1 nT to 20 µT, three-axis", cal: "14 Mar 2026", due: "Mar 2027" },
-  { id: "EG-BV-01", name: "Body voltage meter", serial: "BV-11804", range: "1 mV to 20 V AC, 10 MΩ input", cal: "14 Mar 2026", due: "Mar 2027" },
-  { id: "EG-RF-01", name: "RF analyser, broadband", serial: "HF-55210", range: "27 MHz to 6 GHz; peak and RMS detectors", cal: "2 Feb 2026", due: "Feb 2027", fmin: 27, fmax: 6000 },
-  { id: "EG-IAQ-02", name: "Indoor air logger", serial: "IAQ-70218", range: "CO₂ 0 to 5,000 ppm (NDIR); temperature; relative humidity", cal: "10 Jun 2026", due: "Jun 2027" },
-  { id: "EG-PM-01", name: "Optical particle counter", serial: "PC-33017", range: "0.3 to 10 µm, six channels", cal: "21 Jan 2026", due: "Jan 2027" },
-  { id: "EG-MM-01", name: "Moisture meter", serial: "MM-90122", range: "Pin and capacitive modes; wood moisture equivalent", cal: "5 May 2026", due: "May 2027" }
+/* ---------- Equipment register (updated 23 October 2026) ----------
+   Serial numbers, calibration dates and some model details are not yet recorded,
+   so the register shows them as records to add rather than inventing values. */
+const EQ_CATS = [
+  ["air", "Indoor air quality and ventilation"], ["emf", "Electromagnetic fields and electrical environment"],
+  ["light", "Lighting and circadian environment"], ["moisture", "Moisture, damp and building defects"],
+  ["mould", "Mould and microbiological investigation"], ["water", "Water quality screening"],
+  ["radon", "Radon"], ["sound", "Acoustic environment"]
 ];
-const inst = id => INSTRUMENTS.find(i => i.id === id);
+const EQ_KIND = { instrument: "Instrument", kit: "Screening kit", app: "App", sampling: "Sampling kit", method: "Method" };
+const CHECKS = {
+  calibration: "Calibration record not yet added",
+  bump: "Bump test before each visit and calibration: no records yet",
+  expiry: "Batch and expiry date not yet recorded",
+  uncalibrated: "Uncalibrated: indicative comparisons only",
+  none: "No calibration applies"
+};
+const EQUIPMENT = [
+  { id: "aranet4", cat: "air", name: "Aranet4", kind: "instrument", result: "reading", check: "calibration", points: ["B6", "S5"],
+    purpose: "CO₂, relative humidity, temperature and atmospheric pressure. Used to assess ventilation effectiveness and bedroom air quality.",
+    params: "CO₂ (ppm) · relative humidity (%) · temperature (°C) · pressure (hPa)", csv: true },
+  { id: "inkbird", cat: "air", name: "INKBIRDPLUS CO₂ Monitor", kind: "instrument", result: "reading", check: "calibration", points: ["B6"],
+    purpose: "Additional CO₂, temperature and humidity monitoring, depending on exact model.", params: "CO₂ (ppm) · temperature (°C) · humidity (%)", confirm: ["Exact model"] },
+  { id: "temtop", cat: "air", name: "Temtop Airing 2000", kind: "instrument", result: "reading", check: "calibration", points: ["B5"],
+    purpose: "Airborne particulates including PM1, PM2.5 and PM10, plus other supported air quality parameters.", params: "PM1, PM2.5, PM10 (µg/m³) · other supported parameters" },
+  { id: "pcevoc", cat: "air", name: "PCE-VOC 1", kind: "instrument", result: "screening", check: "calibration", points: ["B1", "B2"],
+    purpose: "Screening for volatile organic compounds (VOCs) and formaldehyde.", params: "TVOC · formaldehyde",
+    limits: ["Screening result. It shows where laboratory analysis may be worthwhile and is not classified automatically."] },
+  { id: "bwflex", cat: "air", name: "Honeywell BW Flex 4 Gas Detector", kind: "instrument", result: "reading", check: "bump", points: ["B1"],
+    purpose: "Detects combustible gases (LEL), hydrogen sulphide (H₂S), carbon monoxide (CO) and oxygen (O₂), subject to the installed sensor configuration. Relevant to suspected gas hazards, drainage-related concerns and combustion issues.",
+    params: "LEL (%) · H₂S (ppm) · CO (ppm) · O₂ (% vol)", confirm: ["Installed sensor configuration"],
+    limits: ["Not a substitute for a qualified gas-safety investigation. Any alarm or suspected gas escape: leave the property, call the gas emergency line (0800 111 999) and refer to a Gas Safe registered engineer."] },
+  { id: "hf38", cat: "emf", name: "Gigahertz Solutions HF38B-W", kind: "instrument", result: "reading", check: "calibration", points: ["A3"], fmin: 700, fmax: 2400,
+    purpose: "Radio-frequency measurements, approximately 700 MHz to 2.4 GHz.", params: "RF power density (µW/m²), peak and average" },
+  { id: "hfw35", cat: "emf", name: "Gigahertz Solutions HFW35C", kind: "instrument", result: "reading", check: "calibration", points: ["A3"], fmin: 2400, fmax: 6000,
+    purpose: "Higher-frequency RF measurements, approximately 2.4 to 6 GHz.", params: "RF power density (µW/m²), peak and average" },
+  { id: "me3951", cat: "emf", name: "Gigahertz Solutions ME3951A", kind: "instrument", result: "reading", check: "calibration", points: ["A1", "A2"],
+    purpose: "Low-frequency electric and magnetic field measurements from wiring, electrical appliances and installations.",
+    params: "AC electric field (V/m), earthed method · AC magnetic flux density (nT)" },
+  { id: "em100", cat: "emf", name: "TriField EM100 Power Line Monitor", kind: "instrument", result: "reading", check: "calibration", points: ["A1"],
+    purpose: "Measures conducted electrical interference (line noise or dirty electricity) on mains wiring, approximately 10 kHz to 10 MHz.", params: "Line noise (mV peak-to-peak)",
+    limits: ["No numerical guideline is loaded for line noise. Readings are recorded with a written professional assessment."] },
+  { id: "bvset", cat: "emf", name: "Multimeter and body-voltage testing setup", kind: "instrument", result: "reading", check: "calibration", points: ["A1"],
+    purpose: "Body-voltage measurements relating to capacitive coupling with the electrical environment, using appropriate electrical safety procedures.", params: "Body voltage (mV AC)",
+    confirm: ["Exact multimeter model"] },
+  { id: "ohsp", cat: "light", name: "HopooColor OHSP-350IR Spectrometer", kind: "instrument", result: "reading", check: "calibration", points: ["A9"],
+    purpose: "Spectral characteristics of lighting, including wavelength distribution, colour temperature, colour rendering and supported photometric measurements. Also used for red and infrared lighting devices within its specified spectral range.",
+    params: "Spectral distribution · colour temperature (K) · colour rendering · photometric values", note: "Confirmed model. Replaces the earlier provisional OHSP-350 entry." },
+  { id: "protimeter", cat: "moisture", name: "Protimeter Surveymaster", kind: "instrument", result: "reading", check: "calibration", points: ["S2"],
+    purpose: "Identifies elevated moisture in building materials using pin and non-invasive modes.", params: "Wood moisture equivalent (WME %) · comparative readings in non-invasive mode",
+    limits: ["Non-invasive readings are comparative. They show where to investigate further."] },
+  { id: "hikmicro", cat: "moisture", name: "HIKMICRO E01 Thermal Camera", kind: "instrument", result: "observation", check: "calibration", points: ["S2", "S3"],
+    purpose: "Identifies surface temperature anomalies, thermal bridges, possible insulation defects, cold surfaces and areas requiring further moisture investigation.", params: "Surface temperature (°C) · thermal images" },
+  { id: "swab", cat: "mould", name: "Mould swab sampling kits", kind: "sampling", result: "lab", check: "expiry", points: ["C1"],
+    purpose: "Collects samples from suspect surfaces for laboratory identification or analysis.", params: "Surface sample, laboratory result",
+    limits: ["Interpret alongside moisture readings, ventilation, visible conditions and building history. Not used alone to establish a health risk or to exclude hidden mould."] },
+  { id: "dust", cat: "mould", name: "Dust sampling kits", kind: "sampling", result: "lab", check: "expiry", points: ["C1"],
+    purpose: "Collects settled dust for laboratory analysis of mould-related contamination, according to the laboratory's method.", params: "Settled dust sample, laboratory result",
+    limits: ["Interpret alongside moisture readings, ventilation, visible conditions and building history. Not used alone to establish a health risk or to exclude hidden mould."] },
+  { id: "lab", cat: "mould", name: "External specialist laboratory", kind: "method", result: "lab", check: "none", points: ["C1", "S1"],
+    purpose: "Analyses submitted samples and provides results for interpretation within the overall building investigation.", params: "Laboratory report", confirm: ["Laboratory name and accreditation"] },
+  { id: "varify", cat: "water", name: "Varify Water Hardness Test Kit", kind: "kit", result: "screening", check: "expiry", points: ["S1"],
+    purpose: "On-site hardness screening, primarily reflecting dissolved calcium and magnesium. Useful for understanding scaling and water treatment needs.", params: "Hardness (ppm), 0 to 425 ppm" },
+  { id: "tespert", cat: "water", name: "TESPERT 16-in-1 Drinking Water Test Strips", kind: "kit", result: "screening", check: "expiry", points: ["S1"],
+    purpose: "Rapid screening of multiple water parameters, including hardness, lead, iron and copper as indicated by the product listing.", params: "16 parameters, colour bands",
+    limits: ["Preliminary screening, not a comprehensive drinking-water safety test. Any indication of lead, copper or iron is referred for accredited laboratory analysis."] },
+  { id: "pawfly", cat: "water", name: "Pawfly Lead Test Swabs (60 pcs)", kind: "kit", result: "screening", check: "expiry", points: ["S4"],
+    purpose: "Screening of compatible solid surfaces and materials for potential lead contamination. Not designed for testing drinking water.", params: "Colour change, present or not indicated",
+    limits: ["UKHSA does not recommend colour-change chemical test kits for reliable assessment of lead in buildings, because results can be inaccurate. Treat any swab finding as an initial indication and refer suspected contamination for accredited laboratory analysis."],
+    guidance: ["Optional, targeted investigation rather than part of every assessment.", "Older properties with historic paintwork, particularly deteriorating or peeling surfaces, original joinery, windows, doors and radiators.", "Before refurbishment, where sanding, scraping or disturbing old paint could generate lead-containing dust.", "Antique or imported glazed ceramics, especially if used for food or drink. A swab cannot establish food-contact safety.", "Suspected contaminated dust or surfaces, where the building history suggests a potential lead source."] },
+  { id: "radon", cat: "radon", name: "Three-month radon monitoring device", kind: "instrument", result: "reading", check: "calibration", points: ["A6"],
+    purpose: "Long-term measurement of indoor radon concentrations to establish a representative assessment of radon exposure.", params: "Radon (Bq/m³), three-month average", confirm: ["Detector brand and model"] },
+  { id: "radondesk", cat: "radon", name: "Desktop radon risk assessment", kind: "method", result: "observation", check: "none", points: ["A6"],
+    purpose: "Review of local radon potential before the property visit, helping identify where monitoring is advisable.", params: "Radon potential for the property's area" },
+  { id: "decibelx", cat: "sound", name: "Decibel X App", kind: "app", result: "screening", check: "uncalibrated", points: ["A8"],
+    purpose: "Screening of background sound levels and noise from ventilation systems, appliances, building services and external sources.", params: "Sound level, dB(A) depending on settings",
+    limits: ["Phone-based measurements are useful for indicative comparisons. Without calibration they are not equivalent to a professional sound-level survey."] }
+];
+const inst = id => EQUIPMENT.find(i => i.id === id);
 
 /* ---------- Sample client ---------- */
 const CLIENT = {
@@ -585,7 +681,7 @@ const PROPERTY = [
 const SCOPE = {
   A1: ["measured", true], A2: ["measured", true], A3: ["measured", true], A4: ["inspected", true], A5: ["excluded", false],
   A6: ["awaiting", true], A7: ["excluded", false], A8: ["excluded", false], A9: ["measured", true],
-  B1: ["awaiting", true], B2: ["awaiting", true], B3: ["excluded", false], B4: ["excluded", false], B5: ["measured", true], B6: ["measured", true],
+  B1: ["measured", true], B2: ["measured", true], B3: ["excluded", false], B4: ["excluded", false], B5: ["measured", true], B6: ["measured", true],
   C1: ["awaiting", true], C2: ["excluded", false], C3: ["excluded", false], C4: ["inspected", true],
   S1: ["awaiting", true], S2: ["measured", true], S3: ["referred", true], S4: ["inspected", true], S5: ["measured", true]
 };
@@ -597,56 +693,63 @@ const PACKAGES = {
 
 const ROOMS = [
   { id: "bed1", name: "Main bedroom", type: "bedroom", floor: "First floor", by: "Iza",
-    points: { A1: "measured", A2: "measured", A3: "measured", A6: "awaiting", A9: "measured", B6: "measured", C1: "inspected", S5: "measured" } },
+    points: { A1: "measured", A2: "measured", A3: "measured", A6: "awaiting", A9: "measured", B6: "measured", C1: "awaiting", S5: "measured" } },
   { id: "bed2", name: "Children's bedroom", type: "bedroom", floor: "First floor", by: "Alfie",
     points: { A1: "measured", A2: "measured", A3: "measured", A9: "measured", B6: "measured", S5: "measured" } },
   { id: "bath", name: "Bathroom", type: "bathroom", floor: "First floor", by: "Alfie",
-    points: { B6: "measured", C1: "awaiting", S2: "measured", S3: "referred", S5: "measured", S4: "inspected" } },
+    points: { B6: "measured", C1: "measured", S2: "measured", S3: "referred", S5: "measured", S4: "inspected" } },
   { id: "kitchen", name: "Kitchen", type: "kitchen", floor: "Ground floor", by: "Iza",
-    points: { B5: "measured", B6: "measured", S1: "awaiting", S5: "measured", B1: "awaiting" } },
+    points: { B1: "measured", B5: "measured", B6: "measured", S1: "awaiting", S5: "measured" } },
   { id: "living", name: "Living room", type: "living", floor: "Ground floor", by: "Iza",
-    points: { B1: "awaiting", B2: "awaiting", B5: "measured", B6: "measured", A3: "measured", C4: "inspected" } },
+    points: { B1: "measured", B2: "measured", B5: "measured", B6: "measured", A3: "measured", C4: "inspected" } },
   { id: "loft", name: "Loft", type: "loft", floor: "Loft", by: "Alfie", inaccessible: "Hatch boarded over by stored items; client to clear before follow-up",
     points: { C1: "inaccessible", S2: "inaccessible", S3: "inaccessible" } }
 ];
 const PROMPTS = {
-  bedroom: { title: "Bedroom checks around the bed", items: ["Nine-point mattress grid for electric and magnetic fields", "Body voltage in usual sleeping position, before and after switching off bedside circuits", "RF peak and RMS at pillow height, note devices left on overnight", "Overnight CO₂, temperature and humidity logger beside the bed", "Light at night: street light, standby LEDs, blackout"], cta: "Open bedroom measurement grid" },
-  bathroom: { title: "Bathroom extraction and moisture", items: ["Extractor flow rate at the grille, with door closed", "Overrun timer after the light is switched off", "Surface moisture at window reveal, ceiling corners and behind the WC", "Sealant and grout condition; signs of past leaks", "Relative humidity 20 minutes after a shower, if possible"] },
-  kitchen: { title: "Kitchen water and cooking air", items: ["Water samples: cold mains tap, first draw and flushed", "Filtered water from the jug, if used for drinking", "Cooker hood: extracting or recirculating, filter condition", "Particle readings during and after cooking, if the household agrees", "Gas hob: CO and NO₂ screening"] },
-  living: { title: "Living room materials", items: ["Air sample for formaldehyde and VOCs, windows closed for 8 hours beforehand", "New furniture, flooring or treatments in the last 12 months", "Wireless devices and their usual positions"] },
+  bedroom: { title: "Bedroom checks around the bed", items: ["Nine-point mattress grid: electric field (earthed method) and magnetic field with the ME3951A", "Body voltage in usual sleeping position, before and after switching off bedside circuits", "RF peak and average at pillow height with the HF38B-W and HFW35C", "Line noise at bedside sockets with the EM100", "Overnight CO₂, temperature and humidity with the Aranet4 beside the bed", "Light at night: bedside lighting spectrum with the OHSP-350IR; street light and standby LEDs"], cta: "Open bedroom measurement grid" },
+  bathroom: { title: "Bathroom extraction and moisture", items: ["Humidity decay after a shower with the Aranet4, door closed", "Extractor overrun after the light is switched off; does it clear steam?", "Moisture at the window reveal, ceiling corners and behind the WC with the Protimeter", "Thermal images of reveals and corners with the HIKMICRO E01", "Mould swab from any visible growth; sealant and grout condition"] },
+  kitchen: { title: "Kitchen water and cooking air", items: ["Water strips at the cold tap, first draw and flushed (TESPERT); hardness (Varify)", "Filtered water from the jug, if used for drinking", "Any lead, copper or iron indication: take a bottle sample for accredited laboratory analysis", "Cooker hood: extracting or recirculating, filter condition", "Particles during and after cooking with the Temtop, if the household agrees", "Gas hob: CO screening with the four-gas detector, bump-tested before the visit. Concerns go to a Gas Safe registered engineer"] },
+  living: { title: "Living room materials", items: ["Formaldehyde and VOC screening with the PCE-VOC 1, windows closed beforehand where possible", "New furniture, flooring or treatments in the last 12 months", "Wireless devices and their usual positions", "Older paintwork before refurbishment: lead swab screening is optional and indicative only"] },
   loft: { title: "Loft and roof space", items: ["Roof underside: staining, daylight, damp timber", "Insulation coverage and ventilation at eaves", "Previous leak areas noted in client history"] }
 };
 
 const READINGS = [
-  { id: "R-031", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 38, unit: "V/m", ref: "sbm-ef", method: "potential-free", methodLabel: "Potential-free, three-axis probe", inst: "EG-LF-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 19:42", dur: "60 s", loc: "Grid H-L, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Bedside lamps plugged in, off" }, by: "Iza", phase: "before" },
-  { id: "R-032", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 2.1, unit: "V/m", ref: "sbm-ef", method: "potential-free", methodLabel: "Potential-free, three-axis probe", inst: "EG-LF-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 19:58", dur: "60 s", loc: "Grid H-L, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Circuit 7 (first floor sockets) switched off" }, by: "Iza", phase: "after" },
-  { id: "R-033", room: "bed1", point: "A1", label: "Body voltage, lying on left side of bed", value: 420, unit: "mV", ref: "sbm-bv", method: "body-voltage", methodLabel: "Body voltage against earth", inst: "EG-BV-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 19:50", dur: "2 min", loc: "Left side, usual sleeping position", cond: { occupancy: "Tom lying in bed", windows: "Closed", heating: "On", appliances: "Bedside lamps plugged in" }, by: "Iza", phase: "before" },
-  { id: "R-036", room: "bed1", point: "A3", label: "RF power density at pillow, peak", value: 840, unit: "µW/m²", ref: "sbm-rf", method: "peak", methodLabel: "Peak detector, max hold, 3 min", inst: "EG-RF-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 20:10", dur: "3 min", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Router on, DECT base on landing, phones in airplane mode" }, by: "Iza", phase: "before" },
-  { id: "R-040", room: "bed1", point: "B6", label: "CO₂ overnight maximum", value: 1450, unit: "ppm", ref: "sbm-co2", method: "any", methodLabel: "NDIR logger, 1 min interval", inst: "EG-IAQ-02", kind: "overnight", cert: "confirmed", when: "9 to 10 Oct 2026, 22:00 to 07:00", dur: "9 h", loc: "Bedside table, 1 m from pillows", cond: { occupancy: "Two adults", windows: "Closed, trickle vents closed", heating: "Timed off 23:00", appliances: "Normal" }, by: "Iza", phase: "before" },
-  { id: "R-041", room: "bed1", point: "C1", label: "Staining at ceiling corner above wardrobe", value: null, unit: "", ref: null, method: null, methodLabel: "Visual inspection with moisture meter", inst: "EG-MM-01", kind: "spot", cert: "observation", when: "9 Oct 2026, 19:30", dur: "", loc: "North-east ceiling corner", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Faint tide-mark consistent with 2023 roof valley leak. Surface reads dry. No visible growth." },
-  { id: "R-051", room: "bath", point: "S5", label: "Extractor flow at grille", value: 9, unit: "l/s", ref: null, method: "any", methodLabel: "Flow hood, door closed", inst: "EG-IAQ-02", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 17:20", dur: "60 s", loc: "Ceiling grille", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "Underfloor on", appliances: "Fan on boost" }, by: "Alfie", phase: "before", note: "Approved Document F expects 15 l/s intermittent for a bathroom." },
-  { id: "R-052", room: "bath", point: "S2", label: "Surface moisture, window reveal", value: 28, unit: "WME %", ref: null, method: "any", methodLabel: "Pin meter, wood moisture equivalent", inst: "EG-MM-01", kind: "screening", cert: "observation", when: "9 Oct 2026, 17:31", dur: "", loc: "Left reveal, 10 cm above sill", cond: { occupancy: "Shower used 07:30", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Alfie", phase: "before" },
-  { id: "R-061", room: "kitchen", point: "B5", label: "PM2.5 during cooking", value: 46, unit: "µg/m³", ref: null, method: "any", methodLabel: "Optical counter, 1 min average", inst: "EG-PM-01", kind: "spot", cert: "confirmed", when: "9 Oct 2026, 18:15", dur: "15 min", loc: "Centre of room, 1.2 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Gas hob, hood on recirculation" }, by: "Iza", phase: "before" }
+  { id: "R-031", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 38, unit: "V/m", ref: "sbm-ef", method: "earthed", methodLabel: "Earthed method, meter referenced to earth", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:42", dur: "60 s", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Bedside lamps plugged in, off" }, by: "Iza", phase: "before" },
+  { id: "R-032", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 2.1, unit: "V/m", ref: "sbm-ef", method: "earthed", methodLabel: "Earthed method, meter referenced to earth", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:58", dur: "60 s", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Circuit 7 (first-floor sockets) switched off" }, by: "Iza", phase: "after" },
+  { id: "R-033", room: "bed1", point: "A1", label: "Body voltage, lying on left side of bed", value: 420, unit: "mV", ref: "sbm-bv", method: "body-voltage", methodLabel: "Body voltage against earth", inst: "bvset", timing: "spot", result: "reading", when: "9 Oct 2026, 19:50", dur: "2 min", loc: "Left side, usual sleeping position", cond: { occupancy: "Tom lying in bed", windows: "Closed", heating: "On", appliances: "Bedside lamps plugged in" }, by: "Iza", phase: "before" },
+  { id: "R-034", room: "bed1", point: "A2", label: "AC magnetic field, head of bed (left), resultant", value: 20.8, unit: "nT", ref: "sbm-mf", method: "three-axis", methodLabel: "Three orientations, resultant calculated", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:45", dur: "60 s per axis", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal evening load" }, by: "Iza", phase: "before" },
+  { id: "R-036", room: "bed1", point: "A3", label: "RF power density at pillow, peak, all sources", value: 840, unit: "µW/m²", ref: "sbm-rf", method: "peak", methodLabel: "Peak, max hold, 3 min per meter; both meters summed", inst: "hf38", inst2: "hfw35", timing: "spot", result: "reading", when: "9 Oct 2026, 20:10", dur: "6 min", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Router on, DECT base on landing, phones in airplane mode" }, by: "Iza", phase: "before" },
+  { id: "R-037", room: "bed1", point: "A1", label: "Line noise, left bedside socket", value: 410, unit: "mV p-p", ref: null, method: "any", methodLabel: "Plug-in monitor, 10 kHz to 10 MHz", inst: "em100", timing: "spot", result: "reading", when: "9 Oct 2026, 20:20", dur: "60 s", loc: "Left bedside socket", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Phone chargers and LED lamp plugged in" }, by: "Iza", phase: "before", note: "Dropped to 120 mV p-p with the LED lamp and chargers unplugged." },
+  { id: "R-038", room: "bed1", point: "A9", label: "Bedside lamp, colour temperature", value: 2650, unit: "K", ref: null, method: "any", methodLabel: "Spectrometer at pillow, lamp on", inst: "ohsp", timing: "spot", result: "reading", when: "9 Oct 2026, 20:30", dur: "", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Curtains closed", heating: "On", appliances: "Bedside lamp on, main light off" }, by: "Iza", phase: "before", note: "Warm white LED with low blue content, well suited to evening use." },
+  { id: "R-040", room: "bed1", point: "B6", label: "CO₂ overnight maximum", value: 1450, unit: "ppm", ref: "sbm-co2", method: "any", methodLabel: "Logger at 1 min interval, CSV export", inst: "aranet4", timing: "overnight", result: "reading", when: "9 to 10 Oct 2026, 22:00 to 07:00", dur: "9 h", loc: "Bedside table, 1 m from pillows", cond: { occupancy: "Two adults", windows: "Closed, trickle vents closed", heating: "Timed off 23:00", appliances: "Normal" }, by: "Iza", phase: "before" },
+  { id: "R-041", room: "bed1", point: "C1", label: "Staining at ceiling corner above wardrobe", value: null, unit: "", ref: null, method: null, methodLabel: "Visual inspection, thermal image and moisture meter", inst: "hikmicro", inst2: "protimeter", timing: "spot", result: "observation", when: "9 Oct 2026, 19:30", dur: "", loc: "North-east ceiling corner", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Faint tide-mark consistent with the 2023 roof valley leak. Surface reads dry and shows no cold spot. No visible growth. Settled dust sample taken from the wardrobe top." },
+  { id: "R-051", room: "bath", point: "S5", label: "Relative humidity 40 minutes after shower", value: 78, unit: "%RH", ref: null, method: "any", methodLabel: "Logger on window sill, door closed", inst: "aranet4", timing: "spot", result: "reading", when: "9 Oct 2026, 17:20", dur: "40 min decay", loc: "Window sill", cond: { occupancy: "Shower used 16:40", windows: "Closed", heating: "Underfloor on", appliances: "Fan on boost" }, by: "Alfie", phase: "before", note: "Humidity stayed above 75% for 40 minutes with the fan running, which suggests the extractor is not clearing moisture. Flow rate to be checked by an electrician." },
+  { id: "R-052", room: "bath", point: "S2", label: "Surface moisture, window reveal", value: 28, unit: "WME %", ref: null, method: "any", methodLabel: "Pin mode, wood moisture equivalent", inst: "protimeter", timing: "spot", result: "reading", when: "9 Oct 2026, 17:31", dur: "", loc: "Left reveal, 10 cm above sill", cond: { occupancy: "Shower used 16:40", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Alfie", phase: "before" },
+  { id: "R-061", room: "kitchen", point: "B5", label: "PM2.5 during cooking", value: 46, unit: "µg/m³", ref: null, method: "any", methodLabel: "Optical particle monitor, 1 min average", inst: "temtop", timing: "spot", result: "reading", when: "9 Oct 2026, 18:15", dur: "15 min", loc: "Centre of room, 1.2 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Gas hob, hood on recirculation" }, by: "Iza", phase: "before" },
+  { id: "R-062", room: "kitchen", point: "B1", label: "Carbon monoxide beside gas hob", value: 0, unit: "ppm", ref: null, method: "any", methodLabel: "Four-gas detector, hob on for 15 min", inst: "bwflex", timing: "spot", result: "reading", when: "9 Oct 2026, 18:20", dur: "15 min", loc: "30 cm from hob, 1.5 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Two hob rings on" }, by: "Iza", phase: "before", note: "No CO detected. This is screening only; appliance safety checks are for a Gas Safe registered engineer." },
+  { id: "R-063", room: "kitchen", point: "S1", label: "Water hardness, cold tap", value: 280, unit: "ppm", ref: null, method: "any", methodLabel: "Hardness strip, flushed sample", inst: "varify", timing: "spot", result: "screening", when: "10 Oct 2026, 07:10", dur: "", loc: "Kitchen cold tap", cond: { occupancy: "Normal", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before" },
+  { id: "R-064", room: "kitchen", point: "S1", label: "Lead indication, cold tap, first draw", value: null, unit: "", ref: null, method: "any", methodLabel: "16-in-1 strip, first-draw sample", inst: "tespert", timing: "spot", result: "screening", when: "10 Oct 2026, 07:05", dur: "", loc: "Kitchen cold tap, unfiltered", cond: { occupancy: "Stood overnight", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Strip showed a faint lead indication at the lowest band. Not shown on the flushed sample. Bottle sample sent for accredited laboratory analysis (EG-2610-ASH-W04)." },
+  { id: "R-071", room: "living", point: "B1", label: "Formaldehyde screening near new sofa", value: 0.08, unit: "mg/m³", ref: null, method: "any", methodLabel: "Handheld screening, 5 min stabilisation", inst: "pcevoc", timing: "spot", result: "screening", when: "9 Oct 2026, 16:00", dur: "5 min", loc: "1 m from sofa, seated head height", cond: { occupancy: "Unoccupied", windows: "Closed since morning", heating: "On, 20 °C", appliances: "Normal" }, by: "Iza", phase: "before", note: "Higher than the hallway comparison reading. Laboratory air analysis offered if the household would like certainty." }
 ];
 const SAMPLES = [
-  { ref: "EG-2610-ASH-W01", room: "kitchen", what: "Water, cold mains tap, unfiltered, first draw", method: "250 ml, metals panel; stood overnight", lab: "Severn Analytical Ltd", date: "10 Oct 2026, 07:05", status: "At laboratory", st: "awaiting" },
-  { ref: "EG-2610-ASH-W02", room: "kitchen", what: "Water, cold mains tap, unfiltered, flushed 2 min", method: "250 ml, metals panel", lab: "Severn Analytical Ltd", date: "10 Oct 2026, 07:09", status: "At laboratory", st: "awaiting" },
-  { ref: "EG-2610-ASH-W03", room: "kitchen", what: "Water, jug filter, filtered", method: "250 ml, metals panel", lab: "Severn Analytical Ltd", date: "10 Oct 2026, 07:12", status: "At laboratory", st: "awaiting" },
-  { ref: "EG-2610-ASH-A01", room: "living", what: "Air, formaldehyde and VOCs", method: "Active pump, DNPH and Tenax tubes, 2 h", lab: "Indoor Air Lab UK", date: "9 Oct 2026, 16:00", status: "Results received 21 Oct", st: "measured" },
-  { ref: "EG-2610-ASH-M01", room: "bath", what: "Air, mould spores, with outdoor reference", method: "Impaction cassette, 75 l", lab: "Mycology Services", date: "9 Oct 2026, 17:40", status: "Results received 19 Oct", st: "measured" },
-  { ref: "EG-2610-ASH-R01", room: "bed1", what: "Radon, three-month passive detector", method: "Alpha-track detector", lab: "Radon Measurement Service", date: "9 Oct 2026", status: "Deployed; return due 9 Jan 2027", st: "awaiting" }
+  { ref: "EG-2610-ASH-W01", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, first draw", method: "16-in-1 strip and hardness kit, on site", lab: "On-site screening", date: "10 Oct 2026, 07:05", status: "Screened: faint lead indication", st: "measured" },
+  { ref: "EG-2610-ASH-W02", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, flushed 2 min", method: "16-in-1 strip, on site", lab: "On-site screening", date: "10 Oct 2026, 07:09", status: "Screened: no lead indicated", st: "measured" },
+  { ref: "EG-2610-ASH-W03", room: "kitchen", what: "Water, jug filter, filtered", method: "16-in-1 strip, on site", lab: "On-site screening", date: "10 Oct 2026, 07:12", status: "Screened: no lead indicated", st: "measured" },
+  { ref: "EG-2610-ASH-W04", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, first draw", method: "250 ml bottle, lead and copper", lab: "External accredited laboratory", date: "10 Oct 2026, 07:15", status: "At laboratory: confirming strip indication", st: "awaiting" },
+  { ref: "EG-2610-ASH-M01", room: "bath", what: "Mould swab, window reveal", method: "Surface swab kit", lab: "External specialist laboratory", date: "9 Oct 2026, 17:40", status: "Results received 19 Oct", st: "measured" },
+  { ref: "EG-2610-ASH-D01", room: "bed1", what: "Settled dust, top of wardrobe", method: "Dust sampling kit", lab: "External specialist laboratory", date: "9 Oct 2026, 19:35", status: "At laboratory", st: "awaiting" },
+  { ref: "EG-2610-ASH-R01", room: "bed1", what: "Radon, three-month detector", method: "Long-term detector (model to confirm)", lab: "Analysis on return", date: "9 Oct 2026", status: "Deployed; return due 9 Jan 2027", st: "awaiting" }
 ];
 
 /* Bedroom grid data: row-major, head row first, left to right */
 const GRID_POS = ["Head left", "Head centre", "Head right", "Middle left", "Middle centre", "Middle right", "Foot left", "Foot centre", "Foot right"];
 const GRID = {
-  ef:  { label: "Electric field, potential-free", unit: "V/m", ref: "sbm-ef", method: "potential-free", inst: "EG-LF-01",
+  ef:  { label: "Electric field, earthed method", unit: "V/m", ref: "sbm-ef", method: "earthed", inst: "me3951",
          before: [38, 22, 9, 14, 8, 4, 6, 3, 2], after: [2.1, 1.6, 0.9, 1.2, 0.8, 0.5, 0.7, 0.4, 0.3] },
-  efg: { label: "Electric field, earthed probe", unit: "V/m", ref: "sbm-ef", method: "earthed", inst: "EG-LF-01",
-         before: [64, 41, 18, 22, 12, 7, 9, 5, 4], after: [3.2, 2.4, 1.5, 1.9, 1.1, 0.8, 0.9, 0.6, 0.5] },
-  bv:  { label: "Body voltage", unit: "mV", ref: "sbm-bv", method: "body-voltage", inst: "EG-BV-01",
+  efpf:{ label: "Electric field, potential-free", unit: "V/m", ref: "sbm-ef-pf", method: "potential-free", inst: null, before: null, after: null },
+  bv:  { label: "Body voltage", unit: "mV", ref: "sbm-bv", method: "body-voltage", inst: "bvset",
          before: [420, null, null, 380, null, null, 260, null, null], after: [18, null, null, 14, null, null, 11, null, null] },
-  mf:  { label: "Magnetic field, three axes", unit: "nT", ref: "sbm-mf", method: "three-axis", inst: "EG-LF-01",
+  mf:  { label: "Magnetic field, three axes", unit: "nT", ref: "sbm-mf", method: "three-axis", inst: "me3951",
          before: [[12, 8, 15], [10, 7, 12], [8, 6, 9], [9, 6, 10], [7, 5, 8], [6, 4, 7], [6, 4, 6], [5, 4, 5], [5, 3, 5]],
          after:  [[11, 8, 14], [10, 6, 12], [8, 6, 9], [9, 6, 9], [7, 5, 8], [6, 4, 7], [6, 4, 6], [5, 4, 5], [5, 3, 5]] }
 };
@@ -661,12 +764,12 @@ const EXPLANATIONS = [
 ];
 const FINDINGS = [
   { id: "f1", room: "Main bedroom", title: "Electric fields and body voltage at the head of the bed", point: "A1", status: "draft", readings: ["R-031", "R-032", "R-033"], priority: "start",
-    found: "Electric fields at the head of the bed measured 38 V/m (potential-free) with body voltage of 420 mV in Tom's usual sleeping position. The main sources were an extension lead behind the headboard and two bedside lamps. With circuit 7 switched off, the field at the pillow fell to 2.1 V/m and body voltage to 18 mV.",
+    found: "Electric fields at the head of the bed measured 38 V/m (earthed method) with body voltage of 420 mV in Tom's usual sleeping position. The main sources were an extension lead behind the headboard and two bedside lamps. With circuit 7 switched off, the field at the pillow fell to 2.1 V/m and body voltage to 18 mV.",
     why: "", what: "Move the extension lead away from the headboard and unplug both bedside lamps at night. If you would like a longer-term solution, a qualified electrician can fit a demand switch to circuit 7, which switches the circuit off automatically when nothing is drawing power.",
     cost: "Free to £350", specialist: "Optional: qualified electrician for a demand switch", by: "Iza", edited: "Today, 09:12" },
-  { id: "f2", room: "Main bedroom", title: "Radio-frequency levels at the pillow", point: "A3", status: "draft", readings: ["R-036"], priority: "start", found: "Peak RF at the pillow measured 840 µW/m², mainly from the cordless phone base on the landing and the Wi-Fi router in the hallway.", why: "", what: "", cost: "Free to £60", specialist: "No", by: "Iza", edited: "Yesterday" },
-  { id: "f3", room: "Main bedroom", title: "Carbon dioxide overnight", point: "B6", status: "approved", readings: ["R-040"], priority: "next", found: "CO₂ rose steadily overnight and reached 1,450 ppm by 05:10 with windows and trickle vents closed.", why: "", what: "", cost: "Free", specialist: "No", by: "Iza", edited: "21 Oct" },
-  { id: "f4", room: "Bathroom", title: "Extractor fan moving less air than needed", point: "S5", status: "approved", readings: ["R-051", "R-052"], priority: "start", found: "", why: "", what: "", cost: "£180 to £450", specialist: "Yes: electrician", by: "Alfie", edited: "21 Oct" },
+  { id: "f2", room: "Main bedroom", title: "Radio-frequency levels at the pillow", point: "A3", status: "draft", readings: ["R-036"], priority: "start", found: "Peak RF at the pillow measured 840 µW/m² across both meters, mainly from the cordless phone base on the landing and the Wi-Fi router in the hallway.", why: "", what: "", cost: "Free to £60", specialist: "No", by: "Iza", edited: "Yesterday" },
+  { id: "f3", room: "Main bedroom", title: "Carbon dioxide overnight", point: "B6", status: "approved", readings: ["R-040"], priority: "next", found: "CO₂ rose steadily overnight and reached 1,450 ppm by 05:00 with windows and trickle vents closed.", why: "", what: "", cost: "Free", specialist: "No", by: "Iza", edited: "21 Oct" },
+  { id: "f4", room: "Bathroom", title: "Extractor fan not clearing moisture", point: "S5", status: "approved", readings: ["R-051", "R-052"], priority: "start", found: "Humidity stayed above 75% for 40 minutes after a shower with the fan running, and the window reveal read 28% WME.", why: "", what: "", cost: "£180 to £450", specialist: "Yes: electrician", by: "Alfie", edited: "21 Oct" },
   { id: "f5", room: "Loft", title: "Roof valley above main bedroom", point: "S3", status: "draft", readings: [], priority: "later", found: "", why: "", what: "", cost: "£150 to £600", specialist: "Yes: roofer", by: "Alfie", edited: "20 Oct" }
 ];
 
@@ -676,7 +779,7 @@ const ACTIONS = [
   { id: "a3", pr: "start", title: "Run the bathroom fan for 20 minutes after showers", room: "Bathroom", cost: "Free", who: "You", minutes: "Daily", why: "This helps clear moisture before it settles on the window reveal." },
   { id: "a4", pr: "next", title: "Open the bedroom trickle vents at night", room: "Main bedroom", cost: "Free", who: "You", minutes: "Once", why: "CO₂ reached 1,450 ppm by early morning with the vents closed." },
   { id: "a5", pr: "next", title: "Move the cordless phone base off the landing", room: "Landing", cost: "Free to £60", who: "You", minutes: "15 minutes", why: "It was the strongest radio-frequency source at your pillow." },
-  { id: "a6", pr: "next", title: "Replace the bathroom extractor fan", room: "Bathroom", cost: "£180 to £450", who: "Electrician", minutes: "Half a day", why: "The current fan moves about 9 l/s; a bathroom needs at least 15 l/s." },
+  { id: "a6", pr: "next", title: "Ask an electrician to check or replace the bathroom fan", room: "Bathroom", cost: "£180 to £450", who: "Electrician", minutes: "Half a day", why: "Humidity stayed high for 40 minutes after a shower, so the fan is not clearing moisture." },
   { id: "a7", pr: "later", title: "Ask a roofer to check the valley above the main bedroom", room: "Roof", cost: "£150 to £600", who: "Roofer", minutes: "Visit", why: "Past staining is dry today, and a check gives peace of mind before winter." }
 ];
 const PRIORITY = { start: { label: "Start here", sub: "Simple changes with the biggest benefit" }, next: { label: "Next steps", sub: "Worth arranging over the coming weeks" }, later: { label: "When convenient", sub: "Longer-term improvements" } };
@@ -690,6 +793,7 @@ const SCREENS = [
   { id: "bedroom", label: "Bedroom grid", who: "Assessor", device: "tablet", note: "Tablet, on site. Nine-point mattress grid, electric-field methods recorded separately, three-axis magnetic readings, body voltage, RF coverage and before-and-after comparison." },
   { id: "finding", label: "Finding editor", who: "Assessor", device: "desktop", note: "Desktop. Turn readings into a reviewed finding and recommendation, evaluated against a reference library that keeps SBM guidance separate from statutory limits." },
   { id: "report", label: "Report preview", who: "Assessor", device: "desktop", note: "Desktop. Review the branded report before publication. Outstanding results and unapproved findings are surfaced before anything is issued." },
+  { id: "equipment", label: "Equipment register", who: "Assessor", device: "desktop", note: "Desktop. Your equipment, kits and methods in one register. Each entry carries its parameters, default result class, checks and limitations, and every reading links back to it." },
   { id: "portal", label: "Client portal", who: "Client", device: "phone", note: "Phone. The client sees where to begin, works through a manageable action plan, downloads the report and asks questions. Internal notes never appear here." }
 ];
 const S = {
@@ -706,7 +810,7 @@ const S = {
     { me: true, text: "We moved the extension lead last night. Is it fine to keep the lamp on a timer instead of unplugging it?", when: "Yesterday, 21:04" },
     { me: false, text: "Thank you for letting us know, that is a lovely first step. A plug-in timer still leaves the cable live up to the timer, so unplugging at the wall, or a switched socket, is the better option. We can measure the difference at your follow-up visit.", when: "Today, 08:40 · Iza" }
   ],
-  toast: null
+  eq: "bwflex", toast: null
 };
 const findingById = id => FINDINGS.find(f => f.id === id);
 
@@ -720,10 +824,10 @@ function syncBadge() {
 }
 
 function assessorShell(active, body) {
-  const links = [["dashboard", "home", "Dashboard"], ["profile", "users", "Clients", "24"], ["visits", "cal", "Visits", "6"], ["lab", "flask", "Laboratory", "9"], ["finding", "doc", "Findings"], ["report", "book", "Reports", "3"], ["instruments", "gauge", "Instruments", "6"]];
+  const links = [["dashboard", "home", "Dashboard"], ["profile", "users", "Clients", "24"], ["visits", "cal", "Visits", "6"], ["lab", "flask", "Laboratory", "9"], ["finding", "doc", "Findings"], ["report", "book", "Reports", "3"], ["equipment", "gauge", "Equipment", "22"]];
   return `<div class="shell">
     <aside class="side" aria-label="Workspace">
-      <div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Assessors</span></div></div>
+      <div class="wordmark">${logoInner("Assessors")}</div>
       ${links.map(([id, ic, label, n]) => `<button class="side-link" data-action="side" data-target="${id}" ${active === id ? 'aria-current="page"' : ""}>${icon(ic)}<span>${label}</span>${n ? `<span class="count">${n}</span>` : ""}</button>`).join("")}
       <div class="side-foot">
         ${syncBadge()}
@@ -747,10 +851,10 @@ function screenDashboard() {
     { who: "Sophie and Mae Lindqvist", stage: 2, note: "Visit 1 Nov · property research in progress", target: "profile" }
   ];
   const lab = [
-    ["EG-2610-ASH-W01", "Ashworth", "Water, first draw", "At laboratory", "12 days"],
+    ["EG-2610-ASH-W04", "Ashworth", "Water, first draw, lead and copper", "At laboratory", "12 days"],
+    ["EG-2610-ASH-D01", "Ashworth", "Settled dust", "At laboratory", "13 days"],
     ["EG-2610-ASH-R01", "Ashworth", "Radon, 3 months", "Deployed", "Due 9 Jan"],
-    ["EG-2609-WHI-A02", "Whitcombe", "Formaldehyde and VOCs", "At laboratory", "8 days"],
-    ["EG-2609-WHI-M01", "Whitcombe", "Mould, tape lift", "Result received", "Ready to review"]
+    ["EG-2609-WHI-M01", "Whitcombe", "Mould swab", "Result received", "Ready to review"]
   ];
   const follow = [
     ["Harriet Ashworth", "Asked about lamp timers", "Answered today", "c-ok"],
@@ -847,7 +951,7 @@ function screenProfile() {
         <section class="card stack" aria-labelledby="h-tl">
           <h3 id="h-tl">Visits and milestones</h3>
           <div class="timeline">
-            ${[["done", "Questionnaire received", "2 Oct 2026 · 6 rooms, 2 documents"], ["done", "Property research", "6 Oct · Alfie · flood map, radon map, planning history"], ["done", "Visit 1", "9 Oct · Iza and Alfie · 6 rooms, 34 readings, 6 samples"], ["done", "Interim report v1.0 issued", "20 Oct · 3 laboratory results pending"], ["", "Report v1.1 in review", "Adds air and mould results"], ["later", "Radon detectors returned", "Due 9 Jan 2027"], ["later", "Repeat visit", "Planned April 2027 · compare bedroom readings"]]
+            ${[["done", "Questionnaire received", "2 Oct 2026 · 6 rooms, 2 documents"], ["done", "Property research", "6 Oct · Alfie · flood map, radon map, planning history"], ["done", "Visit 1", "9 Oct · Iza and Alfie · 6 rooms, 34 readings, 7 samples"], ["done", "Interim report v1.0 issued", "20 Oct · 3 laboratory results pending"], ["", "Report v1.1 in review", "Adds air and mould results"], ["later", "Radon detectors returned", "Due 9 Jan 2027"], ["later", "Repeat visit", "Planned April 2027 · compare bedroom readings"]]
               .map(([c, t, s]) => `<div class="tl"><span class="tl-dot ${c}"></span><div><b class="small">${t}</b><div class="xsmall muted">${s}</div></div></div>`).join("")}
           </div>
         </section>
@@ -947,7 +1051,7 @@ function screenQuestionnaire() {
     ${body}`, foot);
 }
 function phoneShell(body, foot) {
-  return `<div class="phone"><div class="phone-top"><div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Your home</span></div></div><span class="avatar av-client">HA</span></div><div class="phone-body">${body}</div>${foot ? `<div class="phone-foot">${foot}</div>` : ""}</div>`;
+  return `<div class="phone"><div class="phone-top"><div class="wordmark">${logoInner("Your home")}</div><span class="avatar av-client">HA</span></div><div class="phone-body">${body}</div>${foot ? `<div class="phone-foot">${foot}</div>` : ""}</div>`;
 }
 
 /* ---------- 4. Room assessment (tablet) ---------- */
@@ -973,19 +1077,18 @@ function roomRail() {
     </div></nav>`;
 }
 function readingCard(r) {
-  const k = r.value == null ? (r.cert === "observation" ? "pro" : "nm") : classify(r.value, r.ref, r.method);
-  const i = inst(r.inst);
+  const k = readingEval(r);
   return `<div class="reading-card">
     <div class="stack" style="gap:4px">
       <div class="row"><span class="scope-code">${r.point}</span><b class="small">${r.label}</b></div>
-      <div class="row"><span class="tag">${KIND[r.kind]}</span><span class="tag">${CERT[r.cert]}</span>${r.phase === "after" ? `<span class="tag">After change</span>` : ""}</div>
+      <div class="row"><span class="tag">${TIMING[r.timing]}</span><span class="chip ${RESULT_CLS[r.result]}">${RESULT[r.result]}</span>${r.phase === "after" ? `<span class="tag">After change</span>` : ""}</div>
     </div>
     <div class="stack" style="gap:4px;align-items:flex-end">
-      ${r.value != null ? `<span class="reading-val">${fmt(r.value, r.value < 10 && r.value % 1 ? 1 : 0)}<small>${r.unit}</small></span>` : ""}
-      ${r.ref ? evalChip(k) : r.value != null ? `<span class="chip c-outline">No numerical guideline · write assessment</span>` : evalChip("pro")}
+      ${r.value != null ? `<span class="reading-val">${fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0)}<small>${r.unit}</small></span>` : ""}
+      ${evalChip(k)}
     </div>
     ${r.note ? `<p class="small" style="grid-column:1/-1">${esc(r.note)}</p>` : ""}
-    <div class="ctx"><span><b>Where</b> ${r.loc}</span><span><b>When</b> ${r.when}</span>${r.dur ? `<span><b>Duration</b> ${r.dur}</span>` : ""}<span><b>Method</b> ${r.methodLabel}</span><span><b>Instrument</b> ${i.name} · ${i.serial}</span><span><b>Occupancy</b> ${r.cond.occupancy}</span><span><b>Windows</b> ${r.cond.windows}</span><span><b>Heating</b> ${r.cond.heating}</span><span><b>Appliances</b> ${r.cond.appliances}</span><span><b>By</b> ${r.by}</span></div>
+    <div class="ctx"><span><b>Where</b> ${r.loc}</span><span><b>When</b> ${r.when}</span>${r.dur ? `<span><b>Duration</b> ${r.dur}</span>` : ""}<span><b>Method</b> ${r.methodLabel}</span><span><b>Equipment</b> ${instNames(r)}</span><span><b>Occupancy</b> ${r.cond.occupancy}</span><span><b>Windows</b> ${r.cond.windows}</span><span><b>Heating</b> ${r.cond.heating}</span><span><b>Appliances</b> ${r.cond.appliances}</span><span><b>By</b> ${r.by}</span></div>
   </div>`;
 }
 function screenRoom() {
@@ -1051,9 +1154,9 @@ function planSVG() {
   const pins = [
     { id: "p1", x: 150, y: 70, n: "1", label: "Grid head left: 38 V/m before, 2.1 V/m after", kind: "reading" },
     { id: "p2", x: 248, y: 70, n: "2", label: "Grid head right: 9 V/m before", kind: "reading" },
-    { id: "p3", x: 330, y: 150, n: "3", label: "CO₂ logger on bedside table", kind: "reading" },
+    { id: "p3", x: 330, y: 150, n: "3", label: "Aranet4 CO₂ logger on bedside table", kind: "reading" },
     { id: "s1", x: 200, y: 32, n: "S", label: "Suspected source: extension lead and lamp cables behind headboard", kind: "source" },
-    { id: "s2", x: 26, y: 215, n: "S", label: "Suspected source: DECT base on landing, 2.4 m from pillow", kind: "source" },
+    { id: "s2", x: 26, y: 215, n: "S", label: "Suspected source: DECT base on landing, 2.4 m from pillow (HF38B-W)", kind: "source" },
     { id: "c1", x: 360, y: 40, n: "P", label: "Photograph: staining at NE ceiling corner", kind: "photo" }
   ];
   const col = k => k === "source" ? "var(--strong)" : k === "photo" ? "var(--info)" : "var(--emerald-2)";
@@ -1076,50 +1179,57 @@ function planSVG() {
   <p class="small" style="margin-top:6px">${sel ? esc(sel.label) : "Select a marker to see its details. Drag to reposition in the live app."}</p>`;
 }
 function rfPanel() {
-  const i = inst("EG-RF-01");
-  // log scale 10 MHz to 10 GHz
+  const meters = [inst("hf38"), inst("hfw35")];
+  // log scale, 10 MHz to 10 GHz
   const pos = f => ((Math.log10(f) - 1) / 3) * 100;
-  const bands = [["FM", 100], ["Mobile 800", 800], ["DECT", 1900], ["Wi-Fi 2.4", 2450], ["Mobile 3.6", 3600], ["Wi-Fi 5", 5500], ["Wi-Fi 6E", 6500]];
+  const bands = [["FM", 100, 0], ["TETRA", 400, 1], ["Mobile 800", 800, 0], ["DECT", 1900, 1], ["Wi-Fi 2.4", 2450, 0], ["Wi-Fi 5", 5500, 0], ["Wi-Fi 6E", 6500, 1]];
   return `<div class="stack">
     <div class="grid-2">
-      <div class="axis"><div class="k">Peak · max hold</div><div class="v">840 <small class="muted">µW/m²</small></div>${evalChip(classify(840, "sbm-rf", "peak"))}</div>
-      <div class="axis"><div class="k">RMS · average</div><div class="v">95 <small class="muted">µW/m²</small></div><span class="chip c-outline">Not classified: guidance uses peak</span></div>
+      <div class="axis"><div class="k">Peak · max hold · both meters</div><div class="v">840 <small class="muted">µW/m²</small></div>${evalChip(classify(840, "sbm-rf", "peak"))}</div>
+      <div class="axis"><div class="k">Average (RMS)</div><div class="v">95 <small class="muted">µW/m²</small></div><span class="chip c-outline">Not classified: guidance uses peak</span></div>
     </div>
     <div class="stack" style="gap:2px">
-      <span class="small"><b>Instrument coverage</b> · ${i.name}, ${i.serial} · ${i.range}</span>
-      <div class="coverage" aria-label="Instrument covers 27 MHz to 6 GHz; Wi-Fi 6E above 6 GHz is outside coverage">
+      <span class="small"><b>Equipment coverage</b> · ${meters.map(m => `${m.name} (${m.fmin >= 1000 ? m.fmin / 1000 + " GHz" : m.fmin + " MHz"} to ${m.fmax / 1000} GHz)`).join(" and ")}</span>
+      <div class="coverage" aria-label="Meters cover about 700 MHz to 6 GHz. Below 700 MHz and above 6 GHz are outside coverage.">
         <div class="track"></div>
-        <div class="cov" style="left:${pos(i.fmin)}%;width:${pos(i.fmax) - pos(i.fmin)}%"></div>
-        ${bands.map(([n, f]) => `<span class="tick" style="left:${pos(f)}%"></span><span class="band" style="left:${pos(f)}%">${n}</span>`).join("")}
+        ${meters.map((m, i) => `<div class="cov" style="left:${pos(m.fmin)}%;width:${pos(m.fmax) - pos(m.fmin)}%;opacity:${i ? .65 : .9}"></div>`).join("")}
+        ${bands.map(([n, f, row]) => `<span class="tick" style="left:${pos(f)}%"></span><span class="band" style="left:${pos(f)}%;top:${row * 11}px">${n}</span>`).join("")}
         ${[[10, "10 MHz"], [100, "100 MHz"], [1000, "1 GHz"], [10000, "10 GHz"]].map(([f, l]) => `<span class="axislab" style="left:${Math.min(96, Math.max(4, pos(f)))}%">${l}</span>`).join("")}
       </div>
     </div>
-    <div class="notice notice-warn">${icon("info")}<span class="small">Wi-Fi 6E (5.9 to 7.1 GHz) is partly outside this instrument's range. The household router supports 6E, so the reading may understate the total. This caveat carries into the finding and report automatically.</span></div>
-    <div class="table-wrap"><table><thead><tr><th>Source identified</th><th class="num">Peak µW/m²</th><th>Method</th></tr></thead><tbody>
-      <tr><td>DECT base, landing</td><td class="num mono">610</td><td class="small">Audio analysis, frequency-selective</td></tr>
-      <tr><td>Wi-Fi router, hallway</td><td class="num mono">190</td><td class="small">Audio analysis</td></tr>
-      <tr><td>Mobile networks, outdoor</td><td class="num mono">40</td><td class="small">Router and DECT off</td></tr>
+    <div class="notice notice-warn">${icon("info")}<span class="small">Below 700 MHz (FM, DAB, TETRA, some TV) and above 6 GHz (Wi-Fi 6E) are outside your meters' range. The household router supports 6E, so the total may understate what is present. This caveat carries into the finding and report automatically.</span></div>
+    <div class="table-wrap"><table><thead><tr><th>Source identified</th><th>Meter</th><th class="num">Peak <span style="text-transform:none">µW/m²</span></th></tr></thead><tbody>
+      <tr><td>DECT base, landing</td><td class="small">HF38B-W</td><td class="num mono">560</td></tr>
+      <tr><td>Wi-Fi router 2.4 GHz, hallway</td><td class="small">HF38B-W</td><td class="num mono">180</td></tr>
+      <tr><td>Wi-Fi router 5 GHz, hallway</td><td class="small">HFW35C</td><td class="num mono">60</td></tr>
+      <tr><td>Mobile networks, outdoor</td><td class="small">HF38B-W</td><td class="num mono">40</td></tr>
+      <tr><td><b>Total, all sources</b></td><td></td><td class="num mono"><b>840</b></td></tr>
     </tbody></table></div>
   </div>`;
 }
 function screenBedroom() {
   const g = GRID[S.gridQty];
-  const qtyTabs = [["ef", "E-field (potential-free)"], ["efg", "E-field (earthed)"], ["bv", "Body voltage"], ["mf", "Magnetic, 3 axes"], ["rf", "Radio frequency"]];
-  let detail = "";
-  if (S.gridQty !== "rf") {
-    const i = S.cell; const ref = REF[g.ref];
+  const qtyTabs = [["ef", "E-field (earthed)"], ["efpf", "E-field (potential-free)"], ["bv", "Body voltage"], ["mf", "Magnetic, 3 axes"], ["rf", "Radio frequency"]];
+  const eq = g && g.inst ? inst(g.inst) : null;
+  let main = "";
+  if (S.gridQty === "rf") main = rfPanel();
+  else if (!g.before) main = `<div class="notice notice-muted">${icon("info")}<div class="small stack" style="gap:6px"><b>No potential-free readings</b><span>Your equipment register has no potential-free meter, so electric fields are measured with the earthed method. If a potential-free meter is added, its readings are recorded here, kept apart from earthed readings and evaluated against their own reference entry.</span><button class="btn btn-s" style="align-self:flex-start" data-action="go" data-screen="equipment">Open equipment register</button></div></div>`;
+  else {
+    const i = S.cell;
     const b = g.before[i], a = g.after[i];
-    const methodMatch = ref.method === g.method;
+    let detail;
     if (S.gridQty === "mf") {
-      detail = b ? `<div class="stack"><b class="small">${GRID_POS[i]} · three-axis reading</b>
-        <div class="axes">${["X", "Y", "Z"].map((ax, j) => `<div class="axis"><div class="k">${ax} axis</div><div class="v">${b[j]} <small class="muted">nT</small></div></div>`).join("")}<div class="axis res"><div class="k">Resultant</div><div class="v">${fmt(resultant(b), 1)}</div></div></div>
-        <p class="xsmall muted">Resultant = √(X² + Y² + Z²). Magnetic fields depend on current flow, so a 24-hour log is recommended before a confirmed finding. This reading is marked as a spot reading.</p></div>` : "";
+      detail = `<div class="stack"><b class="small">${GRID_POS[i]} · three orientations</b>
+        <div class="axes">${["X", "Y", "Z"].map((ax, j) => `<div class="axis"><div class="k">${ax}</div><div class="v">${b[j]} <small class="muted">nT</small></div></div>`).join("")}<div class="axis res"><div class="k">Resultant</div><div class="v">${fmt(resultant(b), 1)}</div></div></div>
+        <p class="xsmall muted">Read in three orientations with the ME3951A; resultant = √(X² + Y² + Z²). Magnetic fields depend on current flow, so a longer log is recommended before a confirmed finding.</p></div>`;
     } else {
       detail = `<div class="stack"><b class="small">${GRID_POS[i]}</b>
-        ${b == null ? `<div class="notice notice-muted">${icon("info")}<span class="small">Not measured at this position. It will appear as "Not measured" in tables, never as a satisfactory result.</span></div>` : `
-        <div class="grid-2"><div class="axis"><div class="k">Before</div><div class="v">${b} <small class="muted">${g.unit}</small></div></div><div class="axis res"><div class="k">After circuit 7 off</div><div class="v">${a} <small class="muted">${g.unit}</small></div></div></div>`}
-        ${!methodMatch ? `<div class="notice notice-muted">${icon("info")}<span class="small"><b>Not classified.</b> The loaded SBM entry applies to potential-free measurements. Readings with an earthed probe are recorded separately and can be given a written professional assessment.</span></div>` : ""}</div>`;
+        ${b == null ? `<div class="notice notice-muted">${icon("info")}<span class="small">Not measured at this position. It appears as "Not measured" in tables, never as a satisfactory result.</span></div>` : `
+        <div class="grid-2"><div class="axis"><div class="k">Before</div><div class="v">${b} <small class="muted">${g.unit}</small></div></div><div class="axis res"><div class="k">After circuit 7 off</div><div class="v">${a} <small class="muted">${g.unit}</small></div></div></div>`}</div>`;
     }
+    main = `<div class="mattress"><div class="pillows" aria-hidden="true"><i></i><i></i></div><div class="mgrid">${GRID_POS.map((_, k) => cellHTML(S.gridQty, k)).join("")}</div></div>
+      <p class="xsmall muted">Each colour has a text label. ${S.phase === "compare" ? "Labels classify the after value. " : ""}Classification shown only where the method matches the reference entry: ${REF[g.ref].source}, ${REF[g.ref].quantity.toLowerCase()}.</p>
+      ${detail}`;
   }
   return `${visitTop("Main bedroom · bed measurements", "Visit 1 · 9 October 2026 · Iza")}
   <div class="visit-main">
@@ -1129,26 +1239,23 @@ function screenBedroom() {
     </div>
     <div class="card card-tight spread">
       <div class="small"><b>Change tested:</b> circuit 7 (first-floor sockets) switched off at the consumer unit, 19:55. Bedside lamps unplugged.</div>
-      ${S.gridQty !== "rf" ? `<div class="seg" role="group" aria-label="Condition">${[["before", "Before"], ["after", "After"], ["compare", "Compare"]].map(([k, l]) => `<button aria-pressed="${S.phase === k}" data-action="phase" data-p="${k}">${l}</button>`).join("")}</div>` : ""}
+      ${S.gridQty !== "rf" && g.before ? `<div class="seg" role="group" aria-label="Condition">${[["before", "Before"], ["after", "After"], ["compare", "Compare"]].map(([k, l]) => `<button aria-pressed="${S.phase === k}" data-action="phase" data-p="${k}">${l}</button>`).join("")}</div>` : ""}
     </div>
     <div class="bed-layout">
       <section class="stack" aria-labelledby="h-grid">
-        <div class="spread"><h3 id="h-grid">${S.gridQty === "rf" ? "Radio frequency at the pillow" : g.label + " · nine-point grid"}</h3>${S.gridQty !== "rf" ? `<span class="xsmall muted">${inst(g.inst).name} · ${inst(g.inst).serial} · calibrated ${inst(g.inst).cal}</span>` : ""}</div>
-        ${S.gridQty === "rf" ? rfPanel() : `
-        <div class="mattress"><div class="pillows" aria-hidden="true"><i></i><i></i></div><div class="mgrid">${GRID_POS.map((_, i) => cellHTML(S.gridQty, i)).join("")}</div></div>
-        <p class="xsmall muted">Each colour has a text label. ${S.phase === "compare" ? "Labels classify the after value. " : ""}Classification shown only where the method matches the reference entry: ${REF[g.ref].source}.</p>
-        ${detail}`}
+        <div class="spread"><h3 id="h-grid">${S.gridQty === "rf" ? "Radio frequency at the pillow" : g.label + " · nine-point grid"}</h3>${eq ? `<span class="xsmall muted">${eq.name} · <a href="#equipment" data-action="go" data-screen="equipment">${CHECKS[eq.check].toLowerCase()}</a></span>` : ""}</div>
+        ${main}
       </section>
       <div class="stack-l">
         <section class="card stack plan" aria-labelledby="h-plan"><div class="spread"><h3 id="h-plan">Room plan</h3><button class="btn btn-s" data-action="toast" data-msg="Tap the plan to place a reading, source or photograph">${icon("plus")}Place marker</button></div>${planSVG()}</section>
         <section class="card stack" aria-labelledby="h-ba"><h3 id="h-ba">Before and after</h3>
           <div class="table-wrap"><table><thead><tr><th>Head left</th><th class="num">Before</th><th class="num">After</th><th>After, SBM</th></tr></thead><tbody>
-            <tr><td>E-field, potential-free</td><td class="num mono">38 V/m</td><td class="num mono">2.1 V/m</td><td>${evalChip(classify(2.1, "sbm-ef", "potential-free"))}</td></tr>
+            <tr><td>E-field, earthed</td><td class="num mono">38 V/m</td><td class="num mono">2.1 V/m</td><td>${evalChip(classify(2.1, "sbm-ef", "earthed"))}</td></tr>
             <tr><td>Body voltage</td><td class="num mono">420 mV</td><td class="num mono">18 mV</td><td>${evalChip(classify(18, "sbm-bv", "body-voltage"))}</td></tr>
             <tr><td>Magnetic, resultant</td><td class="num mono">20.8 nT</td><td class="num mono">19.5 nT</td><td>${evalChip(classify(19.5, "sbm-mf", "three-axis"))}</td></tr>
-            <tr><td>E-field, earthed</td><td class="num mono">64 V/m</td><td class="num mono">3.2 V/m</td><td>${evalChip("nc")}</td></tr>
+            <tr><td>Line noise, bedside socket</td><td class="num mono">410 mV p-p</td><td class="num mono">120 mV p-p</td><td>${evalChip("noguide")}</td></tr>
           </tbody></table></div>
-          <p class="xsmall muted">Magnetic field is largely unchanged because the circuit carried little current. Comparable readings share position, instrument and method.</p>
+          <p class="xsmall muted">Magnetic field is largely unchanged because the circuit carried little current. Comparable readings share position, equipment and method.</p>
         </section>
       </div>
     </div>
@@ -1186,7 +1293,7 @@ function screenFinding() {
       <div class="card stack-l">
         <div class="spread"><div><span class="eyebrow">${f.room} · ${f.point} ${POINT_NAME[f.point]}</span><h2>${f.title}</h2></div><span class="chip ${f.status === "approved" ? "c-ok" : "c-muted"}">${f.status === "approved" ? "Approved" : "Draft"}</span></div>
         <div class="stack"><h4>Linked evidence</h4>
-          ${rs.length ? `<div class="table-wrap"><table><thead><tr><th>Reading</th><th class="num">Value</th><th>Type</th><th>Evaluation</th></tr></thead><tbody>${rs.map(r => `<tr><td><span class="mono xsmall">${r.id}</span> ${r.label}${r.phase === "after" ? " <span class='tag'>After</span>" : ""}</td><td class="num mono">${r.value ?? ""} ${r.unit}</td><td class="small">${KIND[r.kind]}</td><td>${r.ref ? evalChip(classify(r.value, r.ref, r.method)) : evalChip("pro")}</td></tr>`).join("")}</tbody></table></div>` : `<p class="small muted">No readings linked. A written professional assessment is required.</p>`}
+          ${rs.length ? `<div class="table-wrap"><table><thead><tr><th>Reading</th><th class="num">Value</th><th>Type</th><th>Evaluation</th></tr></thead><tbody>${rs.map(r => `<tr><td><span class="mono xsmall">${r.id}</span> ${r.label}${r.phase === "after" ? " <span class='tag'>After</span>" : ""}</td><td class="num mono">${r.value ?? ""} ${r.unit}</td><td class="small">${RESULT[r.result]}</td><td>${evalChip(readingEval(r))}</td></tr>`).join("")}</tbody></table></div>` : `<p class="small muted">No readings linked. A written professional assessment is required.</p>`}
           <div class="row"><span class="chip c-muted">${icon("photo")}2 photographs</span><span class="chip c-muted">${icon("grid")}Bed grid</span><span class="chip c-muted">${icon("doc")}Room plan</span></div>
         </div>
         <div class="field"><label for="fe-found">What we found</label><textarea id="fe-found" class="input" rows="6" data-input="edit">${esc(f.found)}</textarea></div>
@@ -1207,7 +1314,7 @@ function screenFinding() {
         <h3 id="h-ref">Reference criteria</h3>
         <p class="xsmall muted">Classifications appear only where the method and available information support them. SBM guidance is shown separately from statutory and other references.</p>
         ${refsFor.length ? refsFor.map(refCard).join("") : `<div class="ref-card"><b class="small">No applicable numerical guideline</b><span class="small">Write a professional assessment. It will be labelled as such in the report.</span><textarea class="input" rows="4" aria-label="Professional assessment">Flow at the grille is below the rate expected for a bathroom, and surface moisture at the window reveal is elevated the morning after showering.</textarea></div>`}
-        ${main && main.inst === "EG-RF-01" ? `<div class="notice notice-warn">${icon("info")}<span class="small">Instrument coverage ends at 6 GHz. Caveat included in the report text.</span></div>` : ""}
+        ${main && main.inst === "hf38" ? `<div class="notice notice-warn">${icon("info")}<span class="small">Combined coverage of the HF38B-W and HFW35C is about 700 MHz to 6 GHz. Sources outside that range, including Wi-Fi 6E, are not captured. Caveat included in the report text.</span></div>` : ""}
         <div class="notice notice-muted">${icon("info")}<span class="xsmall">Reference values in this prototype are placeholders for design review. Each entry is confirmed against the licensed edition before release.</span></div>
       </aside>
     </div>`);
@@ -1229,7 +1336,7 @@ function screenReport() {
       </nav>
       <article class="paper" aria-label="Report draft">
         <span class="chip c-slight draft-mark">Draft v1.1 · not visible to client</span>
-        <div class="cover"><div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>where home meets health</span></div></div>
+        <div class="cover"><div class="cover-brand"><img src="assets/emerald-grey-logo.jpg" alt="Emerald Grey" width="150" height="150"><span>where home meets health</span></div>
           <h1>Your Healthy Home Assessment</h1><p class="muted">14 Larkhill Road, Bristol · Prepared for Harriet and Tom Ashworth · Visit 9 October 2026 · Assessors Iza and Alfie</p></div>
         <section><h2>Executive summary</h2>
           <p>Thank you for welcoming us into your home. Much of what we measured sits comfortably within our guidance, and the two areas that stood out are very manageable.</p>
@@ -1248,8 +1355,8 @@ function screenReport() {
           <div class="photo-grid"><div class="photo"><span>Headboard wall</span></div><div class="photo thermal"><span>Thermal: NE corner</span></div></div></section>
         <section><h2>Measurement table · main bedroom</h2>
           <div class="table-wrap"><table><thead><tr><th>Measurement</th><th class="num">Value</th><th>Type</th><th>Evaluation</th><th>Reference</th></tr></thead><tbody>
-            ${READINGS.filter(r => r.room === "bed1").map(r => `<tr><td>${r.label}${r.phase === "after" ? " (after)" : ""}</td><td class="num mono">${r.value != null ? fmt(r.value, r.value % 1 ? 1 : 0) + " " + r.unit : "Observation"}</td><td class="small">${KIND[r.kind]}</td><td>${r.ref ? evalChip(classify(r.value, r.ref, r.method)) : evalChip("pro")}</td><td class="xsmall">${r.ref ? REF[r.ref].edition + " sleeping areas" : "Written assessment"}</td></tr>`).join("")}
-            <tr><td>Radon</td><td class="num">Awaiting results</td><td class="small">${KIND.lab}</td><td>${covChip("awaiting")}</td><td class="xsmall">UKHSA Action Level; SBM-2024</td></tr>
+            ${READINGS.filter(r => r.room === "bed1").map(r => `<tr><td>${r.label}${r.phase === "after" ? " (after)" : ""}</td><td class="num mono">${r.value != null ? fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0) + " " + r.unit : "See note"}</td><td class="small">${TIMING[r.timing]}<br><span class="muted">${RESULT[r.result]}</span></td><td>${evalChip(readingEval(r))}</td><td class="xsmall">${r.ref ? REF[r.ref].edition + " sleeping areas" : "Written assessment"}</td></tr>`).join("")}
+            <tr><td>Radon</td><td class="num">Awaiting results</td><td class="small">${TIMING.longterm}</td><td>${covChip("awaiting")}</td><td class="xsmall">UKHSA Action Level; SBM-2024</td></tr>
           </tbody></table></div></section>
         <section><h2>Your action plan</h2>
           ${ACTIONS.slice(0, 4).map((a, i) => `<div class="action-item"><span class="action-n">${i + 1}</span><div><b>${a.title}</b><div class="small muted">${PRIORITY[a.pr].label} · ${a.room} · ${a.cost} · ${a.who}</div><p class="small">${a.why}</p></div></div>`).join("")}
@@ -1311,9 +1418,54 @@ function screenPortal() {
     <div class="stack">${S.messages.map(m => `<div class="bubble ${m.me ? "me" : "them"}"><p>${esc(m.text)}</p><div class="xsmall muted" style="margin-top:4px">${m.when}</div></div>`).join("")}</div>
     <form class="stack" data-form="ask"><label class="small" for="ask-text"><b>Ask a question</b></label><textarea id="ask-text" class="input" rows="3" placeholder="For example, about a step in your plan"></textarea><button class="btn btn-primary" type="submit">Send question</button></form>`;
   const tabs = [["home", "home", "Home"], ["plan", "list", "Plan"], ["report", "book", "Report"], ["messages", "chat", "Questions"]];
-  return `<div class="phone"><div class="phone-top"><div class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span><div><b>Emerald Grey</b><span>Your home</span></div></div><span class="row xsmall muted">${icon("lock")}Private</span></div>
+  return `<div class="phone"><div class="phone-top"><div class="wordmark">${logoInner("Your home")}</div><span class="row xsmall muted">${icon("lock")}Private</span></div>
     <div class="phone-body">${body}</div>
     <nav class="tabbar" aria-label="Portal">${tabs.map(([k, ic, l]) => `<button data-action="ptab" data-t="${k}" ${S.portalTab === k ? 'aria-current="page"' : ""}>${icon(ic)}${l}</button>`).join("")}</nav></div>`;
+}
+
+/* ---------- 9. Equipment register ---------- */
+function screenEquipment() {
+  const named = EQUIPMENT.filter(e => e.kind !== "method" && e.kind !== "sampling");
+  const methods = EQUIPMENT.filter(e => e.kind === "method" || e.kind === "sampling");
+  const toConfirm = EQUIPMENT.filter(e => e.confirm);
+  const records = EQUIPMENT.filter(e => e.check === "calibration" || e.check === "bump");
+  const e = inst(S.eq) || EQUIPMENT[0];
+  const row = x => `<button class="finding-item" data-action="eq" data-id="${x.id}" aria-current="${x.id === e.id}">
+      <span class="spread"><b class="small">${x.name}</b><span class="xsmall muted">${EQ_KIND[x.kind]}</span></span>
+      <span class="xsmall muted">${x.params}</span>
+      <span class="row" style="gap:6px"><span class="chip ${RESULT_CLS[x.result]}">${RESULT[x.result]}</span>${x.confirm ? `<span class="chip c-outline">Details to confirm</span>` : ""}${x.check === "bump" ? `<span class="chip c-strong">Bump test required</span>` : ""}</span>
+    </button>`;
+  return assessorShell("equipment", `
+    <div class="topline"><div><span class="eyebrow">Updated 23 October 2026</span><h1>Equipment register</h1><p class="muted small">Every reading links to an entry here, so its parameters, checks and limitations travel with the result.</p></div>
+      <div class="row"><button class="btn" data-action="toast" data-msg="Register exported as CSV">${icon("download")}Export</button><button class="btn btn-primary" data-action="toast" data-msg="New equipment entry">${icon("plus")}Add equipment</button></div></div>
+    <div class="kpis eq-kpis">
+      <div class="kpi" style="cursor:default"><b class="num">${EQ_CATS.length}</b><span>Assessment categories</span></div>
+      <div class="kpi" style="cursor:default"><b class="num">${named.length}</b><span>Named devices, kits and apps</span></div>
+      <div class="kpi" style="cursor:default"><b class="num">${methods.length}</b><span>Additional methods</span><small>Swabs, dust, laboratory, desktop radon</small></div>
+      <div class="kpi" style="cursor:default"><b class="num">${toConfirm.length}</b><span>Model details to confirm</span></div>
+      <div class="kpi" style="cursor:default"><b class="num">${records.length}</b><span>Serial and calibration records to add</span></div>
+    </div>
+    <div class="eq-layout">
+      <div class="stack-l">${EQ_CATS.map(([k, label]) => `<section class="card card-tight stack" style="gap:4px" aria-label="${label}"><h4 style="padding:4px 12px">${label}</h4>${EQUIPMENT.filter(x => x.cat === k).map(row).join("")}</section>`).join("")}</div>
+      <aside class="card stack-l eq-detail" aria-labelledby="h-eq">
+        <div class="stack" style="gap:6px"><span class="eyebrow">${EQ_CATS.find(c => c[0] === e.cat)[1]}</span><h2 id="h-eq">${e.name}</h2>
+          <div class="row"><span class="tag">${EQ_KIND[e.kind]}</span><span class="chip ${RESULT_CLS[e.result]}">Default: ${RESULT[e.result]}</span></div></div>
+        <p class="small">${e.purpose}</p>
+        <dl class="kv">
+          <dt>Measures</dt><dd>${e.params}</dd>
+          <dt>Assessment points</dt><dd>${e.points.map(c => `${c} ${POINT_NAME[c]}`).join("<br>")}</dd>
+          ${e.kind === "method" || e.kind === "sampling" ? "" : `<dt>Serial number</dt><dd><span class="muted">Not yet recorded</span> <button class="btn btn-quiet btn-s" data-action="toast" data-msg="Serial number saved to ${esc(e.name)}">Add</button></dd>`}
+          <dt>Checks</dt><dd>${CHECKS[e.check]}${e.check === "calibration" || e.check === "bump" || e.check === "expiry" ? ` <button class="btn btn-quiet btn-s" data-action="toast" data-msg="Record added. Readings now show this status.">Add record</button>` : ""}</dd>
+          ${e.csv ? `<dt>Data import</dt><dd>CSV export from the app imports as overnight monitoring</dd>` : ""}
+        </dl>
+        ${e.check === "bump" ? `<div class="stack"><h4>Bump tests</h4><div class="notice notice-muted">${icon("info")}<span class="small">No bump tests recorded yet. A bump test is logged before each visit, and readings taken without a current test are flagged in the room assessment.</span></div></div>` : ""}
+        ${e.confirm ? `<div class="notice notice-warn">${icon("info")}<span class="small"><b>To confirm:</b> ${e.confirm.join("; ")}.</span></div>` : ""}
+        ${e.note ? `<div class="notice notice-calm">${icon("check")}<span class="small">${e.note}</span></div>` : ""}
+        ${(e.limits || []).map(l => `<div class="notice notice-info">${icon("shield")}<span class="small">${l}</span></div>`).join("")}
+        ${e.guidance ? `<div class="stack"><h4>When to use</h4><ul class="small" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">${e.guidance.map(gd => `<li>${gd}</li>`).join("")}</ul></div>` : ""}
+        <p class="xsmall muted">SBM building biology guidance is shown separately from UK legal limits and public-health guidelines wherever these results appear.</p>
+      </aside>
+    </div>`);
 }
 
 /* ---------- Modals ---------- */
@@ -1322,29 +1474,29 @@ function modalHTML(kind) {
     <div class="spread"><h2 id="m-title">Add reading · Main bedroom</h2><button class="btn btn-s" data-action="close">Close</button></div>
     <div class="grid-2">
       <div class="field"><label for="m-pt">Assessment point</label><select id="m-pt" class="input">${SBM.flatMap(g => g.points).map(([c, n]) => `<option>${c} ${n}</option>`).join("")}</select></div>
-      <div class="field"><label for="m-type">Type</label><select id="m-type" class="input">${Object.values(KIND).map(k => `<option>${k}</option>`).join("")}</select></div>
+      <div class="field"><label for="m-type">Timing</label><select id="m-type" class="input">${Object.values(TIMING).map(k => `<option>${k}</option>`).join("")}</select></div>
       <div class="field"><label for="m-val">Value</label><input id="m-val" class="input" inputmode="decimal" placeholder="0.0"></div>
       <div class="field"><label for="m-unit">Unit</label><select id="m-unit" class="input"><option>V/m</option><option>nT</option><option>mV</option><option>µW/m²</option><option>ppm</option><option>µg/m³</option><option>%RH</option><option>°C</option></select></div>
-      <div class="field"><label for="m-inst">Instrument</label><select id="m-inst" class="input">${INSTRUMENTS.map(i => `<option>${i.id} · ${i.name} · ${i.serial}</option>`).join("")}</select><span class="hint">Calibration valid until Mar 2027</span></div>
-      <div class="field"><label for="m-meth">Method</label><input id="m-meth" class="input" value="Potential-free, three-axis probe"></div>
-      <div class="field"><label for="m-loc">Location</label><input id="m-loc" class="input" value="Grid H-L, pillow height"></div>
+      <div class="field"><label for="m-inst">Instrument</label><select id="m-inst" class="input">${EQUIPMENT.filter(i => i.kind !== "method" && i.kind !== "sampling").map(i => `<option>${i.name}</option>`).join("")}</select><span class="hint">Calibration status shows from the equipment register</span></div>
+      <div class="field"><label for="m-meth">Method</label><input id="m-meth" class="input" value="Earthed method, meter referenced to earth"></div>
+      <div class="field"><label for="m-loc">Location</label><input id="m-loc" class="input" value="Grid head left, pillow height"></div>
       <div class="field"><label for="m-dur">Duration</label><input id="m-dur" class="input" value="60 s"></div>
       <div class="field"><label for="m-occ">Occupancy</label><input id="m-occ" class="input" value="Unoccupied"></div>
       <div class="field"><label for="m-win">Windows</label><select id="m-win" class="input"><option>Closed</option><option>Open</option><option>Trickle vents open</option></select></div>
       <div class="field"><label for="m-heat">Heating</label><input id="m-heat" class="input" value="On, 19 °C"></div>
       <div class="field"><label for="m-app">Appliance and circuit states</label><input id="m-app" class="input" value="Bedside lamps plugged in, off"></div>
     </div>
-    <div class="field"><span class="label">Certainty</span><div class="seg"><button aria-pressed="true" data-action="noop">Observation</button><button aria-pressed="false" data-action="noop">Confirmed finding</button></div></div>
+    <div class="field"><span class="label">Result class</span><div class="seg">${Object.values(RESULT).map((k, i) => `<button aria-pressed="${i === 0}" data-action="noop">${k}</button>`).join("")}</div><span class="hint">Set by the instrument profile; screening kits and apps default to indicative screening</span></div>
     <p class="xsmall muted">Date, time and assessor are recorded automatically: 9 Oct 2026, 20:14 · Iza.</p>
     <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="savereading">Save reading</button></div></div>`;
   if (kind === "csv") return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
     <div class="spread"><h2 id="m-title">Import instrument data</h2><button class="btn btn-s" data-action="close">Close</button></div>
     <label class="upload" for="csv-file">${icon("upload")}<b>Choose a CSV file</b><span class="small muted">Logger exports with a timestamp column. Or use the sample below.</span></label><input id="csv-file" type="file" accept=".csv,text/csv" hidden data-change="csv">
-    <div id="csv-preview">${csvPreview(SAMPLE_CSV, "EG-IAQ-02_overnight_bed1.csv")}</div>
+    <div id="csv-preview">${csvPreview(SAMPLE_CSV, "Aranet4_main-bedroom_2026-10-10.csv")}</div>
     <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="importcsv">Import as overnight monitoring</button></div></div>`;
   return "";
 }
-const SAMPLE_CSV = "timestamp,co2_ppm,temp_c,rh_pct\n2026-10-09 22:00,612,19.8,52\n2026-10-09 23:00,788,19.4,54\n2026-10-10 00:00,941,19.0,55\n2026-10-10 01:00,1083,18.7,56\n2026-10-10 02:00,1196,18.4,57\n2026-10-10 03:00,1288,18.2,58\n2026-10-10 04:00,1371,18.0,58\n2026-10-10 05:00,1450,17.9,59\n2026-10-10 06:00,1402,17.9,59\n2026-10-10 07:00,1105,18.6,57";
+const SAMPLE_CSV = "Time,Carbon dioxide (ppm),Temperature (°C),Relative humidity (%),Atmospheric pressure (hPa)\n09/10/2026 22:00,612,19.8,52,1012\n09/10/2026 23:00,788,19.4,54,1012\n10/10/2026 00:00,941,19.0,55,1011\n10/10/2026 01:00,1083,18.7,56,1011\n10/10/2026 02:00,1196,18.4,57,1011\n10/10/2026 03:00,1288,18.2,58,1010\n10/10/2026 04:00,1371,18.0,58,1010\n10/10/2026 05:00,1450,17.9,59,1010\n10/10/2026 06:00,1402,17.9,59,1010\n10/10/2026 07:00,1105,18.6,57,1011";
 function csvPreview(text, name) {
   const rows = text.trim().split(/\r?\n/).map(l => l.split(","));
   const head = rows[0] || [], data = rows.slice(1);
@@ -1355,20 +1507,20 @@ function csvPreview(text, name) {
   const pts = vals.map((v, i) => [pad + (i / Math.max(1, vals.length - 1)) * (w - pad * 2), h - pad - ((v - min) / Math.max(1, max - min)) * (h - pad * 2)]);
   return `<div class="stack">
     <div class="spread small"><b>${esc(name)}</b><span class="muted">${data.length} rows · ${head.length} columns</span></div>
-    <div class="grid-3">${head.map((c, i) => `<div class="field"><label for="map-${i}">${esc(c)}</label><select id="map-${i}" class="input">${["Timestamp", "CO₂ (ppm)", "Temperature (°C)", "Relative humidity (%)", "Ignore"].map((o, j) => `<option ${j === Math.min(i, 3) ? "selected" : ""}>${o}</option>`).join("")}</select></div>`).join("")}</div>
+    <div class="grid-3">${head.map((c, i) => `<div class="field"><label for="map-${i}">${esc(c)}</label><select id="map-${i}" class="input">${["Timestamp", "CO₂ (ppm)", "Temperature (°C)", "Relative humidity (%)", "Pressure (hPa)", "Ignore"].map((o, j) => `<option ${j === Math.min(i, 4) ? "selected" : ""}>${o}</option>`).join("")}</select></div>`).join("")}</div>
     ${vals.length > 1 ? `<div class="table-wrap" style="padding:8px"><svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto" role="img" aria-label="Preview of ${esc(head[numCol])}, ${fmt(min)} to ${fmt(max)}">
       <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="var(--line)"/>
       <polyline fill="none" stroke="var(--emerald-2)" stroke-width="2" points="${pts.map(p => p.join(",")).join(" ")}"/>
       ${pts.length ? `<circle cx="${pts[vals.indexOf(max)][0]}" cy="${pts[vals.indexOf(max)][1]}" r="4" fill="var(--emerald)"/><text x="${pts[vals.indexOf(max)][0]}" y="${pts[vals.indexOf(max)][1] - 8}" font-size="11" text-anchor="middle" fill="var(--ink)">Max ${fmt(max)}</text>` : ""}
       <text x="${pad}" y="${h - 6}" font-size="10" fill="var(--ink-3)">${esc(data[0][0])}</text><text x="${w - pad}" y="${h - 6}" font-size="10" fill="var(--ink-3)" text-anchor="end">${esc(data[data.length - 1][0])}</text>
     </svg></div>` : ""}
-    <p class="xsmall muted">Instrument detected from file name: ${inst("EG-IAQ-02").name}, ${inst("EG-IAQ-02").serial}. Imported as overnight monitoring linked to Main bedroom. Context fields can be completed after import.</p></div>`;
+    <p class="xsmall muted">Equipment detected from the file: ${inst("aranet4").name}. Imported as overnight monitoring linked to Main bedroom. Context fields can be completed after import.</p></div>`;
 }
 
 /* =========================================================================
    Rendering and interaction
    ========================================================================= */
-const RENDER = { dashboard: screenDashboard, profile: screenProfile, questionnaire: screenQuestionnaire, room: screenRoom, bedroom: screenBedroom, finding: screenFinding, report: screenReport, portal: screenPortal };
+const RENDER = { equipment: screenEquipment, dashboard: screenDashboard, profile: screenProfile, questionnaire: screenQuestionnaire, room: screenRoom, bedroom: screenBedroom, finding: screenFinding, report: screenReport, portal: screenPortal };
 function render() {
   const sc = SCREENS.find(s => s.id === S.screen);
   const device = S.device || sc.device;
@@ -1397,7 +1549,7 @@ function go(screen) {
 
 const ACT = {
   go: d => go(d.screen),
-  side: d => go({ dashboard: "dashboard", profile: "profile", visits: "room", lab: "room", finding: "finding", report: "report", instruments: "room" }[d.target] || "dashboard"),
+  side: d => go({ dashboard: "dashboard", profile: "profile", visits: "room", lab: "room", finding: "finding", report: "report", equipment: "equipment" }[d.target] || "dashboard"),
   device: d => { S.device = d.d; render(); },
   toast: d => toast(d.msg),
   noop: () => {},
@@ -1431,6 +1583,7 @@ const ACT = {
   qconsent: () => { S.qConsent = !S.qConsent; render(); },
   qsend: () => { S.qSent = true; render(); },
   qreset: () => { S.qSent = false; S.qStep = 7; render(); },
+  eq: d => { S.eq = d.id; render(); },
   ptab: d => { S.portalTab = d.t; render(); },
   done: d => { S.done[d.id] = !S.done[d.id]; render(); if (S.done[d.id]) toast("Marked as done. Iza and Alfie can see your progress."); }
 };
@@ -1464,6 +1617,7 @@ document.addEventListener("submit", e => {
 });
 
 (function start() {
+  document.getElementById("brand").innerHTML = logoInner("Assessment Studio");
   const h = (location.hash || "").replace("#", "");
   if (RENDER[h]) S.screen = h;
   render();

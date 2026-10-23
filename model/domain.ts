@@ -193,18 +193,55 @@ export type CoverageStatus =
   | "not_included"
   | "not_accessible";
 
-export interface Instrument extends Tracked {
-  code: string;                      // e.g. EG-RF-01
-  name: string;
-  model: string;
-  serialNumber: string;
-  measurementRange: string;
-  frequencyCoverageMHz?: { min: number; max: number };
-  calibration: { lastCalibrated: IsoDateTime; dueBy: IsoDateTime; certificateAttachmentId?: Id };
+export type EquipmentCategory = "air" | "emf" | "light" | "moisture" | "mould" | "water" | "radon" | "sound";
+export type EquipmentKind = "instrument" | "screening_kit" | "app" | "sampling_kit" | "method";
+
+/** The four result classes from the equipment register. */
+export type ResultClass = "instrument_reading" | "indicative_screening" | "laboratory_confirmed" | "professional_observation";
+
+export interface EquipmentParameter {
+  quantityKey: string;
+  label: string;
+  unit: string;
+  range?: string;
 }
 
-export type MeasurementKind = "spot" | "overnight" | "screening" | "laboratory";
-export type Certainty = "observation" | "confirmed";
+export type CheckType = "calibration" | "verification" | "bump_test" | "batch_expiry";
+
+export interface EquipmentCheck {
+  type: CheckType;
+  performedAt: IsoDateTime;
+  dueBy?: IsoDateTime;
+  passed: boolean;
+  performedBy: Id;
+  certificateAttachmentId?: Id;
+}
+
+/** One entry in the equipment register: a device, kit, app or method. */
+export interface Equipment extends Tracked {
+  key: string;                       // stable key, e.g. "me3951"
+  category: EquipmentCategory;
+  kind: EquipmentKind;
+  name: string;
+  purpose: string;
+  parameters: EquipmentParameter[];
+  frequencyCoverageMHz?: { min: number; max: number };
+  defaultResultClass: ResultClass;
+  points: PointCode[];
+  serialNumber?: string;             // absent until recorded; never invented
+  /** Which checks this entry needs, and the history of those checks. */
+  requiredChecks: CheckType[];
+  bumpTestBeforeEachVisit?: boolean;
+  checks: EquipmentCheck[];
+  csvImport?: boolean;
+  detailsToConfirm: string[];
+  /** Shown wherever a result from this entry appears. */
+  limitations: string[];
+  usageGuidance: string[];
+  retired?: boolean;
+}
+
+export type MeasurementTiming = "spot" | "overnight" | "long_term";
 
 export interface MeasurementConditions {
   occupancy?: string;
@@ -228,10 +265,10 @@ export interface Measurement extends Tracked {
   takenAt: IsoDateTime;
   endedAt?: IsoDateTime;             // overnight monitoring
   durationText?: string;
-  instrumentId?: Id;
+  equipmentIds: Id[];                // e.g. both RF meters for a combined peak reading
   method: string;
-  kind: MeasurementKind;
-  certainty: Certainty;
+  timing: MeasurementTiming;
+  resultClass: ResultClass;
   conditions: MeasurementConditions;
   /** Links before and after readings from the same position and method. */
   comparison?: { groupId: Id; phase: "before" | "after"; changeDescription: string };
@@ -259,7 +296,8 @@ export interface Sample extends Tracked {
   collectionLocation: string;
   method: string;
   collectedAt: IsoDateTime;
-  laboratory: string;
+  equipmentId: Id;                   // the kit or bottle method used
+  laboratory: string;                // "On-site screening" for strip tests
   status: SampleStatus;
   water?: {
     outlet: string;
@@ -269,7 +307,9 @@ export interface Sample extends Tracked {
     flushSeconds?: number;
   };
   resultAttachmentIds: Id[];
-  resultMeasurementIds: Id[];        // results become Measurements with kind "laboratory"
+  resultMeasurementIds: Id[];        // laboratory results become Measurements with resultClass "laboratory_confirmed"
+  /** Screening samples that need confirmation link to the laboratory sample taken to confirm them. */
+  confirmedBySampleId?: Id;
 }
 
 /* ------------------------------------------------------------------ */
