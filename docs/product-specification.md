@@ -74,7 +74,7 @@ The same evaluation rules apply as everywhere else:
 
 A2 replaces typing into small table cells with guided entry, built for a tablet. The page has these parts:
 
-- **Client and room.** The client, and a room from Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4. The bed or mattress recorded on the client profile is shown alongside.
+- **Client, room and mattress size.** The client, a room from Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4, and the mattress size: Single (90 × 190 cm), Small double (120 × 190 cm), Double (135 × 190 cm), King (150 × 200 cm), Super king (180 × 200 cm) or Emperor (PSCL special size, approx. 213 × 198 cm). The size is kept with the bedroom on the client profile, filled in automatically next time, and saved with each test.
 - **Three tests, kept as separate records.** Potential-free AC electric field (V/m), ground-referenced AC electric field (V/m) and AC magnetic field (nT). The potential-free and ground-referenced labels apply only to electric fields.
 - **A map of the mattress.** The nine positions, each showing Not started, In progress, Complete or Not measured in words and symbols, with the current position highlighted.
 - **One large number field.** It names the position, axis and unit, for example "Top left · X-axis, V/m". Selecting it opens a large dial pad.
@@ -97,7 +97,7 @@ A2 replaces typing into small table cells with guided entry, built for a tablet.
 
 ### Client profile: bedrooms
 
-The client profile lists Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4, each with who sleeps there and the bed or mattress. All fields may be left blank.
+The client profile lists Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4, each with who sleeps there, the bed or mattress and the mattress size. All fields may be left blank. The mattress size can be set here or on the A2 page; both show the same value.
 
 ### Room templates
 
