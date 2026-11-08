@@ -47,33 +47,29 @@ One menu, in this order:
 
 - **Home**
 - **Clients:** Client and property (the current client's record), Client list (sorted by name)
-- **Assessments:** one page per assessment
-  - Nine-point mattress test (potential-free and ground-referenced AC electric fields, AC magnetic fields)
-  - Walls and room centre (low-frequency electric and magnetic fields)
-  - Dirty electricity
-  - Radio frequency across two bands
-  - Router, cordless phone, smart-device and mobile-phone on/off comparisons
-  - Plug loads and appliances
-  - Body voltage
-  - Consumer unit and circuit-breaker comparisons
-  - Outdoor electric, magnetic and radio-frequency measurements
-  - Light
-  - Air quality and indoor climate
-  - Noise
-  - Moisture and building condition
-- **Settings:** Room templates, Equipment register, Reference library, Services and tests, Assessors and access, Client experience (previews of the questionnaire and portal), Data and storage
+- **Assessment:** Overview, Visit details
+- **Part A: EMF:** A1 Screening, A2 Mattress grid, A3 Low-frequency fields, A4 Dirty electricity, A5 Radio frequency, A6 Plug loads and local sources, A7 Body voltage, A8 Breaker comparison, A9 Outdoor EMF, A10 EMF observations
+- **Part B: Light, air, moisture and room condition:** B1 Light, B2 Air, climate and noise, B3 Moisture and damp, B4 Room condition and materials, Findings and priorities, Further observations
+- **Part C: Outdoor air, damp and defects:** C1 Outdoor air and noise, C2 Outdoor damp and defects, C3 Outdoor observations
+- **Settings:** Room templates, Equipment register, Reference library, Services and tests, Assessors and access, Client experience, Data and storage
 
-On desktop (1200 pixels and wider) the menu sits down the left-hand side. On tablet and phone it is hidden behind a menu button at the top left and slides in over the page. Choosing a page or pressing Escape closes it.
+On desktop (1200 pixels and wider) the menu sits down the left-hand side. On tablet and phone it is hidden behind a menu button and slides in. Parts A, B and C fold open and closed; the part holding the current page opens automatically.
 
-### Assessment pages
+### Assessment sheets
 
-Each assessment page starts with a choice of client (sorted by name) and room, then a grid for that assessment's measurements. Positions or items run down the side and measurements run across. Some pages also have a checklist of observations with an outcome and a note. Saving writes each filled cell as one result against the client, the room and the matching SBM-2024 point. The results then appear on that page, on the client record and in the report. Typed values are kept while switching room or client, so nothing is lost before saving.
+The Assessment section follows Emerald Grey's paper form, *Healthy Bedroom Assessment: Room by Room Data Collection* (`docs/Bedroom_Assessment_Measurements_and_Observations.docx`). Each section of the form is a page with the same tick boxes, the same tables (rows and columns in the same order) and the same observation boxes. Tables with open-ended rows on paper (sockets, devices, breakers, lamps) can have rows added.
 
-Three rules apply to results from these pages:
+- **Client and room.** Each page starts with a choice of client (sorted by name) and room. Room sections are saved for that room. A9 and Part C are saved once for the whole property.
+- **Saving.** Each section is saved as one record per client and room as it is typed, with the time and the assessor. The Overview shows which sections have been started for the chosen room.
+- **Results.** Numbers on the sheets become results for the client record and report, linked to the matching SBM-2024 point. Three-axis magnetic readings (X, Y, Z) are combined into a resultant. The two RF band peaks are added to give the combined peak. Body-voltage steps and breaker readings are recorded as before or after a change.
+- **Words.** Written observations, and the findings and priorities, are carried into the report as written.
+- **Picture of the mattress.** A2 shows the nine points as they lie on the bed, coloured with a text label for the chosen quantity.
 
-- **Sleeping-area guidance applies only in bedrooms.** The SBM values in the reference library are for sleeping areas, so a reading taken in any other room, or outdoors, shows "Not classified: sleeping-area guidance".
-- **Radio frequency is classified on the combined total.** The combined peak of both bands is calculated and classified. Each band on its own is shown as part of the total. Averages are not classified, because the guidance uses peak values.
-- **Observations are labelled as professional assessments,** never as measured results.
+The same evaluation rules apply as everywhere else:
+
+- SBM sleeping-area guidance only classifies bedroom readings.
+- Radio frequency is classified on the combined peak. Each band on its own, and RMS values, are not classified.
+- Screening instruments (the VOC screener and the sound app) are never classified automatically.
 
 ### Room templates
 
