@@ -69,7 +69,7 @@ body {
   font: 15px/1.5 var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--cream); }
 h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; text-wrap: balance; margin: 0; color: var(--forest); }
 b, strong { font-weight: 500; }
 em.gold { font-style: italic; color: var(--gold); }
@@ -92,46 +92,68 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .grow { flex: 1 1 auto; min-width: 0; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-/* ---------- Prototype bar ---------- */
-.proto-bar {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-  background: var(--surface); border-bottom: 1px solid var(--line);
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 10px;
-}
-.proto-inner { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; max-width: 1320px; margin: 0 auto; }
+/* ---------- App shell ----------
+   Desktop: a forest menu down the left, framed by a gold hairline.
+   Tablet and phone: the same menu slides in from the menu button. */
 .wordmark { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
-.proto-inner > .wordmark { margin-right: auto; }
 .wordmark b { font-family: var(--font-accent); font-weight: 500; font-size: 1.08rem; letter-spacing: .24em; text-transform: uppercase; white-space: nowrap; color: var(--forest); display: block; line-height: 1.2; }
-.side .wordmark b { font-size: 1rem; letter-spacing: .2em; }
 .wordmark span { font-size: .62rem; text-transform: uppercase; letter-spacing: .16em; color: var(--sage-text); display: block; line-height: 1.4; }
-.screen-nav { display: flex; gap: 4px; overflow-x: auto; flex: 1 1 100%; order: 3; min-width: 0; padding-bottom: 2px; scrollbar-width: thin; }
-.screen-nav button {
-  border: 1px solid transparent; background: none; padding: 6px 11px; border-radius: var(--r-m); cursor: pointer;
-  white-space: nowrap; font-size: .86rem; color: var(--ink-2);
+.app-frame { container: app / inline-size; min-height: 100vh; position: relative; }
+.app-frame[data-frame] { margin: 16px auto; border: 10px solid var(--deep-forest); border-radius: 22px; overflow: hidden; min-height: calc(100vh - 32px); transform: translateZ(0); }
+.app-frame[data-frame="tablet"] { max-width: 900px; }
+.app-frame[data-frame="phone"] { max-width: 400px; border-radius: 30px; }
+@media (max-width: 520px) { .app-frame[data-frame] { margin: 0; border-width: 0; border-radius: 0; } }
+.app { display: grid; grid-template-columns: minmax(0, 1fr); min-height: inherit; }
+.app-main { min-width: 0; display: flex; flex-direction: column; }
+#screen { container-type: inline-size; min-width: 0; flex: 1; }
+.appbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; gap: 12px; background: var(--cream); border-bottom: 1px solid var(--line); padding-block: 10px; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.appbar .wordmark { margin-right: auto; min-width: 0; }
+.hamburger, .nav-close { width: 42px; height: 42px; display: grid; place-items: center; border-radius: var(--r-m); cursor: pointer; flex: none; }
+.hamburger { border: 1px solid var(--line); background: var(--surface); color: var(--forest); }
+.hamburger .icon, .nav-close .icon { width: 20px; height: 20px; }
+.appbar-client { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; cursor: pointer; font-size: .82rem; color: var(--ink-2); min-width: 0; }
+.appbar-client .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 28vw; }
+.nav { position: fixed; z-index: 40; top: 0; left: 0; bottom: 0; width: min(300px, 86%); transform: translateX(-102%); transition: transform .22s ease; background: var(--forest); color: var(--cream); border-right: 1px solid var(--gold); overflow-y: auto; display: flex; flex-direction: column; gap: 1px; padding: calc(16px + env(safe-area-inset-top, 0px)) 12px calc(16px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); visibility: hidden; }
+.app.nav-open .nav { transform: none; visibility: visible; }
+.nav-backdrop { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(15, 22, 19, .45); border: 0; padding: 0; }
+.app.nav-open .nav-backdrop { display: block; }
+.app-frame[data-frame] .nav, .app-frame[data-frame] .nav-backdrop { position: absolute; }
+.nav-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 6px 14px 10px; border-bottom: 1px solid rgba(194, 169, 121, .35); margin-bottom: 4px; }
+.nav .wordmark b { color: var(--cream); }
+.nav .wordmark span { color: var(--gold); }
+.nav-close { border: 1px solid rgba(248, 246, 242, .25); background: none; color: var(--cream); }
+.nav-section { font-family: var(--font-body); font-size: .66rem; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); padding: 16px 12px 6px; margin: 0; }
+.nav-link { display: flex; gap: 10px; align-items: flex-start; width: 100%; padding: 8px 12px; border-left: 2px solid transparent; border-radius: 0 var(--r-m) var(--r-m) 0; color: rgba(248, 246, 242, .88); font-size: .88rem; line-height: 1.35; text-decoration: none; }
+.nav-link:hover { background: rgba(248, 246, 242, .07); color: var(--cream); }
+.nav-link[aria-current="page"] { background: rgba(248, 246, 242, .12); color: var(--cream); border-left-color: var(--gold); }
+.nav-link .icon { margin-top: 2px; opacity: .85; }
+.nav-link small { display: block; font-size: .72rem; color: rgba(248, 246, 242, .7); margin-top: 1px; }
+.nav :focus-visible { outline-color: var(--gold); }
+.nav-foot { margin-top: auto; padding: 14px 8px 0; border-top: 1px solid rgba(194, 169, 121, .35); display: flex; flex-direction: column; gap: 12px; color: rgba(248, 246, 242, .88); }
+.nav-foot .sync { color: rgba(248, 246, 242, .88); }
+.nav-foot .seg { background: rgba(248, 246, 242, .1); }
+.nav-foot .seg button { color: rgba(248, 246, 242, .88); }
+.nav-foot .seg button[aria-pressed="true"] { background: var(--cream); color: var(--forest); border-color: transparent; }
+@container app (min-width: 1200px) {
+  .app { grid-template-columns: 280px minmax(0, 1fr); }
+  .nav, .app-frame[data-frame] .nav { position: sticky; top: 0; height: 100vh; width: auto; transform: none; transition: none; visibility: visible; z-index: 1; }
+  .appbar, .nav-backdrop, .nav-close { display: none !important; }
 }
-.screen-nav button small { display: block; font-size: .64rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); line-height: 1.1; }
-.screen-nav button[aria-current="page"] { background: var(--emerald-tint); color: var(--emerald); border-color: transparent; font-weight: 500; }
-.screen-nav button:hover { border-color: var(--line); }
-.device-toggle { display: flex; border: 1px solid var(--line); border-radius: var(--r-m); overflow: hidden; }
-.device-toggle button { border: 0; background: none; padding: 5px 12px; font-size: .8rem; cursor: pointer; color: var(--ink-2); }
-.device-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+@media (prefers-reduced-motion: reduce) { .nav { transition: none; } }
 
-/* ---------- Stage and device frames ---------- */
-.stage {
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 22px 60px;
-}
-.stage-caption { max-width: 1320px; margin: 0 auto 14px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; align-items: baseline; }
-.stage-caption p { max-width: 70ch; color: var(--ink-2); font-size: .9rem; }
-.device { container-type: inline-size; margin: 0 auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
-.device[data-device="desktop"] { max-width: 1320px; }
-.device[data-device="tablet"] { max-width: 1080px; border-radius: 26px; border-width: 10px; border-color: var(--ink); }
+/* Assessment pages */
+.client-bar { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; }
+.client-bar-meta { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+table.entry td { padding: 6px; min-width: 96px; }
+table.entry td.rowlabel { min-width: 170px; }
+table.entry .input { min-height: 36px; padding: 6px 8px; }
+.check-row { display: grid; grid-template-columns: minmax(0, 1fr) 220px minmax(0, 1.2fr); gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--line); }
+@container (max-width: 640px) { .client-bar { grid-template-columns: minmax(0, 1fr); } .check-row { grid-template-columns: minmax(0, 1fr); } }
+
+/* Phone frame for the client-experience previews */
+.device { container-type: inline-size; margin: 0 auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
 .device[data-device="phone"] { max-width: 400px; border-radius: 34px; border-width: 9px; border-color: var(--ink); }
-@media (max-width: 520px) {
-  .device[data-device] { border-width: 1px; border-color: var(--line); border-radius: 14px; }
-  .stage { padding-block: 12px 40px; }
-}
+@media (max-width: 520px) { .device[data-device] { border-width: 1px; border-color: var(--line); border-radius: 14px; } }
 
 /* ---------- Shared components ---------- */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: 18px; min-width: 0; }
@@ -227,26 +249,13 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .modal-back { position: fixed; inset: 0; background: rgba(15,22,19,.45); z-index: 40; display: grid; place-items: center; padding: 16px; }
 .modal { background: var(--surface); border-radius: var(--r-l); max-width: 720px; width: 100%; max-height: calc(100vh - 32px); overflow: auto; padding: 22px; box-shadow: var(--shadow); }
 
-/* ---------- Assessor shell ---------- */
-.shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 720px; }
-.side { background: var(--surface); border-right: 1px solid var(--line); padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
-.side .wordmark { padding: 0 8px 16px; }
-.side-link { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: var(--r-m); color: var(--ink-2); text-decoration: none; font-size: .9rem; cursor: pointer; border: 0; background: none; text-align: left; }
-.side-link:hover { background: var(--sunk); }
-.side-link[aria-current="page"] { background: var(--emerald-tint); color: var(--emerald); font-weight: 500; }
-.side-link .count { margin-left: auto; font-size: .74rem; font-family: var(--font-data); color: var(--ink-3); }
-.side-foot { margin-top: auto; padding: 12px 8px 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
-.main { container-type: inline-size; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+/* ---------- Page body ---------- */
+.side-link { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: var(--r-m); color: var(--ink-2); text-decoration: none; font-size: .9rem; border: 0; background: none; text-align: left; }
+.main { container-type: inline-size; padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 20px; min-width: 0; max-width: 1240px; }
 .topline { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
 .eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: .7rem; text-transform: uppercase; letter-spacing: .16em; color: var(--sage-text); font-weight: 500; }
 .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--gold); flex: none; }
-@container (max-width: 860px) {
-  .shell { grid-template-columns: minmax(0, 1fr); }
-  .side { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 10px; align-items: center; }
-  .side .wordmark, .side-foot { display: none; }
-  .side-link { white-space: nowrap; }
-  .main { padding: 18px 16px 32px; }
-}
+@container (max-width: 860px) { .main { padding: 18px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px)); } }
 
 /* Dashboard */
 .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
@@ -489,17 +498,20 @@ label.choice { align-items: flex-start; }
 </style>
 </head>
 <body>
-<header class="proto-bar">
-  <div class="proto-inner">
-    <a class="wordmark" id="brand" href="#clients" data-action="go" data-screen="clients" aria-label="Emerald Grey Assessment Studio"></a>
-    <nav class="screen-nav" id="screen-nav" aria-label="Prototype screens"></nav>
-    <div class="device-toggle" id="device-toggle" role="group" aria-label="Preview device"></div>
+<div class="app-frame" id="frame">
+  <div class="app" id="app">
+    <nav class="nav" id="nav" aria-label="Main menu"></nav>
+    <button class="nav-backdrop" data-action="closenav" aria-label="Close menu" tabindex="-1"></button>
+    <div class="app-main">
+      <header class="appbar">
+        <button class="hamburger" data-action="opennav" aria-label="Open menu" aria-controls="nav" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+        <a class="wordmark" id="brand" href="#dashboard" data-action="go" data-screen="dashboard" aria-label="Emerald Grey Assessment Studio, home"></a>
+        <button class="appbar-client" id="appbar-client" data-action="go" data-screen="client"></button>
+      </header>
+      <main id="screen"></main>
+    </div>
   </div>
-</header>
-<main class="stage">
-  <div class="stage-caption" id="caption"></div>
-  <div class="device" id="device" data-device="desktop"><div id="screen"></div></div>
-</main>
+</div>
 <div id="overlay"></div>
 
 <script>
@@ -536,6 +548,14 @@ const ICONS = {
   file: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>',
   shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
   photo: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  phone: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17.5h2"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+  wind: '<path d="M3 9h11a3 3 0 10-3-3M3 15h15a3 3 0 11-3 3M3 12h8"/>',
+  drop: '<path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/>',
+  volume: '<path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11"/>',
+  plug: '<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 01-12 0zM12 17v4"/>',
+  bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
   bed: '<path d="M3 18V7M3 13h18v5M21 18v-3a3 3 0 00-3-3h-7v1"/><circle cx="7" cy="10.5" r="1.8"/>'
 };
 /* Running wordmark: Cormorant Garamond in spaced capitals. The full logo with the house icon is
@@ -582,14 +602,21 @@ const EVAL = {
   pro:     { label: "Professional assessment", client: "Our assessment", cls: "c-info" },
   nm:      { label: "Not measured", client: "Not measured", cls: "c-outline" },
   scr:     { label: "Screening only, not classified", client: "Screening only", cls: "c-outline" },
-  noguide: { label: "No numerical guideline", client: "Our assessment", cls: "c-outline" }
+  noguide: { label: "No numerical guideline", client: "Our assessment", cls: "c-outline" },
+  nsa:     { label: "Not classified: sleeping-area guidance", client: "Our assessment", cls: "c-outline" },
+  part:    { label: "Part of the combined total", client: "Part of the total", cls: "c-outline" },
+  rmsnc:   { label: "Not classified: guidance uses peak", client: "Not classified", cls: "c-outline" },
+  incomplete: { label: "Not classified: one band missing", client: "Not classified", cls: "c-outline" },
+  na:      { label: "Not accessible", client: "Not accessible", cls: "c-outline" }
 };
 /* Screening results and professional observations are never classified automatically. */
 function readingEval(r) {
+  if (r.evalKey) return r.evalKey;
   if (r.result === "observation") return "pro";
   if (r.result === "screening") return "scr";
   if (r.value == null) return "nm";
   if (!r.ref) return "noguide";
+  if (REF[r.ref] && REF[r.ref].kind === "sbm" && r.roomType && r.roomType !== "bedroom") return "nsa";
   return classify(r.value, r.ref, r.method);
 }
 const instNames = r => inst(r.inst).name + (r.inst2 ? " and " + inst(r.inst2).name : "");
@@ -751,19 +778,19 @@ const PROMPTS = {
 };
 
 const READINGS = [
-  { id: "R-031", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 38, unit: "V/m", ref: "sbm-ef", method: "earthed", methodLabel: "Earthed method, meter referenced to earth", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:42", dur: "60 s", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Bedside lamps plugged in, off" }, by: "Alfie", phase: "before" },
-  { id: "R-032", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 2.1, unit: "V/m", ref: "sbm-ef", method: "earthed", methodLabel: "Earthed method, meter referenced to earth", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:58", dur: "60 s", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Circuit 7 (first-floor sockets) switched off" }, by: "Alfie", phase: "after" },
-  { id: "R-033", room: "bed1", point: "A1", label: "Body voltage, lying on left side of bed", value: 420, unit: "mV", ref: "sbm-bv", method: "body-voltage", methodLabel: "Body voltage against earth", inst: "bvset", timing: "spot", result: "reading", when: "9 Oct 2026, 19:50", dur: "2 min", loc: "Left side, usual sleeping position", cond: { occupancy: "Tom lying in bed", windows: "Closed", heating: "On", appliances: "Bedside lamps plugged in" }, by: "Alfie", phase: "before" },
-  { id: "R-034", room: "bed1", point: "A2", label: "AC magnetic field, head of bed (left), resultant", value: 20.8, unit: "nT", ref: "sbm-mf", method: "three-axis", methodLabel: "Three orientations, resultant calculated", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:45", dur: "60 s per axis", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal evening load" }, by: "Alfie", phase: "before" },
-  { id: "R-036", room: "bed1", point: "A3", label: "RF power density at pillow, peak, all sources", value: 840, unit: "µW/m²", ref: "sbm-rf", method: "peak", methodLabel: "Peak, max hold, 3 min per meter; both meters summed", inst: "hf38", inst2: "hfw35", timing: "spot", result: "reading", when: "9 Oct 2026, 20:10", dur: "6 min", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Router on, DECT base on landing, phones in airplane mode" }, by: "Alfie", phase: "before" },
-  { id: "R-037", room: "bed1", point: "A1", label: "Line noise, left bedside socket", value: 410, unit: "mV p-p", ref: null, method: "any", methodLabel: "Plug-in monitor, 10 kHz to 10 MHz", inst: "em100", timing: "spot", result: "reading", when: "9 Oct 2026, 20:20", dur: "60 s", loc: "Left bedside socket", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Phone chargers and LED lamp plugged in" }, by: "Alfie", phase: "before", note: "Dropped to 120 mV p-p with the LED lamp and chargers unplugged." },
-  { id: "R-038", room: "bed1", point: "A9", label: "Bedside lamp, colour temperature", value: 2650, unit: "K", ref: null, method: "any", methodLabel: "Spectrometer at pillow, lamp on", inst: "ohsp", timing: "spot", result: "reading", when: "9 Oct 2026, 20:30", dur: "", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Curtains closed", heating: "On", appliances: "Bedside lamp on, main light off" }, by: "Alfie", phase: "before", note: "Warm white LED with low blue content, well suited to evening use." },
-  { id: "R-040", room: "bed1", point: "B6", label: "CO₂ overnight maximum", value: 1450, unit: "ppm", ref: "sbm-co2", method: "any", methodLabel: "Logger at 1 min interval, CSV export", inst: "aranet4", timing: "overnight", result: "reading", when: "9 to 10 Oct 2026, 22:00 to 07:00", dur: "9 h", loc: "Bedside table, 1 m from pillows", cond: { occupancy: "Two adults", windows: "Closed, trickle vents closed", heating: "Timed off 23:00", appliances: "Normal" }, by: "Iza", phase: "before" },
-  { id: "R-041", room: "bed1", point: "C1", label: "Staining at ceiling corner above wardrobe", value: null, unit: "", ref: null, method: null, methodLabel: "Visual inspection, thermal image and moisture meter", inst: "hikmicro", inst2: "protimeter", timing: "spot", result: "observation", when: "9 Oct 2026, 19:30", dur: "", loc: "North-east ceiling corner", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Faint tide-mark consistent with the 2023 roof valley leak. Surface reads dry and shows no cold spot. No visible growth. Settled dust sample taken from the wardrobe top." },
-  { id: "R-051", room: "bath", point: "S5", label: "Relative humidity 40 minutes after shower", value: 78, unit: "%RH", ref: null, method: "any", methodLabel: "Logger on window sill, door closed", inst: "aranet4", timing: "spot", result: "reading", when: "9 Oct 2026, 17:20", dur: "40 min decay", loc: "Window sill", cond: { occupancy: "Shower used 16:40", windows: "Closed", heating: "Underfloor on", appliances: "Fan on boost" }, by: "Iza", phase: "before", note: "Humidity stayed above 75% for 40 minutes with the fan running, which suggests the extractor is not clearing moisture. Flow rate to be checked by an electrician." },
-  { id: "R-052", room: "bath", point: "S2", label: "Surface moisture, window reveal", value: 28, unit: "WME %", ref: null, method: "any", methodLabel: "Pin mode, wood moisture equivalent", inst: "protimeter", timing: "spot", result: "reading", when: "9 Oct 2026, 17:31", dur: "", loc: "Left reveal, 10 cm above sill", cond: { occupancy: "Shower used 16:40", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before" },
-  { id: "R-061", room: "kitchen", point: "B5", label: "PM2.5 during cooking", value: 46, unit: "µg/m³", ref: null, method: "any", methodLabel: "Optical particle monitor, 1 min average", inst: "temtop", timing: "spot", result: "reading", when: "9 Oct 2026, 18:15", dur: "15 min", loc: "Centre of room, 1.2 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Gas hob, hood on recirculation" }, by: "Iza", phase: "before" },
-  { id: "R-062", room: "kitchen", point: "B1", label: "Carbon monoxide beside gas hob", value: 0, unit: "ppm", ref: null, method: "any", methodLabel: "Four-gas detector, hob on for 15 min", inst: "bwflex", timing: "spot", result: "reading", when: "9 Oct 2026, 18:20", dur: "15 min", loc: "30 cm from hob, 1.5 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Two hob rings on" }, by: "Iza", phase: "before", note: "No CO detected. This is screening only; appliance safety checks are for a Gas Safe registered engineer." },
+  { id: "R-031", test: "mattress", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 38, unit: "V/m", ref: "sbm-ef", method: "earthed", methodLabel: "Earthed method, meter referenced to earth", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:42", dur: "60 s", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Bedside lamps plugged in, off" }, by: "Alfie", phase: "before" },
+  { id: "R-032", test: "mattress", room: "bed1", point: "A1", label: "AC electric field, head of bed (left)", value: 2.1, unit: "V/m", ref: "sbm-ef", method: "earthed", methodLabel: "Earthed method, meter referenced to earth", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:58", dur: "60 s", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On, 19 °C", appliances: "Circuit 7 (first-floor sockets) switched off" }, by: "Alfie", phase: "after" },
+  { id: "R-033", test: "bodyvoltage", room: "bed1", point: "A1", label: "Body voltage, lying on left side of bed", value: 420, unit: "mV", ref: "sbm-bv", method: "body-voltage", methodLabel: "Body voltage against earth", inst: "bvset", timing: "spot", result: "reading", when: "9 Oct 2026, 19:50", dur: "2 min", loc: "Left side, usual sleeping position", cond: { occupancy: "Tom lying in bed", windows: "Closed", heating: "On", appliances: "Bedside lamps plugged in" }, by: "Alfie", phase: "before" },
+  { id: "R-034", test: "mattress", room: "bed1", point: "A2", label: "AC magnetic field, head of bed (left), resultant", value: 20.8, unit: "nT", ref: "sbm-mf", method: "three-axis", methodLabel: "Three orientations, resultant calculated", inst: "me3951", timing: "spot", result: "reading", when: "9 Oct 2026, 19:45", dur: "60 s per axis", loc: "Grid head left, pillow height", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal evening load" }, by: "Alfie", phase: "before" },
+  { id: "R-036", test: "rf", room: "bed1", point: "A3", label: "RF power density at pillow, peak, all sources", value: 840, unit: "µW/m²", ref: "sbm-rf", method: "peak", methodLabel: "Peak, max hold, 3 min per meter; both meters summed", inst: "hf38", inst2: "hfw35", timing: "spot", result: "reading", when: "9 Oct 2026, 20:10", dur: "6 min", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Router on, DECT base on landing, phones in airplane mode" }, by: "Alfie", phase: "before" },
+  { id: "R-037", test: "dirty", room: "bed1", point: "A1", label: "Line noise, left bedside socket", value: 410, unit: "mV p-p", ref: null, method: "any", methodLabel: "Plug-in monitor, 10 kHz to 10 MHz", inst: "em100", timing: "spot", result: "reading", when: "9 Oct 2026, 20:20", dur: "60 s", loc: "Left bedside socket", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Phone chargers and LED lamp plugged in" }, by: "Alfie", phase: "before", note: "Dropped to 120 mV p-p with the LED lamp and chargers unplugged." },
+  { id: "R-038", test: "light", room: "bed1", point: "A9", label: "Bedside lamp, colour temperature", value: 2650, unit: "K", ref: null, method: "any", methodLabel: "Spectrometer at pillow, lamp on", inst: "ohsp", timing: "spot", result: "reading", when: "9 Oct 2026, 20:30", dur: "", loc: "Pillow, left side", cond: { occupancy: "Unoccupied", windows: "Curtains closed", heating: "On", appliances: "Bedside lamp on, main light off" }, by: "Alfie", phase: "before", note: "Warm white LED with low blue content, well suited to evening use." },
+  { id: "R-040", test: "air", room: "bed1", point: "B6", label: "CO₂ overnight maximum", value: 1450, unit: "ppm", ref: "sbm-co2", method: "any", methodLabel: "Logger at 1 min interval, CSV export", inst: "aranet4", timing: "overnight", result: "reading", when: "9 to 10 Oct 2026, 22:00 to 07:00", dur: "9 h", loc: "Bedside table, 1 m from pillows", cond: { occupancy: "Two adults", windows: "Closed, trickle vents closed", heating: "Timed off 23:00", appliances: "Normal" }, by: "Iza", phase: "before" },
+  { id: "R-041", test: "moisture", room: "bed1", point: "C1", label: "Staining at ceiling corner above wardrobe", value: null, unit: "", ref: null, method: null, methodLabel: "Visual inspection, thermal image and moisture meter", inst: "hikmicro", inst2: "protimeter", timing: "spot", result: "observation", when: "9 Oct 2026, 19:30", dur: "", loc: "North-east ceiling corner", cond: { occupancy: "Unoccupied", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Faint tide-mark consistent with the 2023 roof valley leak. Surface reads dry and shows no cold spot. No visible growth. Settled dust sample taken from the wardrobe top." },
+  { id: "R-051", test: "air", room: "bath", point: "S5", label: "Relative humidity 40 minutes after shower", value: 78, unit: "%RH", ref: null, method: "any", methodLabel: "Logger on window sill, door closed", inst: "aranet4", timing: "spot", result: "reading", when: "9 Oct 2026, 17:20", dur: "40 min decay", loc: "Window sill", cond: { occupancy: "Shower used 16:40", windows: "Closed", heating: "Underfloor on", appliances: "Fan on boost" }, by: "Iza", phase: "before", note: "Humidity stayed above 75% for 40 minutes with the fan running, which suggests the extractor is not clearing moisture. Flow rate to be checked by an electrician." },
+  { id: "R-052", test: "moisture", room: "bath", point: "S2", label: "Surface moisture, window reveal", value: 28, unit: "WME %", ref: null, method: "any", methodLabel: "Pin mode, wood moisture equivalent", inst: "protimeter", timing: "spot", result: "reading", when: "9 Oct 2026, 17:31", dur: "", loc: "Left reveal, 10 cm above sill", cond: { occupancy: "Shower used 16:40", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before" },
+  { id: "R-061", test: "air", room: "kitchen", point: "B5", label: "PM2.5 during cooking", value: 46, unit: "µg/m³", ref: null, method: "any", methodLabel: "Optical particle monitor, 1 min average", inst: "temtop", timing: "spot", result: "reading", when: "9 Oct 2026, 18:15", dur: "15 min", loc: "Centre of room, 1.2 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Gas hob, hood on recirculation" }, by: "Iza", phase: "before" },
+  { id: "R-062", test: "air", room: "kitchen", point: "B1", label: "Carbon monoxide beside gas hob", value: 0, unit: "ppm", ref: null, method: "any", methodLabel: "Four-gas detector, hob on for 15 min", inst: "bwflex", timing: "spot", result: "reading", when: "9 Oct 2026, 18:20", dur: "15 min", loc: "30 cm from hob, 1.5 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Two hob rings on" }, by: "Iza", phase: "before", note: "No CO detected. This is screening only; appliance safety checks are for a Gas Safe registered engineer." },
   { id: "R-063", room: "kitchen", point: "S1", label: "Water hardness, cold tap", value: 280, unit: "ppm", ref: null, method: "any", methodLabel: "Hardness strip, flushed sample", inst: "varify", timing: "spot", result: "screening", when: "10 Oct 2026, 07:10", dur: "", loc: "Kitchen cold tap", cond: { occupancy: "Normal", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before" },
   { id: "R-064", room: "kitchen", point: "S1", label: "Lead indication, cold tap, first draw", value: null, unit: "", ref: null, method: "any", methodLabel: "16-in-1 strip, first-draw sample", inst: "tespert", timing: "spot", result: "screening", when: "10 Oct 2026, 07:05", dur: "", loc: "Kitchen cold tap, unfiltered", cond: { occupancy: "Stood overnight", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Strip showed a faint lead indication at the lowest band. Not shown on the flushed sample. Bottle sample sent for accredited laboratory analysis (EG-001-W04)." },
   { id: "R-071", room: "living", point: "B1", label: "Formaldehyde screening near new sofa", value: 0.08, unit: "mg/m³", ref: null, method: "any", methodLabel: "Handheld screening, 5 min stabilisation", inst: "pcevoc", timing: "spot", result: "screening", when: "9 Oct 2026, 16:00", dur: "5 min", loc: "1 m from sofa, seated head height", cond: { occupancy: "Unoccupied", windows: "Closed since morning", heating: "On, 20 °C", appliances: "Normal" }, by: "Iza", phase: "before", note: "Higher than the hallway comparison reading. Laboratory air analysis offered if the household would like certainty." }
@@ -781,7 +808,7 @@ const SAMPLES = [
 /* Bedroom grid data: row-major, head row first, left to right */
 const GRID_POS = ["Head left", "Head centre", "Head right", "Middle left", "Middle centre", "Middle right", "Foot left", "Foot centre", "Foot right"];
 const GRID = {
-  ef:  { label: "Electric field, earthed method", unit: "V/m", ref: "sbm-ef", method: "earthed", inst: "me3951",
+  ef:  { label: "Electric field, ground-referenced", unit: "V/m", ref: "sbm-ef", method: "earthed", inst: "me3951",
          before: [38, 22, 9, 14, 8, 4, 6, 3, 2], after: [2.1, 1.6, 0.9, 1.2, 0.8, 0.5, 0.7, 0.4, 0.3] },
   efpf:{ label: "Electric field, potential-free", unit: "V/m", ref: "sbm-ef-pf", method: "potential-free", inst: null, before: null, after: null },
   bv:  { label: "Body voltage", unit: "mV", ref: "sbm-bv", method: "body-voltage", inst: "bvset",
@@ -822,18 +849,6 @@ const ACTIONS = [
 const PRIORITY = { start: { label: "Start here", sub: "Simple changes with the biggest benefit" }, next: { label: "Next steps", sub: "Worth arranging over the coming weeks" }, later: { label: "When convenient", sub: "Longer-term improvements" } };
 
 /* ---------- Prototype state ---------- */
-const SCREENS = [
-  { id: "clients", label: "Clients", who: "Assessor", device: "desktop", note: "Desktop. The starting point. Every visit, test, reading, sample and report belongs to a client record. New clients receive the next reference automatically, from EG-100." },
-  { id: "client", label: "Client record", who: "Assessor", device: "desktop", note: "Desktop. One client, one property. Tests are allocated here. Readings are saved to storage as they are captured and read back for the report, so this page only needs to show status." },
-  { id: "room", label: "On-site capture", who: "Assessor", device: "tablet", note: "Tablet, on site. Room by room for the open client. Every reading, note and sample is saved against the client, the test and the room." },
-  { id: "bedroom", label: "Bedroom grid", who: "Assessor", device: "tablet", note: "Tablet, on site. Nine-point mattress grid, electric-field methods recorded separately, three-axis magnetic readings, body voltage, RF coverage and before-and-after comparison." },
-  { id: "finding", label: "Finding editor", who: "Assessor", device: "desktop", note: "Desktop. Turn saved readings into a reviewed finding and recommendation, evaluated against a reference library that keeps SBM guidance separate from statutory limits." },
-  { id: "report", label: "Report preview", who: "Assessor", device: "desktop", note: "Desktop. The report is assembled from what storage holds for the client. Outstanding results and unapproved findings are surfaced before anything is issued." },
-  { id: "questionnaire", label: "Pre-visit questionnaire", who: "Client", device: "phone", note: "Phone, shown with example client EG-001. The client describes concerns, chooses rooms and shares documents before the visit. Answers flow into the client record." },
-  { id: "portal", label: "Client portal", who: "Client", device: "phone", note: "Phone, shown with example client EG-001. The client sees where to begin, works through the action plan, downloads the report and asks questions. Internal notes never appear here." },
-  { id: "dashboard", label: "Today", who: "Assessor", device: "desktop", note: "Desktop. A daily overview across all clients: upcoming visits, work in progress, outstanding laboratory results and follow-ups." },
-  { id: "equipment", label: "Equipment register", who: "Assessor", device: "desktop", note: "Desktop. Your equipment, kits and methods in one register. Each entry carries its parameters, default result class, checks and limitations, and every reading links back to it." }
-];
 
 /* ---------- Client references ----------
    EG-001 to EG-099 are reserved for example and test records. Real clients start at EG-100,
@@ -844,12 +859,20 @@ const ASSESSOR = "Iza";
 const TAB_ID = "tab-" + Math.random().toString(36).slice(2, 10);
 const ALL_POINTS = SBM.flatMap(g => g.points.map(p => p[0]));
 const allocFrom = list => Object.fromEntries(ALL_POINTS.map(c => [c, list.includes(c)]));
-const DEFAULT_ROOMS = [
-  { id: "bed1", name: "Main bedroom", type: "bedroom", floor: "First floor" },
-  { id: "bath", name: "Bathroom", type: "bathroom", floor: "First floor" },
+/* ---------- Room templates ---------- */
+const BASE_ROOMS = [
+  { id: "living", name: "Living room", type: "living", floor: "Ground floor" },
   { id: "kitchen", name: "Kitchen", type: "kitchen", floor: "Ground floor" },
-  { id: "living", name: "Living room", type: "living", floor: "Ground floor" }
+  { id: "bath-gf", name: "Ground floor bathroom", type: "bathroom", floor: "Ground floor" },
+  { id: "bath-up", name: "Upstairs bathroom", type: "bathroom", floor: "First floor" }
 ];
+const bedroomsN = n => Array.from({ length: n }, (_, i) => ({ id: "bed" + (i + 1), name: "Bedroom " + (i + 1), type: "bedroom", floor: "First floor" }));
+const ROOM_TEMPLATES = {
+  t1: { name: "Template 1 · one bedroom", rooms: [...BASE_ROOMS, ...bedroomsN(1)] },
+  t2: { name: "Template 2 · two bedrooms", rooms: [...BASE_ROOMS, ...bedroomsN(2)] },
+  t3: { name: "Template 3 · three bedrooms", rooms: [...BASE_ROOMS, ...bedroomsN(3)] }
+};
+const DEFAULT_ROOMS = ROOM_TEMPLATES.t1.rooms;
 const ROOM_TYPES = { bedroom: "Bedroom", bathroom: "Bathroom", kitchen: "Kitchen", living: "Living room", office: "Home office", loft: "Loft", other: "Other" };
 /* The tests usually recorded in each kind of room */
 const ROOM_POINTS = {
@@ -858,10 +881,10 @@ const ROOM_POINTS = {
   office: ["A1", "A2", "A3", "A9", "B6"], loft: ["C1", "S2", "S3"], other: ["B6", "S2"]
 };
 const EXAMPLES = [
-  { ref: "EG-001", num: 1, example: true, name: "Harriet and Tom Ashworth", propertyName: "", address: { line1: "14 Larkhill Road", line2: "", town: "Bristol", postcode: "BS6" }, email: "harriet.a@example.co.uk", phone: "07700 900418", service: "Home Health Analysis", stage: "Report v1.1 in review", createdAt: "2026-10-02" },
-  { ref: "EG-002", num: 2, example: true, name: "Priya Raman", propertyName: "", address: { line1: "7 Rowan Close", line2: "", town: "Hove", postcode: "BN3" }, email: "priya.r@example.co.uk", phone: "", service: "Home Health Analysis, bedrooms only", stage: "Visit 24 Oct · questionnaire complete", createdAt: "2026-10-12" },
-  { ref: "EG-003", num: 3, example: true, name: "The Okafor family", propertyName: "Mill Cottage", address: { line1: "Mill Lane", line2: "", town: "Lewes", postcode: "BN7" }, email: "okafor@example.co.uk", phone: "", service: "Build and Renovation Consultancy", stage: "Visit 27 Oct · questionnaire 3 of 8", createdAt: "2026-10-15" },
-  { ref: "EG-004", num: 4, example: true, name: "Margaret Ellis", propertyName: "", address: { line1: "22 Linden Terrace", line2: "", town: "Brighton", postcode: "BN1" }, email: "m.ellis@example.co.uk", phone: "", service: "Home Health Analysis", stage: "Visit 30 Oct · questionnaire not started", createdAt: "2026-10-19" }
+  { ref: "EG-001", num: 1, example: true, name: "Harriet and Tom Ashworth", propertyName: "", address: { line1: "14 Larkhill Road", line2: "", town: "Bristol", postcode: "BS6" }, email: "harriet.a@example.co.uk", phone: "07700 900418", service: "Home Health Analysis", stage: "Report v1.1 in review", roomTemplate: "", createdAt: "2026-10-02" },
+  { ref: "EG-002", num: 2, example: true, name: "Priya Raman", propertyName: "", address: { line1: "7 Rowan Close", line2: "", town: "Hove", postcode: "BN3" }, email: "priya.r@example.co.uk", phone: "", service: "Home Health Analysis, bedrooms only", stage: "Visit 24 Oct · questionnaire complete", roomTemplate: "t2", createdAt: "2026-10-12" },
+  { ref: "EG-003", num: 3, example: true, name: "The Okafor family", propertyName: "Mill Cottage", address: { line1: "Mill Lane", line2: "", town: "Lewes", postcode: "BN7" }, email: "okafor@example.co.uk", phone: "", service: "Build and Renovation Consultancy", stage: "Visit 27 Oct · questionnaire 3 of 8", roomTemplate: "t3", createdAt: "2026-10-15" },
+  { ref: "EG-004", num: 4, example: true, name: "Margaret Ellis", propertyName: "", address: { line1: "22 Linden Terrace", line2: "", town: "Brighton", postcode: "BN1" }, email: "m.ellis@example.co.uk", phone: "", service: "Home Health Analysis", stage: "Visit 30 Oct · questionnaire not started", roomTemplate: "t1", createdAt: "2026-10-19" }
 ];
 
 const S = {
@@ -883,6 +906,8 @@ const S = {
 };
 /* Example records keep their allocation in memory; EG-001 shares the scope used by its report. */
 S.alloc = { "EG-001": S.scope, "EG-002": allocFrom(PACKAGES["Home Health Analysis, bedrooms only"]), "EG-003": allocFrom(PACKAGES["Build and Renovation Consultancy"]), "EG-004": allocFrom(ALL_POINTS) };
+S.exRooms = { "EG-002": ROOM_TEMPLATES.t2.rooms, "EG-003": ROOM_TEMPLATES.t3.rooms, "EG-004": ROOM_TEMPLATES.t1.rooms };
+Object.assign(S, { screen: "dashboard", gridQty: "ef", draft: {}, rows: {}, frame: "desktop" });
 const findingById = id => FINDINGS.find(f => f.id === id);
 
 /* =========================================================================
@@ -1030,21 +1055,8 @@ function storeBadge() {
   const t = { starting: "Connecting to storage…", shared: "Shared storage · Iza and Alfie see the same records", local: "Saved in this browser only" }[Store.mode];
   return `<span class="sync" data-state="${Store.mode === "shared" ? "online" : Store.mode === "local" ? "offline" : "saving"}"><span class="sync-dot" aria-hidden="true"></span><span>${t}</span></span>`;
 }
-function assessorShell(active, body) {
-  const links = [["clients", "users", "Clients", String(allClients().length)], ["dashboard", "home", "Today"], ["room", "cal", "On-site capture"], ["finding", "doc", "Findings"], ["report", "book", "Reports"], ["equipment", "gauge", "Equipment", "22"]];
-  return `<div class="shell">
-    <aside class="side" aria-label="Workspace">
-      <div class="wordmark">${logoInner("Assessors")}</div>
-      ${links.map(([id, ic, label, n]) => `<button class="side-link" data-action="go" data-screen="${id}" ${active === id ? 'aria-current="page"' : ""}>${icon(ic)}<span>${label}</span>${n ? `<span class="count">${n}</span>` : ""}</button>`).join("")}
-      <div class="side-foot">
-        ${storeBadge()}
-        ${syncBadge()}
-        <div class="row"><span class="avatar av-iza">IZ</span><div class="small"><b>Iza</b><div class="muted xsmall">Assessor · MFA on</div></div></div>
-      </div>
-    </aside>
-    <div class="main">${body}</div>
-  </div>`;
-}
+/* Every desktop page body sits in the main column beside the menu */
+function assessorShell(active, body) { return `<div class="main">${body}</div>`; }
 function crumbs(extra) {
   const c = C();
   return `<nav class="crumbs" aria-label="Breadcrumb"><a href="#clients" data-action="go" data-screen="clients">Clients</a><span aria-hidden="true">/</span><a href="#client" data-action="go" data-screen="client">${c.ref} · ${esc(c.name)}</a>${extra ? `<span aria-hidden="true">/</span><span>${extra}</span>` : ""}</nav>`;
@@ -1058,7 +1070,7 @@ function storeNotice() {
 
 /* ---------- 1. Clients ---------- */
 function screenClients() {
-  const list = allClients().filter(c => S.showExamples || !c.example);
+  const list = allClients().filter(c => S.showExamples || !c.example).sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
   const real = Object.keys(Store.clients).length;
   const row = c => {
     const sm = clientSummary(c.ref);
@@ -1084,7 +1096,7 @@ function screenClients() {
       <div class="field" style="flex:1 1 280px;max-width:420px"><label for="client-search">Find a client</label><input id="client-search" class="input" type="search" placeholder="Name, reference, address or property" value="${esc(S.search)}" data-search-input></div>
       <div class="row small"><span class="muted">${real} client${real === 1 ? "" : "s"} saved · next reference ${fmtRef(Store.nextNum())}</span><button class="pill-check" aria-pressed="${S.showExamples}" data-action="toggleexamples">Show example records</button></div>
     </div>
-    ${list.length ? `<div class="table-wrap"><table class="client-table"><thead><tr><th>Reference</th><th>Client</th><th>Address</th><th>Service</th><th>Tests</th><th>Status</th></tr></thead><tbody>${list.map(row).join("")}</tbody></table></div>
+    ${list.length ? `<div class="table-wrap"><table class="client-table"><thead><tr><th>Reference</th><th>Client (A to Z)</th><th>Address</th><th>Service</th><th>Tests</th><th>Status</th></tr></thead><tbody>${list.map(row).join("")}</tbody></table></div>
       <p class="small muted" id="no-match" hidden>No client matches that search.</p>`
     : `<div class="card stack" style="align-items:flex-start"><h3>No clients yet</h3><p class="small muted">Add your first client to start their record. They will be given reference ${fmtRef(Store.nextNum())}.</p><button class="btn btn-primary" data-action="newclient">${icon("plus")}New client</button></div>`}
   `);
@@ -1136,6 +1148,7 @@ function overviewTab(c) {
             ${c.propertyName ? `<div class="fact"><div class="k">Property name</div><div class="v">${esc(c.propertyName)}</div></div>` : ""}
             <div class="fact"><div class="k">Email</div><div class="v">${esc(c.email || "Not recorded")}</div></div>
             <div class="fact"><div class="k">Phone</div><div class="v">${esc(c.phone || "Not recorded")}</div></div>
+            <div class="fact"><div class="k">Rooms</div><div class="v">${roomsFor(c.ref).length} rooms${c.roomTemplate ? ` · ${ROOM_TEMPLATES[c.roomTemplate].name}` : ""}</div></div>
             ${prop.map(([k, v]) => `<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}
           </div>
           ${!isFixture(c.ref) && !prop.length ? `<p class="small muted">Property details (age, construction, alterations, heating, ventilation, leak history and routines) are not recorded yet.${c.example ? "" : " Add them with Edit details, or they arrive with the questionnaire."}</p>` : ""}
@@ -1171,6 +1184,10 @@ function visitsTab(c) {
           return `<tr><td><b class="small">${esc(r.name)}</b>${r.inaccessible ? `<div class="xsmall muted">Not accessible</div>` : ""}</td><td class="small">${esc(r.floor || "")}</td><td class="small">${done} of ${Object.keys(pts).length} with data</td><td class="num">${rs.filter(x => x.room === r.id).length}</td><td><button class="btn btn-s" data-action="openroom" data-room="${r.id}">Open</button></td></tr>`; }).join("")}
       </tbody></table></div>
       ${isFixture(c.ref) ? "" : `<div class="row" style="align-items:flex-end">
+        <div class="field"><label for="tpl">Room template</label><select id="tpl" class="input">${Object.entries(ROOM_TEMPLATES).map(([k, t]) => opt(k, t.name, k === (c.roomTemplate || "t1"))).join("")}</select></div>
+        <button class="btn" data-action="applytemplate" ${Store.readOnly && !c.example ? "disabled" : ""}>Apply template</button>
+        <span class="xsmall muted" style="flex:1 1 220px">Applying a template sets the rooms to the template's list. Rooms that already hold results are kept.</span></div>
+      <div class="row" style="align-items:flex-end">
         <div class="field"><label for="nr-name">Add a room</label><input id="nr-name" class="input" placeholder="For example, Guest bedroom"></div>
         <div class="field"><label for="nr-type">Type</label><select id="nr-type" class="input">${Object.entries(ROOM_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></div>
         <div class="field"><label for="nr-floor">Floor</label><input id="nr-floor" class="input" placeholder="First floor"></div>
@@ -1210,7 +1227,7 @@ function reportTab(c) {
 }
 function screenClient() {
   const c = C(), sm = clientSummary(c.ref);
-  const tabs = [["overview", "Overview"], ["tests", `Tests · ${sm.allocated}`], ["visits", "Visits"], ["samples", `Samples · ${samplesFor(c.ref).length}`], ["report", "Report"]];
+  const tabs = [["overview", "Overview"], ["tests", `Tests · ${sm.allocated}`], ["visits", "Rooms and visits"], ["samples", `Samples · ${samplesFor(c.ref).length}`], ["report", "Report"]];
   const body = { overview: overviewTab, tests: testsTab, visits: visitsTab, samples: samplesTab, report: reportTab }[S.tab] || overviewTab;
   return assessorShell("clients", `
     ${crumbs()}
@@ -1537,7 +1554,7 @@ function rfPanel() {
 }
 function screenBedroomExample() {
   const g = GRID[S.gridQty];
-  const qtyTabs = [["ef", "E-field (earthed)"], ["efpf", "E-field (potential-free)"], ["bv", "Body voltage"], ["mf", "Magnetic, 3 axes"], ["rf", "Radio frequency"]];
+  const qtyTabs = [["ef", "Ground-referenced E-field"], ["efpf", "Potential-free E-field"], ["mf", "Magnetic field, 3 axes"]];
   const eq = g && g.inst ? inst(g.inst) : null;
   let main = "";
   if (S.gridQty === "rf") main = rfPanel();
@@ -1559,8 +1576,9 @@ function screenBedroomExample() {
       <p class="xsmall muted">Each colour has a text label. ${S.phase === "compare" ? "Labels classify the after value. " : ""}Classification shown only where the method matches the reference entry: ${REF[g.ref].source}, ${REF[g.ref].quantity.toLowerCase()}.</p>
       ${detail}`;
   }
-  return `${visitTop("Main bedroom · bed measurements", "Visit 1 · 9 October 2026 · Alfie")}
+  return `${visitTop("Nine-point mattress test", "Visit 1 · 9 October 2026 · Alfie")}
   <div class="visit-main">
+    ${clientBar({ bedroomOnly: true })}
     <div class="spread">
       <div class="row"><button class="btn btn-s" data-action="go" data-screen="room">${icon("back")}Room</button><h2>Bed measurements</h2></div>
       <div class="seg" role="group" aria-label="Measured quantity">${qtyTabs.map(([k, l]) => `<button aria-pressed="${S.gridQty === k}" data-action="qty" data-q="${k}">${l}</button>`).join("")}</div>
@@ -1592,7 +1610,7 @@ function screenBedroomExample() {
 
 /* Bedroom grid for clients other than the worked example: values come from saved readings. */
 const GRID_DEF = {
-  ef:  { point: "A1", method: "earthed", unit: "V/m", inst: "me3951", label: "Electric field, earthed method", ref: "sbm-ef" },
+  ef:  { point: "A1", method: "earthed", unit: "V/m", inst: "me3951", label: "Electric field, ground-referenced", ref: "sbm-ef" },
   efpf:{ point: "A1", method: "potential-free", unit: "V/m", inst: null, label: "Electric field, potential-free", ref: "sbm-ef-pf" },
   bv:  { point: "A1", method: "body-voltage", unit: "mV", inst: "bvset", label: "Body voltage", ref: "sbm-bv" },
   mf:  { point: "A2", method: "three-axis", unit: "nT", inst: "me3951", label: "Magnetic field, three axes", ref: "sbm-mf" }
@@ -1615,38 +1633,35 @@ function cellGeneric(qty, i, roomId) {
   return `<button class="cell k-${k}" aria-pressed="${sel}" data-action="cell" data-i="${i}"><span class="pos">${GRID_POS[i]}</span>${line}<span class="lab">${EVAL[k].label}${S.phase === "compare" && a ? " after" : ""}</span></button>`;
 }
 function screenBedroomGeneric() {
-  const c = C(), rooms = roomsFor(c.ref);
-  const room = currentRoom().type === "bedroom" ? currentRoom() : (rooms.find(r => r.type === "bedroom") || currentRoom());
-  const qtyTabs = [["ef", "E-field (earthed)"], ["efpf", "E-field (potential-free)"], ["bv", "Body voltage"], ["mf", "Magnetic, 3 axes"], ["rf", "Radio frequency"]];
+  const c = C();
+  const room = currentBedroom();
+  if (!room) return assessorShell("", `<div class="topline"><div><span class="eyebrow">Assessments</span><h1>Nine-point mattress test</h1></div></div>${clientBar({ bedroomOnly: true })}`);
+  const qtyTabs = [["ef", "Ground-referenced E-field"], ["efpf", "Potential-free E-field"], ["mf", "Magnetic field, 3 axes"]];
   const locked = Store.readOnly && !c.example;
   let main;
-  if (S.gridQty === "rf") {
-    const rf = readingsFor(c.ref).filter(r => r.room === room.id && r.point === "A3");
-    main = `${rfCoverage()}
-      <button class="btn btn-primary" style="align-self:flex-start" data-action="record" data-point="A3" data-room="${room.id}" data-meth="peak" ${locked ? "disabled" : ""}>${icon("plus")}Record RF reading</button>
-      ${rf.length ? rf.map(readingCard).join("") : `<p class="small muted">No RF readings saved for this room yet.</p>`}`;
-  } else if (S.gridQty === "efpf") {
-    main = `<div class="notice notice-muted">${icon("info")}<div class="small stack" style="gap:6px"><b>No potential-free readings</b><span>Your equipment register has no potential-free meter, so electric fields are measured with the earthed method. Potential-free readings are kept apart from earthed readings and evaluated against their own reference entry.</span><button class="btn btn-s" style="align-self:flex-start" data-action="go" data-screen="equipment">Open equipment register</button></div></div>`;
-  } else {
+  {
+    const pfNote = S.gridQty === "efpf" ? `<div class="notice notice-muted">${icon("info")}<span class="small">No potential-free meter is in the equipment register yet. Readings can still be recorded; they are kept apart from ground-referenced readings and evaluated against their own reference entry.</span></div>` : "";
     const i = S.cell, b = gridReading(S.gridQty, i, "before", room.id), a = gridReading(S.gridQty, i, "after", room.id);
     const box = (r, label) => r ? `<div class="axis ${label === "After" ? "res" : ""}"><div class="k">${label}</div><div class="v">${fmt(r.value, r.value % 1 ? 1 : 0)} <small class="muted">${GRID_DEF[S.gridQty].unit}</small></div>${r.axes ? `<div class="xsmall muted">X ${r.axes[0]} · Y ${r.axes[1]} · Z ${r.axes[2]}</div>` : ""}</div>` : `<div class="axis"><div class="k">${label}</div><div class="small muted">Not measured</div></div>`;
     main = `<div class="mattress"><div class="pillows" aria-hidden="true"><i></i><i></i></div><div class="mgrid">${GRID_POS.map((_, k) => cellGeneric(S.gridQty, k, room.id)).join("")}</div></div>
       <p class="xsmall muted">Select a position, then record its reading. Each colour has a text label, and classification is shown only where the method matches the reference entry.</p>
+      ${pfNote}
       <div class="stack"><b class="small">${GRID_POS[i]}</b>
         <div class="grid-2">${box(b, "Before")}${box(a, "After")}</div>
         <div class="row"><button class="btn btn-s btn-primary" data-action="recordgrid" data-phase="before" data-room="${room.id}" ${locked ? "disabled" : ""}>${icon("plus")}Record before</button><button class="btn btn-s" data-action="recordgrid" data-phase="after" data-room="${room.id}" ${locked ? "disabled" : ""}>${icon("plus")}Record after a change</button></div></div>`;
   }
-  const rows = ["ef", "bv", "mf"].map(q => { const b = gridReading(q, S.cell, "before", room.id), a = gridReading(q, S.cell, "after", room.id); const g = GRID_DEF[q];
+  const rows = ["ef", "efpf", "mf"].map(q => { const b = gridReading(q, S.cell, "before", room.id), a = gridReading(q, S.cell, "after", room.id); const g = GRID_DEF[q];
     return `<tr><td>${g.label}</td><td class="num">${b ? fmt(b.value, b.value % 1 ? 1 : 0) + " " + g.unit : "Not measured"}</td><td class="num">${a ? fmt(a.value, a.value % 1 ? 1 : 0) + " " + g.unit : "Not measured"}</td><td>${a ? evalChip(classify(a.value, g.ref, g.method)) : evalChip("nm")}</td></tr>`; }).join("");
-  return `${visitTop(`${esc(room.name)} · bed measurements`, "Visit 1 · readings save as you record them")}
+  return `${visitTop("Nine-point mattress test", `${esc(room.name)} · results save as you record them`)}
   <div class="visit-main">
+    ${clientBar({ bedroomOnly: true })}
     <div class="spread">
       <div class="row"><button class="btn btn-s" data-action="go" data-screen="room">${icon("back")}Room</button><h2>Bed measurements</h2></div>
       <div class="seg" role="group" aria-label="Measured quantity">${qtyTabs.map(([k, l]) => `<button aria-pressed="${S.gridQty === k}" data-action="qty" data-q="${k}">${l}</button>`).join("")}</div>
     </div>
-    ${S.gridQty !== "rf" && S.gridQty !== "efpf" ? `<div class="card card-tight spread"><div class="small">Record a reading at each position, then again after switching off a device or circuit to compare.</div><div class="seg" role="group" aria-label="Condition">${[["before", "Before"], ["after", "After"], ["compare", "Compare"]].map(([k, l]) => `<button aria-pressed="${S.phase === k}" data-action="phase" data-p="${k}">${l}</button>`).join("")}</div></div>` : ""}
+    <div class="card card-tight spread"><div class="small">Record a reading at each position, then again after switching off a device or circuit to compare.</div><div class="seg" role="group" aria-label="Condition">${[["before", "Before"], ["after", "After"], ["compare", "Compare"]].map(([k, l]) => `<button aria-pressed="${S.phase === k}" data-action="phase" data-p="${k}">${l}</button>`).join("")}</div></div>
     <div class="bed-layout">
-      <section class="stack" aria-labelledby="h-grid"><h3 id="h-grid">${S.gridQty === "rf" ? "Radio frequency at the pillow" : GRID_DEF[S.gridQty].label + " · nine-point grid"}</h3>${main}</section>
+      <section class="stack" aria-labelledby="h-grid"><h3 id="h-grid">${GRID_DEF[S.gridQty].label} · nine-point grid</h3>${main}</section>
       <div class="stack-l">
         <section class="card stack" aria-labelledby="h-ba"><h3 id="h-ba">Before and after · ${GRID_POS[S.cell]}</h3>
           <div class="table-wrap"><table><thead><tr><th>Measurement</th><th class="num">Before</th><th class="num">After</th><th>After, SBM</th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -1671,7 +1686,11 @@ function rfCoverage() {
     </div>
     <div class="notice notice-warn">${icon("info")}<span class="small">Below 700 MHz (FM, DAB, TETRA, some TV) and above 6 GHz (Wi-Fi 6E) are outside your meters' range. This caveat carries into the finding and report automatically.</span></div>`;
 }
-function screenBedroom() { return isFixture(S.client) ? screenBedroomExample() : screenBedroomGeneric(); }
+function screenBedroom() {
+  if (!GRID_DEF[S.gridQty]) S.gridQty = "ef";
+  const bed = currentBedroom();
+  return isFixture(S.client) && bed && bed.id === "bed1" ? screenBedroomExample() : screenBedroomGeneric();
+}
 
 /* ---------- 6. Finding and recommendation editor ---------- */
 function screenFinding() {
@@ -1923,7 +1942,7 @@ function reportFromStore() {
           ${notIncluded.length ? `<p class="small muted">Not included: ${notIncluded.map(code => `${code} ${POINT_NAME[code]}`).join(", ")}. Points not measured carry no evaluation.</p>` : ""}</section>
         <section><div class="sec-head"><span class="ghost" aria-hidden="true">02</span><span class="eyebrow">02 / 04 · Measurements</span><h2>Measurements</h2></div>
           ${rs.length ? `<div class="table-wrap"><table><thead><tr><th>Measurement</th><th>Room</th><th class="num">Value</th><th>Type</th><th>Evaluation</th></tr></thead><tbody>
-            ${rs.map(r => `<tr><td class="small"><span class="scope-code">${r.point}</span> ${esc(r.label)}${r.phase === "after" ? " (after)" : ""}</td><td class="small">${esc((rooms.find(x => x.id === r.room) || {}).name || "")}</td><td class="num">${r.value != null ? fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0) + " " + esc(r.unit) : "See note"}</td><td class="small">${TIMING[r.timing] || ""}<br><span class="muted">${RESULT[r.result]}</span></td><td>${evalChip(readingEval(r))}</td></tr>`).join("")}
+            ${rs.map(r => `<tr><td class="small"><span class="scope-code">${r.point}</span> ${esc(r.label)}${r.phase === "after" ? " (after)" : ""}</td><td class="small">${esc(roomName(c.ref, r.room))}</td><td class="num">${r.value != null ? fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0) + " " + esc(r.unit) : "See note"}</td><td class="small">${TIMING[r.timing] || ""}<br><span class="muted">${RESULT[r.result]}</span></td><td>${evalChip(readingEval(r))}</td></tr>`).join("")}
           </tbody></table></div>` : `<p class="small muted">No readings saved yet.</p>`}</section>
         <section><div class="sec-head"><span class="ghost" aria-hidden="true">03</span><span class="eyebrow">03 / 04 · Samples</span><h2>Samples</h2></div>
           ${ss.length ? `<div class="table-wrap"><table><thead><tr><th>Reference</th><th>Sample</th><th>Status</th></tr></thead><tbody>${ss.map(s => `<tr><td class="mono xsmall">${s.ref}</td><td class="small">${esc(s.what)}</td><td>${covChip(s.st)}</td></tr>`).join("")}</tbody></table></div>` : `<p class="small muted">No samples recorded.</p>`}</section>
@@ -1981,6 +2000,7 @@ function clientModal() {
       ${fld("m-phone", "Phone (optional)", inp("m-phone", c ? c.phone : "", 'type="tel"'))}
     </div>
     <div id="m-dup"></div>
+    ${editing ? "" : fld("m-tpl", "Rooms", `<select id="m-tpl" class="input">${Object.entries(ROOM_TEMPLATES).map(([k, t]) => opt(k, `${t.name}: ${t.rooms.map(r => r.name).join(", ")}`, k === "t1")).join("")}</select>`, "Rooms can be added or changed later on the client record")}
     ${editing ? `<div class="stack"><h4>Property</h4><div class="grid-2">${PROPERTY_FIELDS.map(([k, l]) => fld("m-p-" + k, l, k === "alterations" || k === "leaks" || k === "routines" ? `<textarea id="m-p-${k}" class="input" rows="2">${esc(p[k] || "")}</textarea>` : inp("m-p-" + k, p[k] || ""))).join("")}</div></div>`
     : `<div class="field"><span class="label">Tests to allocate</span><div class="choice-list" role="radiogroup">
         <label class="choice"><input type="radio" name="m-alloc" value="all" checked> <span class="grow"><b class="small">Test everything</b><br><span class="xsmall muted">All ${ALL_POINTS.length} tests. Usual for a Home Health Analysis.</span></span></label>
@@ -2081,21 +2101,358 @@ function csvPreview(text, name) {
 }
 
 /* =========================================================================
+   Assessment pages
+   Each assessment has its own page. Results are entered against the chosen client
+   and room, saved to storage, and appear on the client's record and report.
+   ========================================================================= */
+const STATUS_OPTS = ["Not checked", "Checked, nothing of note", "Concern noted", "Not accessible"];
+const PHASE_FIELD = { k: "phase", label: "Condition", type: "select", options: [["before", "Normal state"], ["after", "After a change"]], default: "before" };
+const CHANGE_FIELD = { k: "change", label: "Change made, if any", type: "text", placeholder: "For example, bedside circuit switched off" };
+const TESTS = [
+  { id: "walls", nav: "Walls and room centre", icon: "grid",
+    title: "Low-frequency electric and magnetic fields around each wall and the room centre",
+    intro: "Measure at each wall and at the centre of the room. Electric fields are measured ground-referenced with the ME3951A; magnetic fields as the resultant of three orientations.",
+    rowLabel: "Position", rows: ["North wall", "East wall", "South wall", "West wall", "Room centre"], fixedRows: true,
+    cols: [{ k: "ef", label: "Electric field, ground-referenced", unit: "V/m", point: "A1", method: "earthed", inst: "me3951" },
+           { k: "mf", label: "Magnetic field, resultant", unit: "nT", point: "A2", method: "three-axis", inst: "me3951" }],
+    page: [PHASE_FIELD, CHANGE_FIELD] },
+  { id: "dirty", nav: "Dirty electricity", icon: "bolt",
+    title: "Dirty electricity measurements at sockets and suspected sources",
+    intro: "Conducted line noise on the mains wiring, measured with the TriField EM100 at each socket or suspected source. Repeat after unplugging a source to compare.",
+    rowLabel: "Socket or suspected source", rows: ["Bedside socket, left", "Bedside socket, right", ""],
+    cols: [{ k: "ln", label: "Line noise", unit: "mV p-p", point: "A1", method: "any", inst: "em100" }],
+    page: [PHASE_FIELD, CHANGE_FIELD] },
+  { id: "rf", nav: "Radio frequency, two bands", icon: "wifi",
+    title: "Radio-frequency measurements across two frequency bands",
+    intro: "Low band with the HF38B-W (about 700 MHz to 2.4 GHz) and high band with the HFW35C (about 2.4 to 6 GHz). The combined peak is calculated and classified; each band on its own is not.",
+    rowLabel: "Position", rows: ["Pillow, left", "Pillow, right", "Room centre"],
+    cols: [{ k: "lowpk", label: "Low band, peak", unit: "µW/m²", point: "A3", method: "peak", inst: "hf38", evalKey: "part" },
+           { k: "lowav", label: "Low band, average", unit: "µW/m²", point: "A3", method: "rms", inst: "hf38", evalKey: "rmsnc" },
+           { k: "hipk", label: "High band, peak", unit: "µW/m²", point: "A3", method: "peak", inst: "hfw35", evalKey: "part" },
+           { k: "hiav", label: "High band, average", unit: "µW/m²", point: "A3", method: "rms", inst: "hfw35", evalKey: "rmsnc" }],
+    total: { from: ["lowpk", "hipk"], label: "Combined peak, both bands", unit: "µW/m²", point: "A3", method: "peak", inst: "hf38", inst2: "hfw35" },
+    page: [PHASE_FIELD, CHANGE_FIELD] },
+  { id: "onoff", nav: "Device on/off comparisons", icon: "wifi",
+    title: "Router, cordless phone, smart-device and mobile-phone on/off comparisons",
+    intro: "Peak radio-frequency level at one position with each device on, then off. The difference shows how much each device contributes.",
+    rowLabel: "Device", rows: ["Wi-Fi router", "Cordless phone base", "Smart devices", "Mobile phones"],
+    cols: [{ k: "on", label: "Peak, device on", unit: "µW/m²", point: "A3", method: "peak", inst: "hf38", phase: "before", cond: "on" },
+           { k: "off", label: "Peak, device off", unit: "µW/m²", point: "A3", method: "peak", inst: "hf38", phase: "after", cond: "off" }],
+    page: [{ k: "at", label: "Measured at", type: "text", default: "Pillow, left side" }] },
+  { id: "plug", nav: "Plug loads and appliances", icon: "plug",
+    title: "Plug-load and local appliance measurements",
+    intro: "Fields close to lamps, chargers, extension leads and other appliances. Note the distance so readings can be compared.",
+    rowLabel: "Appliance", rows: ["Bedside lamp", "Phone charger", "Extension lead"],
+    cols: [{ k: "dist", label: "Distance", type: "text", placeholder: "30 cm" },
+           { k: "ef", label: "Electric field, ground-referenced", unit: "V/m", point: "A1", method: "earthed", inst: "me3951" },
+           { k: "mf", label: "Magnetic field, resultant", unit: "nT", point: "A2", method: "three-axis", inst: "me3951" }],
+    page: [PHASE_FIELD, CHANGE_FIELD] },
+  { id: "bodyvoltage", nav: "Body voltage", icon: "users",
+    title: "Body-voltage testing",
+    intro: "Body voltage against earth in the usual sleeping positions, with the multimeter and body-voltage set-up. Repeat after switching off a circuit or unplugging a source.",
+    rowLabel: "Position", rows: ["Lying in bed, left side", "Lying in bed, right side", "Sitting up in bed"],
+    cols: [{ k: "bv", label: "Body voltage", unit: "mV", point: "A1", method: "body-voltage", inst: "bvset" }],
+    page: [PHASE_FIELD, CHANGE_FIELD] },
+  { id: "cu", nav: "Consumer unit and circuits", icon: "bolt",
+    title: "Consumer-unit and circuit-breaker comparison testing",
+    intro: "Switch each circuit off in turn at the consumer unit and record the change at the measuring position. Label circuits as they appear on the board.",
+    rowLabel: "Circuit", rows: ["Circuit 1", "Circuit 2", "Circuit 3", "Circuit 4"],
+    cols: [{ k: "efon", label: "E-field, circuit on", unit: "V/m", point: "A1", method: "earthed", inst: "me3951", phase: "before", cond: "on" },
+           { k: "efoff", label: "E-field, circuit off", unit: "V/m", point: "A1", method: "earthed", inst: "me3951", phase: "after", cond: "off" },
+           { k: "bvon", label: "Body voltage, circuit on", unit: "mV", point: "A1", method: "body-voltage", inst: "bvset", phase: "before", cond: "on" },
+           { k: "bvoff", label: "Body voltage, circuit off", unit: "mV", point: "A1", method: "body-voltage", inst: "bvset", phase: "after", cond: "off" }],
+    page: [{ k: "at", label: "Measured at", type: "text", default: "Pillow, left side" }] },
+  { id: "outdoor", nav: "Outdoor measurements", icon: "home", outdoor: true,
+    title: "Outdoor electric, magnetic and radio-frequency measurements",
+    intro: "Readings around the property give a baseline and help locate external sources such as power lines, substations and masts. Outdoor readings are not classified against sleeping-area guidance.",
+    rowLabel: "Location", rows: ["Garden", "Front of house", "Boundary nearest a suspected source"],
+    cols: [{ k: "ef", label: "Electric field", unit: "V/m", point: "A1", method: "earthed", inst: "me3951" },
+           { k: "mf", label: "Magnetic field, resultant", unit: "nT", point: "A2", method: "three-axis", inst: "me3951" },
+           { k: "rf", label: "RF combined peak", unit: "µW/m²", point: "A3", method: "peak", inst: "hf38" }],
+    page: [] },
+  { id: "light", nav: "Light", icon: "sun",
+    title: "Light",
+    intro: "Lighting and bulb assessment, colour-temperature measurements, light levels at the bed and window, and flicker checks, with the OHSP-350IR spectrometer.",
+    rowLabel: "Fitting or position", rows: ["Bedside lamp", "Ceiling light", "At the bed, lights off", "At the window"],
+    cols: [{ k: "bulb", label: "Bulb or fitting", type: "text", placeholder: "Warm white LED" },
+           { k: "cct", label: "Colour temperature", unit: "K", point: "A9", inst: "ohsp" },
+           { k: "lux", label: "Light level", unit: "lx", point: "A9", inst: "ohsp" },
+           { k: "flk", label: "Flicker", unit: "%", point: "A9", inst: "ohsp" }],
+    page: [{ k: "time", label: "Time of day", type: "select", options: [["Daytime", "Daytime"], ["Evening", "Evening"], ["Night", "Night"]], default: "Evening" }] },
+  { id: "air", nav: "Air quality and indoor climate", icon: "wind",
+    title: "Air quality and indoor climate",
+    intro: "Carbon dioxide, temperature, relative humidity, formaldehyde, total volatile organic compounds, PM2.5 and PM10, with indoor and outdoor comparison readings and observations on ventilation and odour.",
+    rowLabel: "Location", rows: ["Indoors", "Outdoors"],
+    cols: [{ k: "co2", label: "CO₂", unit: "ppm", point: "B6", inst: "aranet4" },
+           { k: "t", label: "Temperature", unit: "°C", point: "B6", inst: "aranet4" },
+           { k: "rh", label: "Relative humidity", unit: "%RH", point: "B6", inst: "aranet4" },
+           { k: "hcho", label: "Formaldehyde", unit: "mg/m³", point: "B1", inst: "pcevoc" },
+           { k: "tvoc", label: "TVOC", unit: "mg/m³", point: "B2", inst: "pcevoc" },
+           { k: "pm25", label: "PM2.5", unit: "µg/m³", point: "B5", inst: "temtop" },
+           { k: "pm10", label: "PM10", unit: "µg/m³", point: "B5", inst: "temtop" }],
+    page: [{ k: "timing", label: "Timing", type: "select", options: [["spot", "Spot reading"], ["overnight", "Overnight monitoring"]], default: "spot" }],
+    checks: [{ title: "Ventilation and odour", point: "S5", items: ["Ventilation: windows, trickle vents and extraction", "Odours noticed"] }] },
+  { id: "noise", nav: "Noise", icon: "volume",
+    title: "Noise",
+    intro: "dB(A) and dB(C) measurements, with optional dB(Z), compared between pillow height, the room centre and outdoors. Phone-app readings are indicative only.",
+    rowLabel: "Position", rows: ["Pillow height", "Room centre", "Outdoors"], fixedRows: true,
+    cols: [{ k: "dba", label: "dB(A)", unit: "dB(A)", point: "A8", inst: "decibelx" },
+           { k: "dbc", label: "dB(C)", unit: "dB(C)", point: "A8", inst: "decibelx" },
+           { k: "dbz", label: "dB(Z), optional", unit: "dB(Z)", point: "A8", inst: "decibelx" }],
+    page: [{ k: "time", label: "Time of day", type: "select", options: [["Daytime", "Daytime"], ["Evening", "Evening"], ["Night", "Night"]], default: "Evening" }] },
+  { id: "moisture", nav: "Moisture and building condition", icon: "drop",
+    title: "Moisture and building condition",
+    intro: "Moisture profiles across each wall at top, middle and base, surface temperatures, damp and thermal-imaging spot checks, external wall readings, and an inspection of the building's condition.",
+    rowLabel: "Wall", rows: ["North wall", "East wall", "South wall", "West wall", "External wall"],
+    cols: [{ k: "top", label: "Top", unit: "WME %", point: "S2", inst: "protimeter" },
+           { k: "mid", label: "Middle", unit: "WME %", point: "S2", inst: "protimeter" },
+           { k: "base", label: "Base", unit: "WME %", point: "S2", inst: "protimeter" },
+           { k: "st", label: "Surface temperature", unit: "°C", point: "S2", inst: "hikmicro", result: "reading" }],
+    page: [],
+    checks: [
+      { title: "Damp and thermal-imaging spot checks", point: "S2", inst: "hikmicro", items: ["Behind furniture", "Beneath the bed", "Around windows", "At floor edges"] },
+      { title: "Building inspection", point: "S3", items: ["Roofs", "Gutters", "Downpipes", "Windows", "Drainage", "Airbricks", "Damp-proof course"] },
+      { title: "Visual checks", point: "C1", items: ["Mould", "Staining", "Condensation", "Smells", "Defects"] }] }
+];
+const testById = id => TESTS.find(t => t.id === id);
+
+const roomName = (ref, id) => id === "outdoor" ? "Outdoors" : ((roomsFor(ref).find(r => r.id === id) || {}).name || "");
+function currentBedroom() {
+  const beds = roomsFor(S.client).filter(r => r.type === "bedroom");
+  return beds.find(r => r.id === S.room) || beds[0] || null;
+}
+
+/* Client and room chooser shared by every assessment page */
+function clientBar(opts = {}) {
+  const c = C();
+  const list = allClients().slice().sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
+  const rooms = roomsFor(c.ref).filter(r => !opts.bedroomOnly || r.type === "bedroom");
+  const room = opts.bedroomOnly ? currentBedroom() : currentRoom();
+  return `<section class="card client-bar" aria-label="Client and room">
+    <div class="field"><label for="cb-client">Client</label><select id="cb-client" class="input" data-change="pickclient">${list.map(x => opt(x.ref, `${x.name}${x.propertyName ? " · " + x.propertyName : ""} · ${x.ref}`, x.ref === c.ref)).join("")}</select></div>
+    ${opts.outdoor ? `<div class="field"><span class="label">Location</span><span class="input" style="display:flex;align-items:center;background:var(--sunk)">Outdoors</span></div>`
+      : rooms.length ? `<div class="field"><label for="cb-room">Room</label><select id="cb-room" class="input" data-change="pickroom">${rooms.map(r => opt(r.id, r.name, room && r.id === room.id)).join("")}</select></div>`
+      : `<div class="field"><span class="label">Room</span><span class="small muted">This client has no ${opts.bedroomOnly ? "bedrooms" : "rooms"} yet. Add them on the client record.</span></div>`}
+    <div class="client-bar-meta"><span class="ref-badge">${c.ref}</span><span class="small muted">${esc(addrLine(c))}</span><span class="grow"></span><button class="btn btn-quiet btn-s" data-action="go" data-screen="client">Open record</button><button class="btn btn-quiet btn-s" data-action="tabgo" data-tab="visits">Rooms</button><button class="btn btn-quiet btn-s" data-action="newclient">${icon("plus")}New client</button></div>
+  </section>`;
+}
+const draftKey = (t, k) => t + "|" + k;
+const draftVal = (t, k, dflt = "") => { const v = S.draft[draftKey(t, k)]; return v == null ? dflt : v; };
+function testRows(t) { if (!S.rows[t.id]) S.rows[t.id] = [...t.rows]; return S.rows[t.id]; }
+function screenTest(t) {
+  const c = C(), rows = testRows(t), locked = Store.readOnly && !c.example;
+  const room = t.outdoor ? null : currentRoom();
+  const eqs = [...new Set(t.cols.filter(col => col.inst).map(col => col.inst))].map(inst);
+  const saved = readingsFor(c.ref).filter(r => r.test === t.id);
+  const pageField = f => f.type === "select"
+    ? `<div class="field"><label for="tp-${f.k}">${f.label}</label><select id="tp-${f.k}" class="input" data-draft="${draftKey(t.id, "p|" + f.k)}">${f.options.map(([v, l]) => opt(v, l, v === draftVal(t.id, "p|" + f.k, f.default))).join("")}</select></div>`
+    : `<div class="field"><label for="tp-${f.k}">${f.label}</label><input id="tp-${f.k}" class="input" data-draft="${draftKey(t.id, "p|" + f.k)}" value="${esc(draftVal(t.id, "p|" + f.k, f.default || ""))}" placeholder="${esc(f.placeholder || "")}"></div>`;
+  const cell = (i, col, label) => `<td><input class="input" id="t-${t.id}-${i}-${col.k}" ${col.type === "text" ? "" : 'inputmode="decimal"'} aria-label="${esc(col.label)}, ${esc(label || "row " + (i + 1))}" data-draft="${draftKey(t.id, i + "|" + col.k)}" value="${esc(draftVal(t.id, i + "|" + col.k))}" placeholder="${esc(col.placeholder || "")}" ${locked ? "disabled" : ""}></td>`;
+  const checks = (t.checks || []).map((g, gi) => `<div class="stack" style="gap:6px"><h4>${g.title}</h4>
+    ${g.items.map((item, ii) => { const k = `chk|${gi}|${ii}`; return `<div class="check-row"><span class="small">${item}</span>
+      <select class="input" aria-label="${esc(item)}: outcome" data-draft="${draftKey(t.id, k + "|s")}">${STATUS_OPTS.map(o => opt(o, o, o === draftVal(t.id, k + "|s", STATUS_OPTS[0]))).join("")}</select>
+      <input class="input" aria-label="${esc(item)}: note" placeholder="Note" data-draft="${draftKey(t.id, k + "|n")}" value="${esc(draftVal(t.id, k + "|n"))}"></div>`; }).join("")}</div>`).join("");
+  return assessorShell("", `
+    <div class="topline"><div class="stack" style="gap:6px"><span class="eyebrow">Assessments</span><h1>${t.title}</h1><p class="muted" style="max-width:75ch">${t.intro}</p></div></div>
+    ${storeNotice()}
+    ${clientBar({ outdoor: t.outdoor })}
+    <section class="card stack" aria-labelledby="h-entry">
+      <div class="spread"><h3 id="h-entry">Record results${room ? ` · ${esc(room.name)}` : ""}</h3>
+        <span class="xsmall muted">${eqs.map(e => `${e.name} · ${CHECKS[e.check].toLowerCase()}`).join("<br>")}</span></div>
+      ${t.page.length ? `<div class="grid-3">${t.page.map(pageField).join("")}</div>` : ""}
+      <div class="table-wrap"><table class="entry"><thead><tr><th>${t.rowLabel}</th>${t.cols.map(col => `<th>${col.label}${col.unit ? `<br><span style="text-transform:none">${col.unit}</span>` : ""}</th>`).join("")}</tr></thead><tbody>
+        ${rows.map((label, i) => `<tr><td class="rowlabel">${t.fixedRows ? `<b class="small">${esc(label)}</b>` : `<input class="input" aria-label="${t.rowLabel} ${i + 1}" placeholder="${t.rowLabel}" value="${esc(label)}" data-rowlabel="${t.id}|${i}" ${locked ? "disabled" : ""}>`}</td>${t.cols.map(col => cell(i, col, label)).join("")}</tr>`).join("")}
+      </tbody></table></div>
+      ${t.fixedRows ? "" : `<button class="btn btn-s" style="align-self:flex-start" data-action="addrow" data-test="${t.id}">${icon("plus")}Add ${t.rowLabel.toLowerCase()}</button>`}
+      ${checks}
+      ${pageField({ k: "note", label: "Notes for this set (optional)", type: "text" })}
+      <div class="spread"><span class="xsmall muted">Empty cells are skipped. Date, time and assessor are recorded automatically.</span>
+        <button class="btn btn-primary" data-action="savetest" data-test="${t.id}" ${locked || (!room && !t.outdoor) ? "disabled" : ""}>Save results to ${c.ref}</button></div>
+    </section>
+    <section class="card stack" aria-labelledby="h-saved">
+      <div class="spread"><h3 id="h-saved">Saved results for ${c.ref}</h3><span class="xsmall muted">${saved.length} result${saved.length === 1 ? "" : "s"} · also shown on the client record and report</span></div>
+      ${saved.length ? `<div class="table-wrap"><table><thead><tr><th>Room</th><th>Measurement</th><th class="num">Value</th><th>Condition</th><th>Evaluation</th><th>Recorded</th></tr></thead><tbody>
+        ${saved.slice().reverse().map(r => `<tr><td class="small">${esc(roomName(c.ref, r.room))}</td><td class="small">${esc(r.label)}${r.note ? `<div class="xsmall muted">${esc(r.note)}</div>` : ""}</td><td class="num">${r.value != null ? fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0) + " " + esc(r.unit) : "Observation"}</td><td class="small">${r.phase === "after" ? "After a change" : r.phase === "before" ? "Normal state" : ""}${r.cond && r.cond.appliances ? `<div class="xsmall muted">${esc(r.cond.appliances)}</div>` : ""}</td><td>${evalChip(readingEval(r))}</td><td class="xsmall muted">${esc(r.when)}<br>${esc(r.by)}</td></tr>`).join("")}
+      </tbody></table></div>` : `<p class="small muted">No results saved for this assessment yet.</p>`}
+    </section>`);
+}
+async function saveTest(t, btn) {
+  const c = C(), rows = testRows(t);
+  const room = t.outdoor ? { id: "outdoor", type: "outdoor" } : currentRoom();
+  if (!room) { toast("Choose a room first"); return; }
+  const page = k => { const f = t.page.find(p => p.k === k); return draftVal(t.id, "p|" + k, f ? (f.default || "") : ""); };
+  const bad = [], out = [], stamp = new Date().toISOString(), when = nowStamp();
+  const base = (col, label, value, extra = {}) => {
+    const eq = col.inst ? inst(col.inst) : null;
+    const phase = col.phase || (t.page.some(p => p.k === "phase") ? page("phase") : null);
+    return {
+      id: `${c.ref}-R${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, client: c.ref, room: room.id, roomType: room.type, test: t.id,
+      point: col.point, label, value, axes: null, unit: col.unit || "", ref: col.evalKey ? null : refFor(col.point, col.unit, col.method || "any"),
+      evalKey: col.evalKey || null, method: col.method || "any", methodLabel: (METHODS.find(m => m[0] === (col.method || "any")) || METHODS[0])[1],
+      inst: col.inst || null, inst2: col.inst2 || null, timing: page("timing") || "spot", result: col.result || (eq ? eq.result : "reading"),
+      when, dur: "", loc: "", cond: { occupancy: "", windows: "", heating: "", appliances: col.cond ? "" : page("change") },
+      by: ASSESSOR, phase: phase || null, grid: null, note: page("note"), createdAt: stamp, ...extra
+    };
+  };
+  rows.forEach((label, i) => {
+    const rl = label || `${t.rowLabel} ${i + 1}`;
+    const ctx = t.cols.filter(col => col.type === "text").map(col => draftVal(t.id, i + "|" + col.k).trim()).filter(Boolean).join(", ");
+    const vals = {};
+    t.cols.filter(col => col.type !== "text").forEach(col => {
+      const raw = String(draftVal(t.id, i + "|" + col.k)).trim(); if (!raw) return;
+      const v = parseFloat(raw.replace(",", "."));
+      if (isNaN(v)) { bad.push(`t-${t.id}-${i}-${col.k}`); return; }
+      vals[col.k] = v;
+      const loc = [rl, ctx, page("at"), page("time")].filter(Boolean).join(", ");
+      out.push(base(col, `${col.label}, ${rl}`, v, { loc, cond: { occupancy: "", windows: "", heating: "", appliances: col.cond ? `${rl} ${col.cond}` : page("change") } }));
+    });
+    if (t.total && t.total.from.some(k => k in vals)) {
+      const both = t.total.from.every(k => k in vals), sum = t.total.from.reduce((a, k) => a + (vals[k] || 0), 0);
+      out.push(base({ ...t.total, evalKey: both ? null : "incomplete" }, `${t.total.label}, ${rl}`, Math.round(sum * 100) / 100, { loc: rl }));
+    }
+  });
+  (t.checks || []).forEach((g, gi) => g.items.forEach((item, ii) => {
+    const k = `chk|${gi}|${ii}`, st = draftVal(t.id, k + "|s", STATUS_OPTS[0]), note = String(draftVal(t.id, k + "|n")).trim();
+    if (st === STATUS_OPTS[0] && !note) return;
+    out.push(base({ point: g.point, inst: g.inst, result: "observation", evalKey: st === "Not accessible" ? "na" : null }, `${g.title}: ${item}`, null,
+      { result: "observation", ref: null, methodLabel: "Visual inspection", note: [st === STATUS_OPTS[0] ? "" : st, note, page("note")].filter(Boolean).join(". ") }));
+  }));
+  document.querySelectorAll("table.entry [aria-invalid]").forEach(e => e.removeAttribute("aria-invalid"));
+  if (bad.length) { bad.forEach(id => document.getElementById(id)?.setAttribute("aria-invalid", "true")); document.getElementById(bad[0])?.focus(); toast("Numbers only in the highlighted cells, for example 2.1"); return; }
+  if (!out.length) { toast("Enter at least one result first"); return; }
+  btn.disabled = true; btn.textContent = "Saving…";
+  const results = await Promise.all(out.map(r => Store.put("readings", r.id, r)));
+  const points = [...new Set(out.map(r => r.point))], a = alloc(c.ref);
+  if (points.some(p => !a[p])) await setAlloc(c.ref, { ...a, ...Object.fromEntries(points.map(p => [p, true])) });
+  Object.keys(S.draft).forEach(k => { if (k.startsWith(t.id + "|") && !k.startsWith(t.id + "|p|")) delete S.draft[k]; });
+  delete S.draft[draftKey(t.id, "p|note")];
+  markEdited(); render();
+  const okN = results.filter(Boolean).length;
+  toast(okN === out.length ? `${okN} result${okN === 1 ? "" : "s"} saved to ${c.ref}${t.outdoor ? "" : " · " + room.name}` : `${out.length - okN} result${out.length - okN === 1 ? "" : "s"} could not be saved. Please try again.`);
+}
+
+/* =========================================================================
+   Menu: left-hand on desktop, behind the menu button on tablet and phone
+   ========================================================================= */
+const SETTINGS = [["templates", "grid", "Room templates"], ["equipment", "gauge", "Equipment register"], ["references", "book", "Reference library"], ["services", "list", "Services and tests"], ["access", "lock", "Assessors and access"], ["clientexp", "phone", "Client experience"], ["data", "shield", "Data and storage"]];
+function navGroups() {
+  const c = C();
+  return [
+    { items: [["dashboard", "home", "Home"]] },
+    { title: "Clients", items: [["client", "users", "Client and property", `${c.ref} · ${shortName(c)}`], ["clients", "list", "Client list"]] },
+    { title: "Assessments", items: [["bedroom", "bed", "Nine-point mattress test"], ...TESTS.map(t => [t.id, t.icon, t.nav])] },
+    { title: "Settings", items: SETTINGS }
+  ];
+}
+const NAV_OF = { room: "client", finding: "client", report: "client", questionnaire: "clientexp", portal: "clientexp" };
+function navHTML() {
+  const active = NAV_OF[S.screen] || S.screen;
+  return `<div class="nav-head"><a class="wordmark" href="#dashboard" data-action="go" data-screen="dashboard" aria-label="Emerald Grey Assessment Studio, home">${logoInner("Assessment Studio")}</a>
+      <button class="nav-close" data-action="closenav" aria-label="Close menu">${icon("close")}</button></div>
+    ${navGroups().map(g => `${g.title ? `<h2 class="nav-section">${g.title}</h2>` : ""}${g.items.map(([id, ic, label, sub]) =>
+      `<a class="nav-link" href="#${id}" data-action="go" data-screen="${id}" ${active === id ? 'aria-current="page"' : ""}>${icon(ic)}<span>${label}${sub ? `<small>${esc(sub)}</small>` : ""}</span></a>`).join("")}`).join("")}
+    <div class="nav-foot">
+      ${storeBadge()}
+      <div class="row"><span class="avatar av-iza">IZ</span><div class="small"><b>Iza</b><div class="xsmall" style="opacity:.75">Assessor · MFA on</div></div></div>
+      <div class="stack" style="gap:6px"><span class="xsmall" style="opacity:.75">Preview width (prototype only)</span>
+        <div class="seg" role="group" aria-label="Preview width">${[["desktop", "Desktop"], ["tablet", "Tablet"], ["phone", "Phone"]].map(([k, l]) => `<button data-action="frame" data-f="${k}" aria-pressed="${(S.frame || "desktop") === k}">${l}</button>`).join("")}</div></div>
+    </div>`;
+}
+function openNav() {
+  const app = document.getElementById("app"); app.classList.add("nav-open");
+  document.querySelector(".hamburger")?.setAttribute("aria-expanded", "true");
+  document.querySelector(".nav-link[aria-current]")?.focus() || document.querySelector(".nav-link")?.focus();
+}
+function closeNav(refocus) {
+  const app = document.getElementById("app"); if (!app.classList.contains("nav-open")) return;
+  app.classList.remove("nav-open");
+  document.querySelector(".hamburger")?.setAttribute("aria-expanded", "false");
+  if (refocus) document.querySelector(".hamburger")?.focus();
+}
+
+/* ---------- Settings ---------- */
+function settingsHead(title, intro) {
+  return `<div class="topline"><div class="stack" style="gap:6px"><span class="eyebrow">Settings</span><h1>${title}</h1>${intro ? `<p class="muted" style="max-width:75ch">${intro}</p>` : ""}</div></div>`;
+}
+function screenTemplates() {
+  return assessorShell("", `${settingsHead("Room templates", "A template sets the starting rooms when a client is created. It can be applied again from the client record, and rooms can still be added, duplicated or removed for each home.")}
+    <div class="grid-3">${Object.entries(ROOM_TEMPLATES).map(([k, t]) => `<section class="card stack" aria-labelledby="tpl-${k}"><h3 id="tpl-${k}">${t.name}</h3>
+      <div class="list">${t.rooms.map(r => `<div class="spread small" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>${r.name}</span><span class="muted xsmall">${r.floor}</span></div>`).join("")}</div>
+      <p class="xsmall muted">${t.rooms.length} rooms · used by ${allClients().filter(c => (c.roomTemplate || "") === k).length} client${allClients().filter(c => (c.roomTemplate || "") === k).length === 1 ? "" : "s"}</p></section>`).join("")}</div>
+    <div class="notice notice-muted">${icon("info")}<span class="small">Editing templates and adding your own comes in the full build.</span></div>`);
+}
+function screenReferences() {
+  return assessorShell("", `${settingsHead("Reference library", "Every classification in the app comes from an entry here. SBM sleeping-area guidance is kept apart from statutory and other references, and SBM entries only classify readings taken in bedrooms.")}
+    <div class="notice notice-warn">${icon("info")}<span class="small">The values below are placeholders for design review. Each entry is confirmed against the licensed edition of its source before release.</span></div>
+    <div class="table-wrap"><table><thead><tr><th>Type</th><th>Quantity</th><th>Method</th><th>Unit</th><th>Values</th><th>Source and conditions</th></tr></thead><tbody>
+      ${Object.values(REF).map(r => `<tr><td>${`<span class="chip ${REF_KIND[r.kind].cls}">${REF_KIND[r.kind].label}</span>`}</td><td class="small">${r.quantity}</td><td class="small">${r.method === "any" ? "Any" : r.method}</td><td class="small" style="text-transform:none">${r.unit}</td>
+        <td class="small num" style="text-align:left">${r.bands ? `Slight from ${r.bands[0]}<br>Strong from ${r.bands[1]}<br>Extreme from ${r.bands[2]}` : `Reference ${fmt(r.limit)}`}</td><td class="xsmall">${r.source} · ${r.edition}<br><span class="muted">${r.conditions}</span></td></tr>`).join("")}
+    </tbody></table></div>`);
+}
+function screenServices() {
+  const pts = code => `${code} ${POINT_NAME[code]}`;
+  return assessorShell("", `${settingsHead("Services and tests", "A service allocates a set of tests to a client. Tests can still be added or removed for each client, and recording a result for a test allocates it.")}
+    <div class="grid-3">${Object.entries(PACKAGES).map(([name, list]) => `<section class="card stack"><h3>${name}</h3><p class="small muted">${list.length} of ${ALL_POINTS.length} tests</p><p class="xsmall">${list.map(pts).join(" · ")}</p></section>`).join("")}</div>
+    <section class="card stack"><h3>Where each assessment page saves its results</h3>
+      <div class="table-wrap"><table><thead><tr><th>Assessment page</th><th>SBM-2024 points</th><th>Equipment</th></tr></thead><tbody>
+        <tr><td class="small">Nine-point mattress test</td><td class="small">A1, A2</td><td class="small">${inst("me3951").name}</td></tr>
+        ${TESTS.map(t => `<tr><td class="small">${t.nav}</td><td class="small">${[...new Set([...t.cols.filter(c => c.point).map(c => c.point), ...(t.checks || []).map(g => g.point)])].join(", ")}</td><td class="small">${[...new Set(t.cols.filter(c => c.inst).map(c => inst(c.inst).name))].join(", ")}</td></tr>`).join("")}
+      </tbody></table></div></section>`);
+}
+function screenAccess() {
+  return assessorShell("", `${settingsHead("Assessors and access", "Who can see and change client records.")}
+    <div class="grid-3">
+      <section class="card stack"><div class="row"><span class="avatar av-iza">IZ</span><h3>Iza</h3></div><p class="small">Owner and assessor. Creates clients, records results, writes findings and publishes reports. Manages services, templates and the reference library.</p></section>
+      <section class="card stack"><div class="row"><span class="avatar av-alfie">AL</span><h3>Alfie</h3></div><p class="small">Assessor. Leads the Home Health Analysis on site. Creates clients, records results and drafts findings.</p></section>
+      <section class="card stack"><div class="row"><span class="avatar av-client">HA</span><h3>Clients</h3></div><p class="small">See only their own published reports, photographs and action plan. Never see internal notes, drafts or other clients.</p></section>
+    </div>
+    <div class="notice notice-muted">${icon("lock")}<span class="small">In this prototype, client records can be seen and changed by people the page is shared with at Contributor level or above. View-only access shows no client data. Multi-factor sign-in and per-client permissions come with the secure build.</span></div>`);
+}
+function screenClientExp() {
+  return assessorShell("", `${settingsHead("Client experience", "What clients see on their phones. Both previews use example client EG-001.")}
+    <div class="grid-2">
+      <section class="card stack"><h3>Pre-visit questionnaire</h3><p class="small muted">Concerns, rooms to look at, home details, routines, optional wellbeing information and documents.</p><button class="btn btn-primary" style="align-self:flex-start" data-action="go" data-screen="questionnaire">Open preview</button></section>
+      <section class="card stack"><h3>Client portal</h3><p class="small muted">Where to begin, the action plan, the report and questions.</p><button class="btn btn-primary" style="align-self:flex-start" data-action="go" data-screen="portal">Open preview</button></section>
+    </div>`);
+}
+function screenData() {
+  const n = k => Object.keys(Store[k]).length;
+  return assessorShell("", `${settingsHead("Data and storage", "Where saved records live in this prototype.")}
+    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("samples")}</b><span>Samples saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
+    <section class="card stack"><h3>Storage</h3><p class="small">${Store.mode === "shared" ? "Records are saved to shared storage for this page, so Iza and Alfie see the same clients and results." : Store.mode === "local" ? "Records are saved in this browser only. Open the published page to share them." : "Connecting to storage…"}</p>
+      <p class="small muted">Please use test details only while this is a prototype. Example records EG-001 to EG-004 are built into the page and are not stored.</p>
+      <div class="row"><button class="btn" data-action="copydata">${icon("copy")}Copy all saved data</button></div>
+      <textarea id="data-copy" class="input" rows="4" readonly hidden aria-label="Saved data"></textarea></section>`);
+}
+function previewWrap(title, html) {
+  return `<div class="main"><nav class="crumbs" aria-label="Breadcrumb"><a href="#clientexp" data-action="go" data-screen="clientexp">Client experience</a><span aria-hidden="true">/</span><span>${title}</span></nav>
+    <p class="small muted">Shown with example client EG-001, as the client sees it on a phone.</p>
+    <div class="device" data-device="phone">${html}</div></div>`;
+}
+
+/* =========================================================================
    Rendering and interaction
    ========================================================================= */
-const RENDER = { clients: screenClients, client: screenClient, room: screenRoom, bedroom: screenBedroom, finding: screenFinding, report: screenReport, questionnaire: screenQuestionnaire, portal: screenPortal, dashboard: screenDashboard, equipment: screenEquipment };
-const LEGACY = { profile: "client" };
+const RENDER = {
+  dashboard: screenDashboard, clients: screenClients, client: screenClient, room: screenRoom, bedroom: screenBedroom, finding: screenFinding, report: screenReport,
+  questionnaire: () => previewWrap("Pre-visit questionnaire", screenQuestionnaire()), portal: () => previewWrap("Client portal", screenPortal()),
+  templates: screenTemplates, equipment: screenEquipment, references: screenReferences, services: screenServices, access: screenAccess, clientexp: screenClientExp, data: screenData,
+  ...Object.fromEntries(TESTS.map(t => [t.id, () => screenTest(t)]))
+};
+const LEGACY = { profile: "client", home: "dashboard", mattress: "bedroom" };
 let pendingRender = false;
 function render() {
   pendingRender = false;
-  const sc = SCREENS.find(s => s.id === S.screen);
-  const device = S.device || sc.device;
-  document.getElementById("screen-nav").innerHTML = SCREENS.map(s => `<button data-action="go" data-screen="${s.id}" ${s.id === S.screen ? 'aria-current="page"' : ""}><small>${s.who}</small>${s.label}</button>`).join("");
-  document.getElementById("device-toggle").innerHTML = [["desktop", "Desktop"], ["tablet", "Tablet"], ["phone", "Phone"]].map(([k, l]) => `<button data-action="device" data-d="${k}" aria-pressed="${device === k}">${l}</button>`).join("");
-  document.getElementById("caption").innerHTML = `<h2>${sc.label}</h2><p>${sc.note}</p>`;
-  document.getElementById("device").dataset.device = device;
+  const navOpen = document.getElementById("app").classList.contains("nav-open");
+  const c = C();
+  document.getElementById("nav").innerHTML = navHTML();
+  document.getElementById("appbar-client").innerHTML = `<span class="ref-badge">${c.ref}</span><span class="nm">${esc(shortName(c))}</span>`;
+  document.getElementById("appbar-client").setAttribute("aria-label", `Open client record ${c.ref}, ${c.name}`);
+  const frame = document.getElementById("frame");
+  if (S.frame && S.frame !== "desktop") frame.dataset.frame = S.frame; else delete frame.dataset.frame;
   document.getElementById("screen").innerHTML = RENDER[S.screen]();
   document.getElementById("overlay").innerHTML = (S.modal ? `<div class="modal-back" data-action="backdrop">${modalHTML(S.modal)}</div>` : "") + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : "");
+  if (navOpen) document.getElementById("app").classList.add("nav-open");
   applySearch();
 }
 /* Storage updates arrive while people type: hold the redraw until they leave the field or close the form. */
@@ -2119,7 +2476,8 @@ function markEdited() {
   saveTimer = setTimeout(() => { S.saving = false; S.savedAt = nowHM(); const e2 = document.getElementById("sync"); if (e2) e2.outerHTML = syncBadge(); }, 700);
 }
 function go(screen) {
-  S.screen = LEGACY[screen] || screen; S.device = null; S.modal = null;
+  S.screen = LEGACY[screen] || screen; S.modal = null;
+  closeNav(false);
   try { history.replaceState(null, "", "#" + S.screen); } catch (e) { /* hash is optional */ }
   render(); window.scrollTo({ top: 0 });
 }
@@ -2160,7 +2518,25 @@ function addRoomTo(ref, room) {
 
 const ACT = {
   go: d => go(d.screen),
-  device: d => { S.device = d.d; render(); },
+  opennav: () => openNav(),
+  closenav: () => closeNav(true),
+  frame: d => { S.frame = d.f; render(); },
+  addrow: d => { testRows(testById(d.test)).push(""); render(); document.querySelector(`[data-rowlabel="${d.test}|${S.rows[d.test].length - 1}"]`)?.focus(); },
+  savetest: (d, btn) => saveTest(testById(d.test), btn),
+  applytemplate: () => {
+    const c = C(), key = val("tpl"), t = ROOM_TEMPLATES[key], rs = readingsFor(c.ref);
+    const keep = roomsFor(c.ref).filter(r => rs.some(x => x.room === r.id) && !t.rooms.some(tr => tr.id === r.id));
+    const rooms = [...t.rooms, ...keep];
+    if (c.example) { S.exRooms[c.ref] = rooms; c.roomTemplate = key; render(); }
+    else updateClient(c.ref, { rooms, roomTemplate: key }).then(scheduleRender);
+    toast(`${t.name} applied${keep.length ? `. ${keep.length} room${keep.length === 1 ? "" : "s"} with saved results kept` : ""}`);
+  },
+  copydata: () => {
+    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs }, null, 2);
+    const box = document.getElementById("data-copy");
+    const fallback = () => { box.value = text; box.hidden = false; box.focus(); box.select(); toast("Select all and copy the text below"); };
+    try { navigator.clipboard.writeText(text).then(() => toast("All saved data copied"), fallback); } catch (e) { fallback(); }
+  },
   toast: d => toast(d.msg),
   noop: () => {},
   openclient: d => { S.client = d.ref; S.tab = "overview"; go("client"); },
@@ -2191,7 +2567,7 @@ const ACT = {
     const mode = (document.querySelector('input[name="m-alloc"]:checked') || {}).value || "all";
     const svc = val("m-svc");
     const tests = mode === "all" ? allocFrom(ALL_POINTS) : mode === "service" ? allocFrom(PACKAGES[svc] || []) : allocFrom([]);
-    const client = { ref: claim.ref, num: claim.num, ...base, service: mode === "all" ? "Home Health Analysis" : mode === "service" ? svc : "", tests, rooms: DEFAULT_ROOMS, notes: {}, property: {}, internalNote: "", createdAt: new Date().toISOString(), createdBy: ASSESSOR };
+    const client = { ref: claim.ref, num: claim.num, ...base, service: mode === "all" ? "Home Health Analysis" : mode === "service" ? svc : "", tests, rooms: (ROOM_TEMPLATES[val("m-tpl")] || ROOM_TEMPLATES.t1).rooms, roomTemplate: val("m-tpl") || "t1", notes: {}, property: {}, internalNote: "", createdAt: new Date().toISOString(), createdBy: ASSESSOR };
     const ok = await Store.put("clients", claim.ref, client);
     S.modal = null; S.modalCtx = null; S.client = claim.ref; S.tab = mode === "none" ? "tests" : "overview"; S.room = "bed1";
     go("client");
@@ -2208,7 +2584,7 @@ const ACT = {
     setAlloc(S.client, allocFrom(PACKAGES[svc] || [])); toast(`Tests allocated from ${svc}`);
   },
   record: d => openModal("reading", { point: d.point, room: d.room, method: d.meth }),
-  recordgrid: d => openModal("reading", { grid: { qty: S.gridQty, pos: S.cell }, phase: d.phase, room: d.room }),
+  recordgrid: d => openModal("reading", { grid: { qty: S.gridQty, pos: S.cell }, phase: d.phase, room: d.room, test: "mattress" }),
   async savereading() {
     const c = C(), ctx = S.modalCtx || {};
     const method = val("m-meth"), result = val("m-result"), errs = {};
@@ -2231,7 +2607,8 @@ const ACT = {
       method, methodLabel: METHODS.find(m => m[0] === method)[1] + (val("m-mdet") ? ", " + val("m-mdet") : ""),
       inst: val("m-inst") || null, timing: val("m-timing"), result, when: nowStamp(), dur: val("m-dur"), loc: val("m-loc"),
       cond: { occupancy: val("m-occ"), windows: val("m-win"), heating: val("m-heat"), appliances: val("m-app") },
-      by: ASSESSOR, phase: phase === "single" ? null : phase, grid: ctx.grid || null, note: val("m-note"), createdAt: new Date().toISOString()
+      by: ASSESSOR, phase: phase === "single" ? null : phase, grid: ctx.grid || null, note: val("m-note"), createdAt: new Date().toISOString(),
+      roomType: (roomsFor(c.ref).find(r => r.id === val("m-room")) || {}).type || null, test: ctx.test || null
     };
     const ok = await Store.put("readings", id, reading);
     if (ok) await allocateIfNeeded(c.ref, point);
@@ -2322,12 +2699,15 @@ document.addEventListener("click", e => {
 document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches("g[data-action], tr[data-action], div[data-action][tabindex]")) { e.preventDefault(); ACT[e.target.dataset.action](e.target.dataset, e.target, e); }
   if (e.key === "Escape" && S.modal) closeModal();
+  else if (e.key === "Escape") closeNav(true);
 });
 document.addEventListener("input", e => {
   const t = e.target;
   if (t.getAttribute("aria-invalid") === "true") { t.removeAttribute("aria-invalid"); const er = document.getElementById(t.id + "-err"); if (er) er.hidden = true; }
   if (t.matches("[data-input]")) markEdited();
   if (t.matches("[data-search-input]")) { S.search = t.value; applySearch(); }
+  if (t.matches("[data-draft]")) S.draft[t.dataset.draft] = t.value;
+  if (t.matches("[data-rowlabel]")) { const [id, i] = t.dataset.rowlabel.split("|"); testRows(testById(id))[+i] = t.value; }
   if (t.matches("[data-note]")) saveNote(S.client, t.dataset.note, t.value);
   if (t.matches("[data-intnote]")) {
     const ref = t.dataset.intnote, c = getClient(ref); markEdited();
@@ -2341,6 +2721,9 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const t = e.target, kind = t.dataset.change;
+  if (t.matches("select[data-draft]")) S.draft[t.dataset.draft] = t.value;
+  if (kind === "pickclient") { S.client = t.value; const rooms = roomsFor(S.client); if (!rooms.some(r => r.id === S.room)) S.room = (rooms[0] || {}).id; render(); document.getElementById("cb-client")?.focus(); toast(`Results will be saved to ${S.client}`); }
+  if (kind === "pickroom") { S.room = t.value; S.cell = 0; render(); document.getElementById("cb-room")?.focus(); }
   if (t.id === "m-meth") { const axes = t.value === "three-axis"; document.getElementById("m-axes").hidden = !axes; document.getElementById("m-valwrap").hidden = axes; }
   if (t.id === "m-inst") { const eq = inst(t.value); if (eq) document.getElementById("m-result").value = eq.result; }
   if (t.id === "s-type") {

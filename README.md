@@ -18,9 +18,9 @@ A bespoke app for Emerald Grey that brings together on-site data collection, pro
 
 ## Viewing the prototype
 
-Open `prototype/index.html` in any modern browser. The bar at the top moves between the ten screens, and each screen opens in its intended device frame (desktop, tablet or phone). The device buttons switch frames to show how a screen adapts.
+Open `prototype/index.html` in any modern browser. The menu moves between Home, the client pages, thirteen assessment pages and the settings. "Preview width" at the foot of the menu shows the tablet and phone layouts on a desktop screen.
 
-Screens can be linked directly by name: `#clients`, `#client`, `#room`, `#bedroom`, `#finding`, `#report`, `#questionnaire`, `#portal`, `#dashboard`, `#equipment`.
+The menu runs down the left on desktop and sits behind the menu button on tablet and phone. Pages can be linked directly by name, for example `#dashboard`, `#clients`, `#client`, `#bedroom`, `#walls`, `#rf`, `#air`, `#moisture` or `#templates`.
 
 The prototype opens on the Clients page. New clients, readings, samples and notes are saved: to shared storage on the published page, so Iza and Alfie see the same records, or to this browser when the file is opened locally. Please use test details only.
 

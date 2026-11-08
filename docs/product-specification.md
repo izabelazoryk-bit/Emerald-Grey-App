@@ -39,7 +39,49 @@ The client record is the hub, with tabs for Overview, Tests, Visits, Samples and
 - **Readings and samples are saved to storage as they are captured,** each carrying the client reference, the test and the room. Sample references extend the client reference: EG-100-W01 is the first water sample for EG-100.
 - **Report.** The report reads the client's data back from storage. The client record itself only needs to show each test's status: planned, measured, awaiting laboratory results and so on.
 
-The **Today** view summarises work across all clients, but it is no longer the starting point.
+The **Home** page summarises work across all clients.
+
+### Navigation
+
+One menu, in this order:
+
+- **Home**
+- **Clients:** Client and property (the current client's record), Client list (sorted by name)
+- **Assessments:** one page per assessment
+  - Nine-point mattress test (potential-free and ground-referenced AC electric fields, AC magnetic fields)
+  - Walls and room centre (low-frequency electric and magnetic fields)
+  - Dirty electricity
+  - Radio frequency across two bands
+  - Router, cordless phone, smart-device and mobile-phone on/off comparisons
+  - Plug loads and appliances
+  - Body voltage
+  - Consumer unit and circuit-breaker comparisons
+  - Outdoor electric, magnetic and radio-frequency measurements
+  - Light
+  - Air quality and indoor climate
+  - Noise
+  - Moisture and building condition
+- **Settings:** Room templates, Equipment register, Reference library, Services and tests, Assessors and access, Client experience (previews of the questionnaire and portal), Data and storage
+
+On desktop (1200 pixels and wider) the menu sits down the left-hand side. On tablet and phone it is hidden behind a menu button at the top left and slides in over the page. Choosing a page or pressing Escape closes it.
+
+### Assessment pages
+
+Each assessment page starts with a choice of client (sorted by name) and room, then a grid for that assessment's measurements. Positions or items run down the side and measurements run across. Some pages also have a checklist of observations with an outcome and a note. Saving writes each filled cell as one result against the client, the room and the matching SBM-2024 point. The results then appear on that page, on the client record and in the report. Typed values are kept while switching room or client, so nothing is lost before saving.
+
+Three rules apply to results from these pages:
+
+- **Sleeping-area guidance applies only in bedrooms.** The SBM values in the reference library are for sleeping areas, so a reading taken in any other room, or outdoors, shows "Not classified: sleeping-area guidance".
+- **Radio frequency is classified on the combined total.** The combined peak of both bands is calculated and classified. Each band on its own is shown as part of the total. Averages are not classified, because the guidance uses peak values.
+- **Observations are labelled as professional assessments,** never as measured results.
+
+### Room templates
+
+- **Template 1:** living room, kitchen, ground floor bathroom, upstairs bathroom and one bedroom.
+- **Template 2:** the same rooms with two bedrooms.
+- **Template 3:** the same rooms with three bedrooms.
+
+A template is chosen when a client is created and can be applied again from the client record. Applying a template keeps any room that already holds results.
 
 ## 4. Users and permissions
 
