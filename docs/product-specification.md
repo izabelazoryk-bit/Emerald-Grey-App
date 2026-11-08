@@ -93,7 +93,7 @@ A2 replaces typing into small table cells with guided entry, built for a tablet.
 
 **Completion.** After the final reading the page shows "Nine-point mattress test complete. Review the measurements before continuing." with three buttons: Review measurements, Amend a measurement, and Save and continue to next section (the primary button). The completed results table is then saved to the client's assessment record. Starting a new test keeps the earlier one, which can still be viewed.
 
-**Results tables.** Each test is shown as Mattress position, X, Y, Z and 3D resultant. Entered values can be selected to inspect or amend; resultant cells are read-only.
+**Results on the mattress.** The mattress is drawn to the proportions of the chosen size, with the nine points as a heatmap in the colours of Emerald Grey's evaluation chart: green (no anomaly), olive green (slight), orange (severe) and red (extreme). Each point shows the 3D resultant and its rating in words, and a key gives the bands for the test's unit. Selecting a point opens its X, Y and Z readings for review or amendment. Earlier tests are still shown as tables of Mattress position, X, Y, Z and 3D resultant.
 
 ### Client profile: bedrooms
 

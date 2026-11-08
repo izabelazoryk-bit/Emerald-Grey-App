@@ -54,6 +54,8 @@
   --info: #44595A;    --info-bg: #E2E7E4;
   --muted: #5D5A52;   --muted-bg: #ECE8E1;
   --shadow: none;          /* the brand reads flat, matte and tactile */
+  /* Heatmap colours from Emerald Grey's evaluation chart: no, slight, severe and extreme anomaly */
+  --heat-no: #3E9A56; --heat-slight: #A9AD34; --heat-severe: #E48A35; --heat-extreme: #D2453D;
   --font-display: "Playfair Display", "Iowan Old Style", Georgia, serif;
   --font-accent: "Cormorant Garamond", "Garamond", Georgia, serif;
   --font-body: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -213,6 +215,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 .client-bar.mt-bar { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); }
 @container (max-width: 760px) { .client-bar.mt-bar { grid-template-columns: minmax(0, 1fr); } }
+
+.heat-wrap { display: flex; justify-content: center; overflow-x: auto; }
+.heat { display: block; max-width: 100%; height: auto; font-family: var(--font-body); }
+.heat-pt { cursor: pointer; }
+.heat-pt:focus { outline: none; }
+.heat-pt:focus-visible rect { stroke: var(--gold); stroke-width: 1.6; stroke-opacity: 1; }
+.heat-legend { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.heat-legend li { display: flex; gap: 8px; align-items: center; font-size: .8rem; }
+.heat-legend i { width: 18px; height: 18px; border-radius: 4px; flex: none; }
+@container (max-width: 640px) { .heat-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Client and room chooser */
 .client-bar { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; }
@@ -671,7 +683,7 @@ const covChip = s => { const c = COVERAGE[s]; return `<span class="chip ${c.cls}
 const EVAL = {
   none:    { label: "No anomaly", client: "Within guidance", cls: "c-ok" },
   slight:  { label: "Slight anomaly", client: "Worth improving", cls: "c-slight" },
-  strong:  { label: "Strong anomaly", client: "A priority", cls: "c-strong" },
+  strong:  { label: "Severe anomaly", client: "A priority", cls: "c-strong" },
   extreme: { label: "Extreme anomaly", client: "A high priority", cls: "c-extreme" },
   nc:      { label: "Not classified", client: "Not classified", cls: "c-outline" },
   pro:     { label: "Professional assessment", client: "Our assessment", cls: "c-info" },
@@ -983,7 +995,7 @@ const S = {
 S.alloc = { "EG-001": S.scope, "EG-002": allocFrom(PACKAGES["Home Health Analysis, bedrooms only"]), "EG-003": allocFrom(PACKAGES["Build and Renovation Consultancy"]), "EG-004": allocFrom(ALL_POINTS) };
 S.exRooms = { "EG-002": ROOM_TEMPLATES.t2.rooms, "EG-003": ROOM_TEMPLATES.t3.rooms, "EG-004": ROOM_TEMPLATES.t1.rooms };
 Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, navParts: {}, bedDraft: {},
-  mt: { ds: "pf", idx: {}, pad: null, flash: null, amendHint: false, confirmNew: false, viewRun: null },
+  mt: { ds: "pf", idx: {}, pad: null, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   exBedrooms: { "EG-001": { bed1: { who: "Tom (left) and Harriet (right)", bed: "Upholstered divan, pocket-sprung mattress", size: "king" }, bed2: { who: "Their son, aged 6", bed: "Single pine bed, foam mattress", size: "single" } } } });
 const findingById = id => FINDINGS.find(f => f.id === id);
 
@@ -2525,7 +2537,7 @@ function screenMattress() {
       return `<div class="mt-flash" role="status"><h3>${MT_POS[fp]} complete</h3>
         <dl class="kv">${vals.map((v, x) => `<dt>${AXES[x]}</dt><dd class="num">${v.nm ? "Not measured" : fmtVal(v.v, t.unit)}</dd>`).join("")}<dt>3D resultant</dt><dd class="num"><b>${r == null ? "Not calculated" : fmtVal(r, t.unit)}</b></dd></dl>
         ${complete ? "" : `<p class="small muted">Continuing to ${nextPos}…</p><button class="btn btn-s" data-action="mtflashnext">Continue now</button>`}</div>`; })()
-    : complete ? `<div class="mt-complete" role="status"><h3>Nine-point mattress test complete. Review the measurements before continuing.</h3>
+    : complete && !S.mt.reviewing ? `<div class="mt-complete" role="status"><h3>Nine-point mattress test complete. Review the measurements before continuing.</h3>
         <p class="small muted">${t.label} · ${bedName(room)} · test ${doc.run}${doc.completedAt ? ` · saved to the assessment record ${nowStampFrom(doc.completedAt)}` : ""}</p>
         <div class="mt-actions"><button class="btn" data-action="mtreview">Review measurements</button><button class="btn" data-action="mtamend">Amend a measurement</button>
           <button class="btn btn-primary btn-lg" data-action="mtfinish" ${locked ? "disabled" : ""}>Save and continue to next section</button></div></div>`
@@ -2537,7 +2549,7 @@ function screenMattress() {
         ${entered}${hist}
         <div class="mt-axes">${[0, 1, 2].map(x => { const ee = (doc.cells || {})[`${p}|${x}`]; return `<button class="mt-axis ${x === a ? "is-current" : ""}" data-action="mtcell" data-k="${p * 3 + x}"><span>${AXES[x]}</span><b>${mtFilled(ee) ? (ee.nm ? "Not measured" : fmt(ee.v, ee.v % 1 ? 1 : 0)) : "–"}</b></button>`; }).join("")}
           <div class="mt-axis is-calc" aria-label="3D resultant, calculated"><span>3D resultant</span><b>${mtResultant(doc, p) == null ? "–" : fmt(mtResultant(doc, p), 1)}</b></div></div>
-        <div class="row"><button class="btn" data-action="mtback" ${k === 0 ? "disabled" : ""}>${icon("back")}Back</button></div>
+        <div class="row"><button class="btn" data-action="mtback" ${k === 0 ? "disabled" : ""}>${icon("back")}Back</button>${complete ? `<button class="btn btn-primary" data-action="mtsummary">Finish reviewing</button>` : ""}</div>
       </div>`;
   return assessorShell("", `
     <div class="topline"><div class="stack" style="gap:6px"><span class="eyebrow">Part A: EMF</span><h1>A2. Nine-point mattress test</h1></div>
@@ -2546,9 +2558,7 @@ function screenMattress() {
     ${mtBar(c)}
     <div class="mt-tabs" role="tablist" aria-label="Test">${dsTabs}</div>
     <section class="card mt-guided" aria-label="${t.label}">${posMap}<div class="mt-panel">${guided}</div></section>
-    ${S.mt.amendHint && complete ? `<div class="notice notice-calm">${icon("info")}<span class="small">Select any value in the table to change it. Changes need "Confirm change" and are kept in the history.</span></div>` : ""}
-    <section class="card stack" aria-labelledby="h-mt-table"><div class="spread"><h3 id="h-mt-table">${t.label} · ${bedName(room)}</h3><span class="xsmall muted">Test ${doc.run} · ${VISIT.label} · resultants are calculated and read-only</span></div>
-      ${mtTable(doc, { id: "mt-table" })}</section>
+    ${mtHeat(doc)}
     <section class="card stack" aria-labelledby="h-mt-notes"><h3 id="h-mt-notes">Notes</h3>
       <div class="field"><label for="sx-a2-second">Notes, including the second sleeper's side if different</label><textarea id="sx-a2-second" class="input" rows="3" data-sheet="x|second" ${locked ? "disabled" : ""}>${esc((sh.x || {}).second || "")}</textarea></div></section>
     <section class="card stack" aria-labelledby="h-mt-runs"><div class="spread"><h3 id="h-mt-runs">Earlier tests</h3>
@@ -2557,6 +2567,47 @@ function screenMattress() {
       ${earlier.length ? earlier.slice().reverse().map(r => `<div class="stack" style="gap:6px"><div class="spread"><span class="small">Test ${r.run} · ${mtDone(r)} of ${MT_TOTAL} readings${r.completedAt ? ` · completed ${nowStampFrom(r.completedAt)}${r.completedBy ? " by " + esc(r.completedBy) : ""}` : ""}</span><button class="btn btn-quiet btn-s" data-action="mtview" data-run="${r.run}">${S.mt.viewRun === r.run ? "Hide" : "View"}</button></div>${S.mt.viewRun === r.run ? mtTable(r, { readOnly: true }) : ""}</div>`).join("")
         : `<p class="small muted">No earlier ${t.short.toLowerCase()} tests in ${bedName(room)}. Starting a new test keeps this one.</p>`}
     </section>`);
+}
+
+/* ---------- Results on the mattress: drawn to the chosen size, nine points as a heatmap ---------- */
+const HEAT = { none: ["--heat-no", "No anomaly"], slight: ["--heat-slight", "Slight anomaly"], strong: ["--heat-severe", "Severe anomaly"], extreme: ["--heat-extreme", "Extreme anomaly"] };
+function mtHeat(doc) {
+  const t = MT_TESTS[doc.ds], refId = refFor(t.point, t.unit, t.method), bands = REF[refId].bands;
+  const sizeKey = bedroomInfo(doc.ref, doc.room).size, size = MATTRESS_SIZES.find(m => m[0] === sizeKey);
+  const [W, L] = size ? size[2].match(/\d+/g).map(Number) : [135, 190];
+  const M = 14, cols = [W / 6, W / 2, W * 5 / 6], rows = [L / 6, L / 2, L * 5 / 6];
+  const complete = mtDone(doc) === MT_TOTAL, cur = Math.floor(mtCurrent(doc) / 3);
+  const pts = MT_POS.map((pos, p) => { const r = mtResultant(doc, p); return { p, pos, x: M + cols[p % 3], y: M + 8 + rows[Math.floor(p / 3)], r, k: r == null ? null : classify(Math.round(r * 10) / 10, refId, t.method), st: mtPosStatus(doc, p) }; });
+  const blob = Math.min(W, L) * 0.34;
+  const ranges = [`below ${bands[0]} ${t.unit}`, `${bands[0]} to ${bands[1]} ${t.unit}`, `${bands[1]} to ${bands[2]} ${t.unit}`, `${bands[2]} ${t.unit} and above`];
+  const pw = Math.min(30, W / 3 - 5), ph = pw * 0.6, fs = pw / 30;
+  const pill = (pt) => {
+    const sel = !complete ? pt.p === cur : S.mt.reviewing && pt.p === cur;
+    const label = pt.r == null ? (pt.st === "nm" ? "Not measured" : pt.st === "progress" ? "In progress" : "Not started") : `${fmt(pt.r, 1)} ${t.unit}, ${HEAT[pt.k][1]}`;
+    const inner = pt.r == null
+      ? `<rect x="${pt.x - pw / 2}" y="${pt.y - ph / 2}" width="${pw}" height="${ph}" rx="${ph / 2}" fill="var(--cream)" stroke="var(--line)" stroke-dasharray="2 2"/><text x="${pt.x}" y="${pt.y + 1.6 * fs}" font-size="${4.4 * fs}" text-anchor="middle" fill="var(--ink-3)">${pt.st === "nm" ? "Not measured" : pt.st === "progress" ? "In progress" : "Not started"}</text>`
+      : `<rect x="${pt.x - pw / 2}" y="${pt.y - ph / 2}" width="${pw}" height="${ph}" rx="${4 * fs}" fill="var(--cream)" fill-opacity=".92" stroke="var(--ink)" stroke-opacity=".25"/><text x="${pt.x}" y="${pt.y - 0.6 * fs}" font-size="${7 * fs}" font-weight="500" text-anchor="middle" fill="var(--ink)">${fmt(pt.r, 1)}</text><text x="${pt.x}" y="${pt.y + 5.6 * fs}" font-size="${4.2 * fs}" text-anchor="middle" fill="var(--ink-2)">${HEAT[pt.k][1].replace(" anomaly", "")}</text>`;
+    return `<g class="heat-pt" data-action="mtpos" data-p="${pt.p}" role="button" tabindex="0" aria-label="${pt.pos}: ${label}">${sel ? `<rect x="${pt.x - pw / 2 - 2.5}" y="${pt.y - ph / 2 - 2.5}" width="${pw + 5}" height="${ph + 5}" rx="${5 * fs}" fill="none" stroke="var(--forest)" stroke-width="1.4"/>` : ""}${inner}</g>`;
+  };
+  return `<section class="card stack" id="mt-heat" aria-labelledby="h-mt-heat">
+    <div class="spread"><h3 id="h-mt-heat">Results on the mattress</h3><span class="xsmall muted">${size ? `${size[1]} · ${size[2]} · drawn to scale` : "Mattress size not chosen, drawn as a double"}</span></div>
+    <div class="heat-wrap"><svg class="heat" viewBox="0 0 ${W + M * 2} ${L + M * 2 + 8}" style="width:${Math.round((W + M * 2) * 2.1)}px" role="img" aria-label="${esc(t.label)} on a ${size ? size[1].toLowerCase() : "double"} mattress, nine points. Select a point to review it.">
+      <defs>
+        ${Object.entries(HEAT).map(([k, [v]]) => `<radialGradient id="hg-${k}"><stop offset="0" style="stop-color:var(${v});stop-opacity:.95"/><stop offset=".55" style="stop-color:var(${v});stop-opacity:.6"/><stop offset="1" style="stop-color:var(${v});stop-opacity:0"/></radialGradient>`).join("")}
+        <clipPath id="heat-clip"><rect x="${M}" y="${M + 8}" width="${W}" height="${L}" rx="7"/></clipPath>
+        <filter id="heat-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${Math.round(Math.min(W, L) * 0.05)}"/></filter>
+      </defs>
+      <text x="${M + W / 2}" y="${M - 2}" font-size="5" text-anchor="middle" fill="var(--ink-3)" letter-spacing="1">HEADBOARD</text>
+      <rect x="${M - 3}" y="${M + 1}" width="${W + 6}" height="5" rx="2" fill="var(--stone)"/>
+      <rect x="${M}" y="${M + 8}" width="${W}" height="${L}" rx="7" fill="var(--cream)" stroke="var(--ink-3)" stroke-width=".8"/>
+      <g clip-path="url(#heat-clip)"><g filter="url(#heat-blur)">${pts.filter(pt => pt.k).map(pt => `<circle cx="${pt.x}" cy="${pt.y}" r="${blob}" fill="url(#hg-${pt.k})"/>`).join("")}</g></g>
+      ${(W >= 120 ? [W * 0.26, W * 0.74] : [W / 2]).map(cx => `<rect x="${M + cx - Math.min(W * 0.2, 30)}" y="${M + 12}" width="${Math.min(W * 0.4, 60)}" height="12" rx="5" fill="var(--surface)" fill-opacity=".55" stroke="var(--ink-3)" stroke-opacity=".4" stroke-width=".6"/>`).join("")}
+      ${pts.map(pill).join("")}
+      <text x="${M + W / 2}" y="${M + L + 15}" font-size="4.5" text-anchor="middle" fill="var(--ink-3)">${W} × ${L} cm</text>
+    </svg></div>
+    <ul class="heat-legend" aria-label="Key, ${t.unit}">${Object.entries(HEAT).map(([k, [v, l]], i) => `<li><i style="background:var(${v})"></i><span><b>${l.replace(" anomaly", "")}</b> ${ranges[i]}</span></li>`).join("")}</ul>
+    <p class="xsmall muted">Each point shows the 3D resultant and its rating in words. Bands follow SBM sleeping-area guidance for ${t.short.toLowerCase()}. Select a point to review or amend its X, Y and Z readings.</p>
+  </section>`;
 }
 
 /* ---------- Dial pad ---------- */
@@ -2790,20 +2841,21 @@ const ACT = {
   opennav: () => openNav(),
   closenav: () => closeNav(true),
   frame: d => { S.frame = d.f; render(); },
-  mtds: d => { S.mt.ds = d.ds; S.mt.flash = null; S.mt.amendHint = false; S.mt.confirmNew = false; S.mt.viewRun = null; render(); },
-  mtcell: d => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = +d.k; S.mt.flash = null; render(); document.getElementById("mt-field")?.focus(); if (mtDone(doc) === MT_TOTAL) openPad(+d.k); },
-  mtpos: d => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds), p = +d.p; const free = [0, 1, 2].find(a => !mtFilled((doc.cells || {})[`${p}|${a}`])); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = p * 3 + (free == null ? 0 : free); S.mt.flash = null; render(); document.getElementById("mt-field")?.focus(); },
+  mtds: d => { S.mt.ds = d.ds; S.mt.flash = null; S.mt.reviewing = false; S.mt.confirmNew = false; S.mt.viewRun = null; render(); },
+  mtcell: d => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = +d.k; S.mt.flash = null; render(); document.getElementById("mt-field")?.focus(); if (mtDone(doc) === MT_TOTAL) { S.mt.reviewing = true; openPad(+d.k); } },
+  mtpos: d => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds), p = +d.p; const free = [0, 1, 2].find(a => !mtFilled((doc.cells || {})[`${p}|${a}`])); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = p * 3 + (free == null ? 0 : free); S.mt.flash = null; if (mtDone(doc) === MT_TOTAL) S.mt.reviewing = true; render(); document.getElementById("mt-field")?.focus(); },
   mtfield: () => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); openPad(mtCurrent(doc)); },
   mtback: () => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds), k = mtCurrent(doc); if (k > 0) { S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = k - 1; render(); document.getElementById("mt-field")?.focus(); } },
   mtflashnext: () => { S.mt.flash = null; render(); document.getElementById("mt-field")?.focus(); },
-  mtreview: () => document.getElementById("mt-table")?.scrollIntoView({ behavior: "smooth", block: "start" }),
-  mtamend: () => { S.mt.amendHint = true; render(); const b = document.querySelector("#mt-table .mt-cell"); if (b) { b.scrollIntoView({ block: "center" }); b.focus(); } },
+  mtreview: () => document.getElementById("mt-heat")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+  mtamend: () => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); S.mt.reviewing = true; S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = 0; render(); document.getElementById("mt-field")?.focus(); },
+  mtsummary: () => { S.mt.reviewing = false; render(); },
   async mtfinish() {
     const doc = JSON.parse(JSON.stringify(mtDoc(S.client, mtRoom(), S.mt.ds))), now = new Date().toISOString();
     doc.completedAt = now; doc.completedBy = ASSESSOR;
     const ok = await mtSave(doc);
     if (!ok) { toast("The test could not be saved. Please try again."); return; }
-    S.mt.amendHint = false; toast(`Nine-point mattress test saved to ${doc.ref}`); go("a3");
+    S.mt.reviewing = false; toast(`Nine-point mattress test saved to ${doc.ref}`); go("a3");
   },
   mtnew: () => { S.mt.confirmNew = true; render(); },
   mtnewno: () => { S.mt.confirmNew = false; render(); },
@@ -3040,9 +3092,9 @@ document.addEventListener("change", e => {
   const t = e.target, kind = t.dataset.change;
   if (t.matches("select[data-sheet], input[type=checkbox][data-sheet]")) sheetInput(t);
   if (kind === "pickclient") { S.client = t.value; const rooms = roomsFor(S.client); if (!rooms.some(r => r.id === S.room)) S.room = (rooms[0] || {}).id; render(); document.getElementById("cb-client")?.focus(); toast(`Results will be saved to ${S.client}`); }
-  if (kind === "picksize") { setBedroom(S.client, mtRoom(), "size", t.value, 0); toast(t.value ? `Mattress size saved for ${bedName(mtRoom())}` : "Mattress size cleared"); }
+  if (kind === "picksize") { setBedroom(S.client, mtRoom(), "size", t.value, 0); render(); document.getElementById("cb-size")?.focus(); toast(t.value ? `Mattress size saved for ${bedName(mtRoom())}` : "Mattress size cleared"); }
   if (t.matches("select[data-bedroom]")) { const [ref, id, f] = t.dataset.bedroom.split("|"); setBedroom(ref, id, f, t.value, 0); }
-  if (kind === "pickbed") { S.room = t.value; S.mt.flash = null; S.mt.confirmNew = false; S.mt.viewRun = null; render(); document.getElementById("cb-bed")?.focus(); }
+  if (kind === "pickbed") { S.room = t.value; S.mt.flash = null; S.mt.reviewing = false; S.mt.confirmNew = false; S.mt.viewRun = null; render(); document.getElementById("cb-bed")?.focus(); }
   if (kind === "pickroom") { S.room = t.value; S.cell = 0; render(); document.getElementById("cb-room")?.focus(); }
   if (t.id === "m-meth") { const axes = t.value === "three-axis"; document.getElementById("m-axes").hidden = !axes; document.getElementById("m-valwrap").hidden = axes; }
   if (t.id === "m-inst") { const eq = inst(t.value); if (eq) document.getElementById("m-result").value = eq.result; }

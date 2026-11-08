@@ -22,7 +22,7 @@ Some brand colours are too light for readable text on light grounds. The app use
 
 The guidelines suggest gold italic emphasis inside forest headings on light pages. In the app, gold emphasis appears only on forest panels, where it is legible.
 
-Status colours (No anomaly, Slight, Strong, Extreme anomaly) are muted tones drawn from the landscape palette: fern, a gold tint, a terracotta tint and a deeper brick. Each one always appears with its text label.
+Status colours (No anomaly, Slight, Severe, Extreme anomaly) are muted tones drawn from the landscape palette: fern, a gold tint, a terracotta tint and a deeper brick. Each one always appears with its text label. The mattress heatmap uses brighter versions of the same four colours, taken from Emerald Grey's own evaluation chart, because a heatmap needs stronger contrast between bands.
 
 ## Typography
 
