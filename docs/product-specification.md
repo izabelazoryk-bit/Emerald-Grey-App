@@ -22,6 +22,8 @@ The first release prioritises three things: reliable data capture, report produc
 
 **Every colour has words.** Status and evaluation colours always come with a text label. There is no single health score for the property.
 
+**Brand.** The interface follows the Emerald Grey Brand Guidelines v3; `docs/brand-application.md` sets out how.
+
 **Calm, accessible language for clients.** Client-facing text follows the Emerald Grey voice: warm, measured and practical. The assessment looks at the home environment and never implies diagnosis.
 
 ## 3. Users and permissions
@@ -48,7 +50,7 @@ The structure follows the Standard of Building Biology Testing Methods, starting
 
 **Supporting modules:** S1 water quality; S2 moisture investigation; S3 building defects; S4 materials; S5 ventilation.
 
-Service packages (for example Sleep Sanctuary, Healthy Home Essentials, Healthy Home Comprehensive) pre-select points. Each visit copies that selection and can then be adjusted point by point. Every module supports both our own measurements and specialist or laboratory investigations.
+Service packages pre-select points. The prototype uses the services named in the brand guidelines: Home Health Analysis (the full in-home visit, led by Alfie and supported by Iza), a bedrooms-only scope of the same analysis, and Build and Renovation Consultancy (measure before renovation, then test again afterwards). The exact point selection for each is a suggestion for Emerald Grey to confirm. Each visit copies that selection and can then be adjusted point by point. Every module supports both our own measurements and specialist or laboratory investigations.
 
 ## 5. Screens in the first design
 

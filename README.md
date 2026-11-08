@@ -6,8 +6,11 @@ A bespoke app for Emerald Grey that brings together on-site data collection, pro
 
 | Path | Contents |
 |---|---|
-| `prototype/index.html` | Connected, clickable screen designs for the first release. A single page with no installation; the report cover uses `prototype/assets/emerald-grey-logo.jpg`. |
-| `brand/emerald-grey-logo.jpg` | The Emerald Grey logo. The app redraws the house-and-plant mark as a vector for small sizes. |
+| `prototype/index.html` | Connected, clickable screen designs for the first release. A single page with no installation; the report cover and questionnaire use `prototype/assets/emerald-grey-logo-forest.png`. |
+| `brand/EmeraldGrey_BrandGuidelines_v3.pdf` | Brand guidelines, v3 (November 2026). |
+| `brand/emerald-grey-logo.jpg` | The logo as supplied, cream on forest. |
+| `brand/emerald-grey-logo-forest.png`, `-cream.png` | Forest and cream colourways on transparent backgrounds, made from the supplied logo for use on light grounds and forest panels. |
+| `docs/brand-application.md` | How the brand guidelines apply to the app: palette, type, logo use, accessibility adjustments. |
 | `docs/product-specification.md` | Scope, principles, screens, data handling, security and release plan. |
 | `model/domain.ts` | Domain model: clients, properties, visits, rooms, measurements, samples, references, findings, reports. |
 | `model/evaluation.ts` | Shared evaluation rules, including when a reading may be classified. |

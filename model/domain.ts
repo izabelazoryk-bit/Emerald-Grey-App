@@ -103,7 +103,7 @@ export interface Questionnaire extends Tracked {
 
 export interface ServicePackage {
   id: Id;
-  name: string;                      // e.g. Sleep Sanctuary, Healthy Home Comprehensive
+  name: string;                      // e.g. Home Health Analysis, Build and Renovation Consultancy
   standardEdition: StandardEdition;
   includedPoints: PointCode[];
 }
