@@ -216,11 +216,23 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .client-bar.mt-bar { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); }
 @container (max-width: 760px) { .client-bar.mt-bar { grid-template-columns: minmax(0, 1fr); } }
 
-.heat-wrap { display: flex; justify-content: center; overflow-x: auto; }
-.heat { display: block; max-width: 100%; height: auto; font-family: var(--font-body); }
-.heat-pt { cursor: pointer; }
-.heat-pt:focus { outline: none; }
-.heat-pt:focus-visible rect { stroke: var(--gold); stroke-width: 1.6; stroke-opacity: 1; }
+.heat-wrap { display: flex; justify-content: center; }
+.heat-frame { max-width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.heat-head { height: 12px; border-radius: 4px; background: var(--stone); font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); text-align: center; line-height: 12px; margin: 0 -6px; }
+.heat-bed { position: relative; width: 100%; border: 1.5px solid var(--ink-3); border-radius: 14px; background: var(--cream); overflow: hidden; isolation: isolate; }
+.heat-blobs { position: absolute; inset: 0; filter: blur(10px); opacity: .9; }
+.heat-blobs i { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; }
+.heat-pillows { position: absolute; left: 6%; right: 6%; top: 2.5%; display: flex; gap: 8%; justify-content: center; }
+.heat-pillows i { flex: 1; max-width: 44%; height: 18px; border-radius: 8px; background: var(--surface); opacity: .6; border: 1px solid var(--line); }
+.heat-pt { position: absolute; transform: translate(-50%, -50%); width: min(30%, 84px); min-height: 46px; border: 1px solid rgba(45, 61, 53, .3); border-radius: 8px; background: rgba(248, 246, 242, .93); color: var(--ink); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 4px 2px; font: inherit; line-height: 1.1; }
+.heat-pt b { font-weight: 500; font-size: .95rem; font-variant-numeric: tabular-nums; }
+.heat-pt span { font-size: .66rem; color: var(--ink-2); }
+.heat-pt.is-empty { border-style: dashed; background: rgba(248, 246, 242, .75); }
+.heat-pt .heat-st { color: var(--ink-3); text-align: center; }
+.heat-pt.is-current { outline: 2px solid var(--forest); outline-offset: 2px; }
+.heat-pt:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.heat-dims { text-align: center; font-size: .72rem; color: var(--ink-3); }
+.btn-link { border: 0; background: none; padding: 0; color: var(--sage-text); text-decoration: underline; cursor: pointer; font: inherit; }
 .heat-legend { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .heat-legend li { display: flex; gap: 8px; align-items: center; font-size: .8rem; }
 .heat-legend i { width: 18px; height: 18px; border-radius: 4px; flex: none; }
@@ -2575,36 +2587,34 @@ function mtHeat(doc) {
   const t = MT_TESTS[doc.ds], refId = refFor(t.point, t.unit, t.method), bands = REF[refId].bands;
   const sizeKey = bedroomInfo(doc.ref, doc.room).size, size = MATTRESS_SIZES.find(m => m[0] === sizeKey);
   const [W, L] = size ? size[2].match(/\d+/g).map(Number) : [135, 190];
-  const M = 14, cols = [W / 6, W / 2, W * 5 / 6], rows = [L / 6, L / 2, L * 5 / 6];
   const complete = mtDone(doc) === MT_TOTAL, cur = Math.floor(mtCurrent(doc) / 3);
-  const pts = MT_POS.map((pos, p) => { const r = mtResultant(doc, p); return { p, pos, x: M + cols[p % 3], y: M + 8 + rows[Math.floor(p / 3)], r, k: r == null ? null : classify(Math.round(r * 10) / 10, refId, t.method), st: mtPosStatus(doc, p) }; });
-  const blob = Math.min(W, L) * 0.34;
+  const xs = [100 / 6, 50, 500 / 6], ys = [100 / 6, 50, 500 / 6];
+  const pts = MT_POS.map((pos, p) => { const r = mtResultant(doc, p); return { p, pos, x: xs[p % 3], y: ys[Math.floor(p / 3)], r, k: r == null ? null : classify(Math.round(r * 10) / 10, refId, t.method), st: mtPosStatus(doc, p) }; });
   const ranges = [`below ${bands[0]} ${t.unit}`, `${bands[0]} to ${bands[1]} ${t.unit}`, `${bands[1]} to ${bands[2]} ${t.unit}`, `${bands[2]} ${t.unit} and above`];
-  const pw = Math.min(30, W / 3 - 5), ph = pw * 0.6, fs = pw / 30;
-  const pill = (pt) => {
-    const sel = !complete ? pt.p === cur : S.mt.reviewing && pt.p === cur;
-    const label = pt.r == null ? (pt.st === "nm" ? "Not measured" : pt.st === "progress" ? "In progress" : "Not started") : `${fmt(pt.r, 1)} ${t.unit}, ${HEAT[pt.k][1]}`;
-    const inner = pt.r == null
-      ? `<rect x="${pt.x - pw / 2}" y="${pt.y - ph / 2}" width="${pw}" height="${ph}" rx="${ph / 2}" fill="var(--cream)" stroke="var(--line)" stroke-dasharray="2 2"/><text x="${pt.x}" y="${pt.y + 1.6 * fs}" font-size="${4.4 * fs}" text-anchor="middle" fill="var(--ink-3)">${pt.st === "nm" ? "Not measured" : pt.st === "progress" ? "In progress" : "Not started"}</text>`
-      : `<rect x="${pt.x - pw / 2}" y="${pt.y - ph / 2}" width="${pw}" height="${ph}" rx="${4 * fs}" fill="var(--cream)" fill-opacity=".92" stroke="var(--ink)" stroke-opacity=".25"/><text x="${pt.x}" y="${pt.y - 0.6 * fs}" font-size="${7 * fs}" font-weight="500" text-anchor="middle" fill="var(--ink)">${fmt(pt.r, 1)}</text><text x="${pt.x}" y="${pt.y + 5.6 * fs}" font-size="${4.2 * fs}" text-anchor="middle" fill="var(--ink-2)">${HEAT[pt.k][1].replace(" anomaly", "")}</text>`;
-    return `<g class="heat-pt" data-action="mtpos" data-p="${pt.p}" role="button" tabindex="0" aria-label="${pt.pos}: ${label}">${sel ? `<rect x="${pt.x - pw / 2 - 2.5}" y="${pt.y - ph / 2 - 2.5}" width="${pw + 5}" height="${ph + 5}" rx="${5 * fs}" fill="none" stroke="var(--forest)" stroke-width="1.4"/>` : ""}${inner}</g>`;
+  const blobW = Math.min(W, L) * 0.7 / W * 100;
+  const rated = pts.filter(pt => pt.k);
+  const others = Object.keys(MT_TESTS).filter(ds => ds !== doc.ds && mtDone(mtDoc(doc.ref, doc.room, ds)));
+  const point = pt => {
+    const sel = (!complete || S.mt.reviewing) && pt.p === cur;
+    const status = pt.st === "nm" ? "Not measured" : pt.st === "progress" ? "In progress" : "Not started";
+    const label = pt.r == null ? status : `${fmt(pt.r, 1)} ${t.unit}, ${HEAT[pt.k][1]}`;
+    return `<button class="heat-pt ${pt.r == null ? "is-empty" : ""} ${sel ? "is-current" : ""}" style="left:${pt.x}%;top:${pt.y}%" data-action="mtpos" data-p="${pt.p}" aria-label="${pt.pos}: ${label}">
+      ${pt.r == null ? `<span class="heat-st">${status}</span>` : `<b>${fmt(pt.r, 1)}</b><span>${HEAT[pt.k][1].replace(" anomaly", "")}</span>`}</button>`;
   };
   return `<section class="card stack" id="mt-heat" aria-labelledby="h-mt-heat">
     <div class="spread"><h3 id="h-mt-heat">Results on the mattress</h3><span class="xsmall muted">${size ? `${size[1]} · ${size[2]} · drawn to scale` : "Mattress size not chosen, drawn as a double"}</span></div>
-    <div class="heat-wrap"><svg class="heat" viewBox="0 0 ${W + M * 2} ${L + M * 2 + 8}" style="width:${Math.round((W + M * 2) * 2.1)}px" role="img" aria-label="${esc(t.label)} on a ${size ? size[1].toLowerCase() : "double"} mattress, nine points. Select a point to review it.">
-      <defs>
-        ${Object.entries(HEAT).map(([k, [v]]) => `<radialGradient id="hg-${k}"><stop offset="0" style="stop-color:var(${v});stop-opacity:.95"/><stop offset=".55" style="stop-color:var(${v});stop-opacity:.6"/><stop offset="1" style="stop-color:var(${v});stop-opacity:0"/></radialGradient>`).join("")}
-        <clipPath id="heat-clip"><rect x="${M}" y="${M + 8}" width="${W}" height="${L}" rx="7"/></clipPath>
-        <filter id="heat-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${Math.round(Math.min(W, L) * 0.05)}"/></filter>
-      </defs>
-      <text x="${M + W / 2}" y="${M - 2}" font-size="5" text-anchor="middle" fill="var(--ink-3)" letter-spacing="1">HEADBOARD</text>
-      <rect x="${M - 3}" y="${M + 1}" width="${W + 6}" height="5" rx="2" fill="var(--stone)"/>
-      <rect x="${M}" y="${M + 8}" width="${W}" height="${L}" rx="7" fill="var(--cream)" stroke="var(--ink-3)" stroke-width=".8"/>
-      <g clip-path="url(#heat-clip)"><g filter="url(#heat-blur)">${pts.filter(pt => pt.k).map(pt => `<circle cx="${pt.x}" cy="${pt.y}" r="${blob}" fill="url(#hg-${pt.k})"/>`).join("")}</g></g>
-      ${(W >= 120 ? [W * 0.26, W * 0.74] : [W / 2]).map(cx => `<rect x="${M + cx - Math.min(W * 0.2, 30)}" y="${M + 12}" width="${Math.min(W * 0.4, 60)}" height="12" rx="5" fill="var(--surface)" fill-opacity=".55" stroke="var(--ink-3)" stroke-opacity=".4" stroke-width=".6"/>`).join("")}
-      ${pts.map(pill).join("")}
-      <text x="${M + W / 2}" y="${M + L + 15}" font-size="4.5" text-anchor="middle" fill="var(--ink-3)">${W} × ${L} cm</text>
-    </svg></div>
+    ${rated.length ? "" : `<div class="notice notice-muted">${icon("info")}<span class="small">No ${t.short.toLowerCase()} results yet in ${bedName(doc.room)}. The heatmap fills in as each position's X, Y and Z readings are confirmed.${others.length ? ` Results are already recorded for ${others.map(ds => `<button class="btn-link" data-action="mtds" data-ds="${ds}">${MT_TESTS[ds].short.toLowerCase()}</button>`).join(" and ")}.` : ""}</span></div>`}
+    <div class="heat-wrap">
+      <div class="heat-frame" style="width:${Math.round(W * 2.2)}px">
+        <div class="heat-head" aria-hidden="true">Headboard</div>
+        <div class="heat-bed" style="aspect-ratio:${W} / ${L}" role="group" aria-label="${esc(t.label)} on a ${size ? size[1].toLowerCase() : "double"} mattress, nine points">
+          <div class="heat-blobs" aria-hidden="true">${rated.map(pt => `<i style="left:${pt.x}%;top:${pt.y}%;width:${blobW}%;background:radial-gradient(closest-side, var(${HEAT[pt.k][0]}) 0%, var(${HEAT[pt.k][0]}) 35%, transparent 100%)"></i>`).join("")}</div>
+          <div class="heat-pillows" aria-hidden="true">${(W >= 120 ? [1, 2] : [1]).map(() => "<i></i>").join("")}</div>
+          ${pts.map(point).join("")}
+        </div>
+        <div class="heat-dims">${W} × ${L} cm</div>
+      </div>
+    </div>
     <ul class="heat-legend" aria-label="Key, ${t.unit}">${Object.entries(HEAT).map(([k, [v, l]], i) => `<li><i style="background:var(${v})"></i><span><b>${l.replace(" anomaly", "")}</b> ${ranges[i]}</span></li>`).join("")}</ul>
     <p class="xsmall muted">Each point shows the 3D resultant and its rating in words. Bands follow SBM sleeping-area guidance for ${t.short.toLowerCase()}. Select a point to review or amend its X, Y and Z readings.</p>
   </section>`;
