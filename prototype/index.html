@@ -2550,7 +2550,6 @@ function screenMattress() {
         <dl class="kv">${vals.map((v, x) => `<dt>${AXES[x]}</dt><dd class="num">${v.nm ? "Not measured" : fmtVal(v.v, t.unit)}</dd>`).join("")}<dt>3D resultant</dt><dd class="num"><b>${r == null ? "Not calculated" : fmtVal(r, t.unit)}</b></dd></dl>
         ${complete ? "" : `<p class="small muted">Continuing to ${nextPos}…</p><button class="btn btn-s" data-action="mtflashnext">Continue now</button>`}</div>`; })()
     : complete && !S.mt.reviewing ? `<div class="mt-complete" role="status"><h3>Nine-point mattress test complete. Review the measurements before continuing.</h3>
-        <p class="small muted">${t.label} · ${bedName(room)} · test ${doc.run}${doc.completedAt ? ` · saved to the assessment record ${nowStampFrom(doc.completedAt)}` : ""}</p>
         <div class="mt-actions"><button class="btn" data-action="mtreview">Review measurements</button><button class="btn" data-action="mtamend">Amend a measurement</button>
           <button class="btn btn-primary btn-lg" data-action="mtfinish" ${locked ? "disabled" : ""}>Save and continue to next section</button></div></div>`
     : `<div class="mt-entry">
