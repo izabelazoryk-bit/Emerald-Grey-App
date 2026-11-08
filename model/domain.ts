@@ -51,8 +51,23 @@ export type Visibility = "internal" | "client";
 /* Clients, properties and visits                                      */
 /* ------------------------------------------------------------------ */
 
+/**
+ * The client record is the root of everything else: visits, tests, readings, samples
+ * and reports all belong to one client. Each client has one property; a second home
+ * becomes a second client record, told apart by its property name or address.
+ *
+ * References are issued in sequence from EG-100 and never reused or changed.
+ * EG-001 to EG-099 are reserved for test and example records.
+ */
 export interface Client extends Tracked {
-  reference: string;                 // e.g. EG-2610-ASH
+  number: number;                    // 100, 101, ...
+  reference: string;                 // "EG-" + number, zero-padded to three digits: EG-100
+  name: string;                      // as the client would like to be addressed, e.g. "Harriet and Tom Ashworth"
+  propertyName?: string;             // distinguishes two homes with the same client name
+  service?: string;                  // the service the tests were allocated from, if any
+  /** Tests allocated to this client. Recording data for a test allocates it automatically. */
+  tests: Record<PointCode, boolean>;
+  isTestRecord: boolean;             // true for EG-001 to EG-099
   names: string[];
   email: string;
   phone?: string;
@@ -61,8 +76,16 @@ export interface Client extends Tracked {
   supportAssessorIds: Id[];
 }
 
+/** Issued references, kept even if a client record is removed, so a number is never reused. */
+export interface ReferenceClaim {
+  reference: string;
+  number: number;
+  claimedAt: IsoDateTime;
+  claimedBy: Id;
+}
+
 export interface Property extends Tracked {
-  clientId: Id;
+  clientId: Id;                      // one property per client
   address: { line1: string; line2?: string; town: string; postcode: string };
   yearBuilt?: string;                // free text allows "c. 1934"
   propertyType?: string;
@@ -91,7 +114,7 @@ export interface WellbeingInfo extends Tracked {
 }
 
 export interface Questionnaire extends Tracked {
-  propertyId: Id;
+  clientId: Id;
   status: "not_started" | "in_progress" | "submitted";
   concerns: string[];
   concernsInOwnWords?: string;
@@ -109,7 +132,7 @@ export interface ServicePackage {
 }
 
 export interface Visit extends Tracked {
-  propertyId: Id;
+  clientId: Id;
   sequence: number;                  // 1 for the first visit, 2 for a repeat visit
   scheduledFor: IsoDateTime;
   assessorIds: Id[];
@@ -252,6 +275,7 @@ export interface MeasurementConditions {
 }
 
 export interface Measurement extends Tracked {
+  clientId: Id;                      // stored with every reading so the report can read a client's data back directly
   roomId: Id;
   point: PointCode;
   quantityKey: string;
@@ -289,7 +313,8 @@ export type GridPosition =
 export type SampleStatus = "planned" | "collected" | "deployed" | "at_laboratory" | "result_received" | "reviewed";
 
 export interface Sample extends Tracked {
-  reference: string;                 // unique, e.g. EG-2610-ASH-W01
+  clientId: Id;
+  reference: string;                 // client reference + type letter + sequence, e.g. EG-100-W01
   roomId: Id;
   point: PointCode;
   matrix: "air" | "surface" | "dust" | "material" | "water";

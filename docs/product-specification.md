@@ -1,6 +1,6 @@
 # Emerald Grey Healthy Home Assessment: product specification
 
-Version 0.1, October 2026. Companion to the connected screen prototype in `prototype/index.html` and the domain model in `model/`.
+Version 0.2, November 2026. Companion to the connected screen prototype in `prototype/index.html` and the domain model in `model/`.
 
 ## 1. Purpose
 
@@ -26,7 +26,22 @@ The first release prioritises three things: reliable data capture, report produc
 
 **Calm, accessible language for clients.** Client-facing text follows the Emerald Grey voice: warm, measured and practical. The assessment looks at the home environment and never implies diagnosis.
 
-## 3. Users and permissions
+## 3. Workflow: the client record comes first
+
+Everything starts with the client. The Clients page lists every record and has a **New client** button. The form asks for the client's name, an optional property name, the address and contact details. The next reference is shown before saving and given automatically: real clients run from **EG-100** upwards, and EG-001 to EG-099 are reserved for test records. A reference is never reused or changed.
+
+Each client has one property. If the same person has a second home, it becomes a second client record, told apart by its property name or address. The form warns when a client with the same name already exists.
+
+The client record is the hub, with tabs for Overview, Tests, Visits, Samples and Report:
+
+- **Tests.** When a client is created, tests are allocated in one of three ways: everything (the usual choice, all 24), from a service, or ticked individually. Allocation can be changed at any time. Recording data for a test that was not allocated allocates it automatically, so saved data is never left out.
+- **Visits.** On-site capture works room by room. Rooms come from a standard set (main bedroom, bathroom, kitchen, living room) and can be added or duplicated.
+- **Readings and samples are saved to storage as they are captured,** each carrying the client reference, the test and the room. Sample references extend the client reference: EG-100-W01 is the first water sample for EG-100.
+- **Report.** The report reads the client's data back from storage. The client record itself only needs to show each test's status: planned, measured, awaiting laboratory results and so on.
+
+The **Today** view summarises work across all clients, but it is no longer the starting point.
+
+## 4. Users and permissions
 
 | Role | Who | Can do |
 |---|---|---|
@@ -38,7 +53,7 @@ Internal notes, research notes, draft findings, unpublished report versions and 
 
 Optional wellbeing information (sleep, allergies, sensitivities) is held in a separate table with field-level encryption, readable only by assessors assigned to that client, recorded only with explicit consent, and every read is logged.
 
-## 4. Assessment structure
+## 5. Assessment structure
 
 The structure follows the Standard of Building Biology Testing Methods, starting with SBM-2024. Editions are versioned so a later edition can be added without changing past assessments.
 
@@ -52,21 +67,22 @@ The structure follows the Standard of Building Biology Testing Methods, starting
 
 Service packages pre-select points. The prototype uses the services named in the brand guidelines: Home Health Analysis (the full in-home visit, led by Alfie and supported by Iza), a bedrooms-only scope of the same analysis, and Build and Renovation Consultancy (measure before renovation, then test again afterwards). The exact point selection for each is a suggestion for Emerald Grey to confirm. Each visit copies that selection and can then be adjusted point by point. Every module supports both our own measurements and specialist or laboratory investigations.
 
-## 5. Screens in the first design
+## 6. Screens in the first design
 
 | Screen | Device | Purpose |
 |---|---|---|
-| Assessor dashboard | Desktop | Upcoming visits, assessments in progress, outstanding laboratory results, reports awaiting review, client follow-ups |
-| Client and property profile | Desktop | Property facts, household priorities, protected wellbeing information, visit timeline, SBM scope per visit, documents, internal notes |
+| Clients | Desktop | Every client record, search, New client with automatic references from EG-100 |
+| Client record | Desktop | Overview, Tests (allocation and status), Visits (rooms), Samples, Report (data available from storage) |
+| Today | Desktop | Upcoming visits, recently added clients, outstanding laboratory results, reports awaiting review, client follow-ups |
 | Pre-visit questionnaire | Phone | Concerns, rooms to investigate, home details, routines, optional wellbeing section with consent, document upload |
-| Room assessment | Tablet | Room list with progress, point status, room-specific prompts, quick and dictated notes, readings with full context, photographs, samples, findings |
+| On-site capture | Tablet | Room list with progress, point status, room-specific prompts, quick and dictated notes, readings with full context, photographs, samples, findings |
 | Bedroom measurement grid | Tablet | Nine-point mattress grid, potential-free and earthed electric-field methods kept apart, body voltage, three-axis magnetic readings with resultant, RF peak and RMS with instrument frequency coverage, before-and-after comparison, room plan with readings, sources and photographs |
 | Finding and recommendation editor | Desktop | Linked evidence, what we found, why it matters, what you can do, cost range, specialist need, priority, reusable explanations, reference criteria panel, conflicting-edit resolution |
 | Report preview | Desktop | Branded report, pre-publication checklist (draft findings, outstanding results, scope review, frozen reference set), version history |
 | Client portal | Phone | Where to begin, full action plan by priority, mark actions done, progress photos, report download and online reading, questions |
 | Equipment register | Desktop | All 18 named devices, kits and apps and 4 additional methods by category, with parameters, default result class, checks, details to confirm, limitations and usage guidance |
 
-## 6. Measurement capture
+## 7. Measurement capture
 
 - **Equipment register** (seeded from `model/equipment-register.ts`, updated 23 October 2026) lists 8 categories, 18 named devices, kits and apps, and 4 additional methods. Each entry records its parameters and units, frequency coverage where relevant, serial number, default result class, required checks (calibration, bump test, batch and expiry), details still to confirm, and limitations that travel with every result. Serial numbers and check records are added by the team and are never pre-filled.
 - **Gas detector.** The Honeywell BW Flex 4 needs a bump test logged before each visit; readings without one are flagged. Its readings always carry the note that it does not replace a qualified gas-safety investigation.
@@ -78,30 +94,30 @@ Service packages pre-select points. The prototype uses the services named in the
 - **CSV import** accepts logger exports (the Aranet4 first), maps columns to quantities, previews the series and saves it as overnight monitoring linked to a room and instrument.
 - **Room templates**: a room's structure (points, prompts, measurement positions) can be duplicated without its readings.
 
-## 7. Samples and laboratory results
+## 8. Samples and laboratory results
 
-Each sample has a unique reference (`EG-YYMM-CLIENT-TNN`), room, point, matrix, collection location, method and equipment, date and time, laboratory (or "On-site screening") and status (planned, collected, deployed, at laboratory, result received, reviewed). Water samples record the outlet, hot or cold supply, filtered or unfiltered, and first-draw or flushed. On-site strip results are indicative; any lead, copper or iron indication prompts a bottle sample for accredited laboratory analysis, linked to the screening sample it confirms. Mould swab and dust results are interpreted alongside moisture, ventilation, visible conditions and building history, never alone. Laboratory reports attach to the sample, and results become measurements of type "Laboratory analysis". Outstanding samples appear on the dashboard and in the report checklist, and are listed in any interim report as awaiting results.
+Each sample has a unique reference built from the client reference, a type letter and a sequence (`EG-100-W01`), room, point, matrix, collection location, method and equipment, date and time, laboratory (or "On-site screening") and status (planned, collected, deployed, at laboratory, result received, reviewed). Water samples record the outlet, hot or cold supply, filtered or unfiltered, and first-draw or flushed. On-site strip results are indicative; any lead, copper or iron indication prompts a bottle sample for accredited laboratory analysis, linked to the screening sample it confirms. Mould swab and dust results are interpreted alongside moisture, ventilation, visible conditions and building history, never alone. Laboratory reports attach to the sample, and results become measurements of type "Laboratory analysis". Outstanding samples appear on the dashboard and in the report checklist, and are listed in any interim report as awaiting results.
 
-## 8. Reference library
+## 9. Reference library
 
 Entries belong to a named, versioned reference set (for example "SBM-2024 / UK 2026.1"). Each entry records source, edition, quantity, unit, method, detector, applicable conditions, and either bands or a single limit. An entry must be verified against its source by a named person before it can classify anything. When a report version is issued, its reference set is frozen and stored with the version.
 
 The values in the prototype are placeholders for interface design. Every entry will be confirmed against the licensed SBM-2024 evaluation guidelines and current UK guidance before release.
 
-## 9. Reports and versioning
+## 10. Reports and versioning
 
 The report builder assembles approved findings into a branded PDF and an accessible online report from the same content: executive summary, scope and limitations (including points not included and not accessible), room-by-room findings, supporting evidence, measurement tables with their reference criteria, and a prioritised action plan. Each recommendation states what we found, why it matters, what the client can do, the likely cost range and whether specialist help is needed.
 
 Publishing is blocked until every finding is approved, the scope has been reviewed and the reference set is confirmed. Outstanding laboratory results do not block publication but are listed clearly, which allows an interim report. Issued versions are immutable snapshots with a checksum; corrections create a new version.
 
-## 10. Offline working, synchronisation and shared editing
+## 11. Offline working, synchronisation and shared editing
 
 - The tablet app is an installable progressive web app that stores everything for the open visit on the device (IndexedDB), including photographs, so a full visit can be completed without signal.
 - Every edit saves automatically on the device within a second. A visible status shows "All changes synced", "Saving" or "Offline, N changes waiting to sync".
 - Records carry a server version number. When two assessors change the same field, the server keeps both versions and the editor asks which to keep; nothing is silently overwritten. Presence indicators show who is working in which room.
 - Every change records who made it and when, and earlier values are kept in history.
 
-## 11. Security and data handling
+## 12. Security and data handling
 
 - Assessors sign in with passkeys or password plus multi-factor authentication. Clients sign in with passkeys or email magic links; sessions on shared devices expire.
 - Data is hosted in the UK, encrypted in transit and at rest. Wellbeing fields use additional field-level encryption.
@@ -110,11 +126,11 @@ Publishing is blocked until every finding is approved, the scope has been review
 - Audit log of sign-ins, sensitive reads, publication, exports and permission changes.
 - UK GDPR: lawful basis recorded per client; explicit consent for wellbeing information, withdrawable from the portal; retention schedule with automatic review; data export and deletion on request; data processing agreements with laboratories and hosting providers.
 
-## 12. Recommended technology for the first release
+## 13. Recommended technology for the first release
 
 A single TypeScript codebase: a React progressive web app for both experiences, a PostgreSQL database with row-level security, object storage for files, and server-side PDF rendering from the same HTML templates used for the online report. A managed platform hosted in a UK or EU region keeps operations light for a small team. The domain model in `model/domain.ts` and the evaluation rules in `model/evaluation.ts` are the starting contract.
 
-## 13. Release plan
+## 14. Release plan
 
 **Release 1: capture, report, portal.** Client and property records, questionnaire, visit scope, room assessment, bedroom grid, instruments, samples, offline sync, finding editor, reference library, report builder and publishing, client portal with action plan and questions.
 
@@ -122,7 +138,7 @@ A single TypeScript codebase: a React progressive web app for both experiences, 
 
 **Release 3: refinement.** Analytics across assessments (internal only), additional SBM editions, client reminders for action plans.
 
-## 14. Open questions for Emerald Grey
+## 15. Open questions for Emerald Grey
 
 1. Serial numbers and calibration dates for each instrument, the body-voltage multimeter model, the radon detector model, the INKBIRD model and the gas detector's sensor configuration.
 2. Which laboratories do you use, and do any provide results in a structured format?

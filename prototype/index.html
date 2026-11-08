@@ -62,6 +62,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   background: var(--paper); color: var(--ink);
@@ -401,6 +402,32 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .priority-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 @container (max-width: 560px) { .priority-pick { grid-template-columns: minmax(0, 1fr); } }
 
+/* Clients */
+.crumbs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: .8rem; color: var(--ink-3); }
+.crumbs a { color: var(--sage-text); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.ref-badge { display: inline-block; font-family: var(--font-display); font-size: .95rem; color: var(--forest); border: 1px solid var(--gold); padding: 1px 8px; border-radius: var(--r-s); white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; letter-spacing: .02em; background: var(--cream); }
+.ref-badge.lg { font-size: 1.45rem; padding: 3px 14px; }
+.ref-preview { display: flex; flex-direction: column; gap: 2px; padding: 14px 18px; background: var(--blush); border-left: 2px solid var(--gold); }
+.ref-preview b { font-family: var(--font-display); font-weight: 400; font-size: 2rem; color: var(--forest); line-height: 1.1; font-variant-numeric: lining-nums; }
+.client-table tr[data-action] { cursor: pointer; }
+.client-table tr[data-action]:hover td, .client-table tr[data-action]:focus-visible td { background: var(--sunk); }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { border: 0; background: none; padding: 10px 14px; font-size: .9rem; color: var(--ink-2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--forest); border-bottom-color: var(--forest); font-weight: 500; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@container (max-width: 700px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: 14px 16px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.tile:hover { border-color: var(--fern); }
+.tile b { font-family: var(--font-display); font-weight: 400; font-size: 1.9rem; color: var(--forest); line-height: 1.1; font-variant-numeric: lining-nums; }
+.tile span { font-size: .82rem; color: var(--ink-2); }
+.test-row { display: grid; grid-template-columns: 40px 32px minmax(0, 1fr) auto 80px auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+@container (max-width: 640px) { .test-row { grid-template-columns: 40px 32px minmax(0, 1fr) auto; } .test-row .chip { grid-column: 3 / -1; justify-self: start; } .test-row > .num { grid-column: 3; text-align: left !important; } }
+.field .err { color: var(--extreme); font-size: .76rem; }
+.input[aria-invalid="true"] { border-color: var(--extreme); }
+.choice input[type="radio"] { accent-color: var(--forest); margin-top: 3px; align-self: flex-start; }
+label.choice { align-items: flex-start; }
+
 /* Equipment */
 .eq-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .eq-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
@@ -464,7 +491,7 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 <body>
 <header class="proto-bar">
   <div class="proto-inner">
-    <a class="wordmark" id="brand" href="#dashboard" data-action="go" data-screen="dashboard" aria-label="Emerald Grey Assessment Studio"></a>
+    <a class="wordmark" id="brand" href="#clients" data-action="go" data-screen="clients" aria-label="Emerald Grey Assessment Studio"></a>
     <nav class="screen-nav" id="screen-nav" aria-label="Prototype screens"></nav>
     <div class="device-toggle" id="device-toggle" role="group" aria-label="Preview device"></div>
   </div>
@@ -541,7 +568,8 @@ const COVERAGE = {
   awaiting:     { label: "Awaiting laboratory results", glyph: "◔", cls: "c-slight" },
   referred:     { label: "Referred to specialist", glyph: "↗", cls: "c-brass" },
   excluded:     { label: "Not included", glyph: "–", cls: "c-muted" },
-  inaccessible: { label: "Not accessible", glyph: "×", cls: "c-outline" }
+  inaccessible: { label: "Not accessible", glyph: "×", cls: "c-outline" },
+  planned:      { label: "Planned, not yet measured", glyph: "○", cls: "c-outline" }
 };
 const covChip = s => { const c = COVERAGE[s]; return `<span class="chip ${c.cls}"><span class="glyph" aria-hidden="true">${c.glyph}</span>${c.label}</span>`; };
 
@@ -676,7 +704,7 @@ const inst = id => EQUIPMENT.find(i => i.id === id);
 
 /* ---------- Sample client ---------- */
 const CLIENT = {
-  name: "Harriet and Tom Ashworth", ref: "EG-2610-ASH", email: "harriet.a@example.co.uk", phone: "07700 900418",
+  name: "Harriet and Tom Ashworth", ref: "EG-001", email: "harriet.a@example.co.uk", phone: "07700 900418",
   address: "14 Larkhill Road, Bristol BS6", package: "Home Health Analysis", lead: "Alfie", support: "Iza",
   household: "Two adults, one child (6), one cat", consent: "Consent for optional wellbeing information recorded 2 Oct 2026"
 };
@@ -695,7 +723,7 @@ const SCOPE = {
   S1: ["awaiting", true], S2: ["measured", true], S3: ["referred", true], S4: ["inspected", true], S5: ["measured", true]
 };
 const PACKAGES = {
-  "Home Health Analysis": ["A1", "A2", "A3", "A4", "A6", "A9", "B1", "B2", "B5", "B6", "C1", "C4", "S1", "S2", "S3", "S4", "S5"],
+  "Home Health Analysis": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "B1", "B2", "B3", "B4", "B5", "B6", "C1", "C2", "C3", "C4", "S1", "S2", "S3", "S4", "S5"],
   "Home Health Analysis, bedrooms only": ["A1", "A2", "A3", "A9", "B6", "C1", "S2", "S5"],
   "Build and Renovation Consultancy": ["A1", "A2", "A3", "A6", "B1", "B2", "B6", "C1", "S2", "S3", "S4", "S5"]
 };
@@ -737,17 +765,17 @@ const READINGS = [
   { id: "R-061", room: "kitchen", point: "B5", label: "PM2.5 during cooking", value: 46, unit: "µg/m³", ref: null, method: "any", methodLabel: "Optical particle monitor, 1 min average", inst: "temtop", timing: "spot", result: "reading", when: "9 Oct 2026, 18:15", dur: "15 min", loc: "Centre of room, 1.2 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Gas hob, hood on recirculation" }, by: "Iza", phase: "before" },
   { id: "R-062", room: "kitchen", point: "B1", label: "Carbon monoxide beside gas hob", value: 0, unit: "ppm", ref: null, method: "any", methodLabel: "Four-gas detector, hob on for 15 min", inst: "bwflex", timing: "spot", result: "reading", when: "9 Oct 2026, 18:20", dur: "15 min", loc: "30 cm from hob, 1.5 m", cond: { occupancy: "Harriet cooking", windows: "Closed", heating: "On", appliances: "Two hob rings on" }, by: "Iza", phase: "before", note: "No CO detected. This is screening only; appliance safety checks are for a Gas Safe registered engineer." },
   { id: "R-063", room: "kitchen", point: "S1", label: "Water hardness, cold tap", value: 280, unit: "ppm", ref: null, method: "any", methodLabel: "Hardness strip, flushed sample", inst: "varify", timing: "spot", result: "screening", when: "10 Oct 2026, 07:10", dur: "", loc: "Kitchen cold tap", cond: { occupancy: "Normal", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before" },
-  { id: "R-064", room: "kitchen", point: "S1", label: "Lead indication, cold tap, first draw", value: null, unit: "", ref: null, method: "any", methodLabel: "16-in-1 strip, first-draw sample", inst: "tespert", timing: "spot", result: "screening", when: "10 Oct 2026, 07:05", dur: "", loc: "Kitchen cold tap, unfiltered", cond: { occupancy: "Stood overnight", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Strip showed a faint lead indication at the lowest band. Not shown on the flushed sample. Bottle sample sent for accredited laboratory analysis (EG-2610-ASH-W04)." },
+  { id: "R-064", room: "kitchen", point: "S1", label: "Lead indication, cold tap, first draw", value: null, unit: "", ref: null, method: "any", methodLabel: "16-in-1 strip, first-draw sample", inst: "tespert", timing: "spot", result: "screening", when: "10 Oct 2026, 07:05", dur: "", loc: "Kitchen cold tap, unfiltered", cond: { occupancy: "Stood overnight", windows: "Closed", heating: "On", appliances: "Normal" }, by: "Iza", phase: "before", note: "Strip showed a faint lead indication at the lowest band. Not shown on the flushed sample. Bottle sample sent for accredited laboratory analysis (EG-001-W04)." },
   { id: "R-071", room: "living", point: "B1", label: "Formaldehyde screening near new sofa", value: 0.08, unit: "mg/m³", ref: null, method: "any", methodLabel: "Handheld screening, 5 min stabilisation", inst: "pcevoc", timing: "spot", result: "screening", when: "9 Oct 2026, 16:00", dur: "5 min", loc: "1 m from sofa, seated head height", cond: { occupancy: "Unoccupied", windows: "Closed since morning", heating: "On, 20 °C", appliances: "Normal" }, by: "Iza", phase: "before", note: "Higher than the hallway comparison reading. Laboratory air analysis offered if the household would like certainty." }
 ];
 const SAMPLES = [
-  { ref: "EG-2610-ASH-W01", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, first draw", method: "16-in-1 strip and hardness kit, on site", lab: "On-site screening", date: "10 Oct 2026, 07:05", status: "Screened: faint lead indication", st: "measured" },
-  { ref: "EG-2610-ASH-W02", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, flushed 2 min", method: "16-in-1 strip, on site", lab: "On-site screening", date: "10 Oct 2026, 07:09", status: "Screened: no lead indicated", st: "measured" },
-  { ref: "EG-2610-ASH-W03", room: "kitchen", what: "Water, jug filter, filtered", method: "16-in-1 strip, on site", lab: "On-site screening", date: "10 Oct 2026, 07:12", status: "Screened: no lead indicated", st: "measured" },
-  { ref: "EG-2610-ASH-W04", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, first draw", method: "250 ml bottle, lead and copper", lab: "External accredited laboratory", date: "10 Oct 2026, 07:15", status: "At laboratory: confirming strip indication", st: "awaiting" },
-  { ref: "EG-2610-ASH-M01", room: "bath", what: "Mould swab, window reveal", method: "Surface swab kit", lab: "External specialist laboratory", date: "9 Oct 2026, 17:40", status: "Results received 19 Oct", st: "measured" },
-  { ref: "EG-2610-ASH-D01", room: "bed1", what: "Settled dust, top of wardrobe", method: "Dust sampling kit", lab: "External specialist laboratory", date: "9 Oct 2026, 19:35", status: "At laboratory", st: "awaiting" },
-  { ref: "EG-2610-ASH-R01", room: "bed1", what: "Radon, three-month detector", method: "Long-term detector (model to confirm)", lab: "Analysis on return", date: "9 Oct 2026", status: "Deployed; return due 9 Jan 2027", st: "awaiting" }
+  { ref: "EG-001-W01", point: "S1", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, first draw", method: "16-in-1 strip and hardness kit, on site", lab: "On-site screening", date: "10 Oct 2026, 07:05", status: "Screened: faint lead indication", st: "measured" },
+  { ref: "EG-001-W02", point: "S1", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, flushed 2 min", method: "16-in-1 strip, on site", lab: "On-site screening", date: "10 Oct 2026, 07:09", status: "Screened: no lead indicated", st: "measured" },
+  { ref: "EG-001-W03", point: "S1", room: "kitchen", what: "Water, jug filter, filtered", method: "16-in-1 strip, on site", lab: "On-site screening", date: "10 Oct 2026, 07:12", status: "Screened: no lead indicated", st: "measured" },
+  { ref: "EG-001-W04", point: "S1", room: "kitchen", what: "Water, kitchen cold tap, unfiltered, first draw", method: "250 ml bottle, lead and copper", lab: "External accredited laboratory", date: "10 Oct 2026, 07:15", status: "At laboratory: confirming strip indication", st: "awaiting" },
+  { ref: "EG-001-M01", point: "C1", room: "bath", what: "Mould swab, window reveal", method: "Surface swab kit", lab: "External specialist laboratory", date: "9 Oct 2026, 17:40", status: "Results received 19 Oct", st: "measured" },
+  { ref: "EG-001-D01", point: "C1", room: "bed1", what: "Settled dust, top of wardrobe", method: "Dust sampling kit", lab: "External specialist laboratory", date: "9 Oct 2026, 19:35", status: "At laboratory", st: "awaiting" },
+  { ref: "EG-001-R01", point: "A6", room: "bed1", what: "Radon, three-month detector", method: "Long-term detector (model to confirm)", lab: "Analysis on return", date: "9 Oct 2026", status: "Deployed; return due 9 Jan 2027", st: "awaiting" }
 ];
 
 /* Bedroom grid data: row-major, head row first, left to right */
@@ -795,18 +823,50 @@ const PRIORITY = { start: { label: "Start here", sub: "Simple changes with the b
 
 /* ---------- Prototype state ---------- */
 const SCREENS = [
-  { id: "dashboard", label: "Dashboard", who: "Assessor", device: "desktop", note: "Desktop. The working day at a glance: visits, assessments in progress, laboratory results, reports awaiting review and client follow-ups." },
-  { id: "profile", label: "Client and property", who: "Assessor", device: "desktop", note: "Desktop. One record per client and property, linking visits, questionnaire answers, documents, scope and reports. Optional wellbeing information is held separately and access-controlled." },
-  { id: "questionnaire", label: "Pre-visit questionnaire", who: "Client", device: "phone", note: "Phone. The client describes concerns, chooses rooms and shares documents before the visit. Answers flow straight into the property record." },
-  { id: "room", label: "Room assessment", who: "Assessor", device: "tablet", note: "Tablet, on site. Room by room, with observations, readings, photographs, samples and recommendations in one place. Works offline and saves automatically." },
+  { id: "clients", label: "Clients", who: "Assessor", device: "desktop", note: "Desktop. The starting point. Every visit, test, reading, sample and report belongs to a client record. New clients receive the next reference automatically, from EG-100." },
+  { id: "client", label: "Client record", who: "Assessor", device: "desktop", note: "Desktop. One client, one property. Tests are allocated here. Readings are saved to storage as they are captured and read back for the report, so this page only needs to show status." },
+  { id: "room", label: "On-site capture", who: "Assessor", device: "tablet", note: "Tablet, on site. Room by room for the open client. Every reading, note and sample is saved against the client, the test and the room." },
   { id: "bedroom", label: "Bedroom grid", who: "Assessor", device: "tablet", note: "Tablet, on site. Nine-point mattress grid, electric-field methods recorded separately, three-axis magnetic readings, body voltage, RF coverage and before-and-after comparison." },
-  { id: "finding", label: "Finding editor", who: "Assessor", device: "desktop", note: "Desktop. Turn readings into a reviewed finding and recommendation, evaluated against a reference library that keeps SBM guidance separate from statutory limits." },
-  { id: "report", label: "Report preview", who: "Assessor", device: "desktop", note: "Desktop. Review the branded report before publication. Outstanding results and unapproved findings are surfaced before anything is issued." },
-  { id: "equipment", label: "Equipment register", who: "Assessor", device: "desktop", note: "Desktop. Your equipment, kits and methods in one register. Each entry carries its parameters, default result class, checks and limitations, and every reading links back to it." },
-  { id: "portal", label: "Client portal", who: "Client", device: "phone", note: "Phone. The client sees where to begin, works through a manageable action plan, downloads the report and asks questions. Internal notes never appear here." }
+  { id: "finding", label: "Finding editor", who: "Assessor", device: "desktop", note: "Desktop. Turn saved readings into a reviewed finding and recommendation, evaluated against a reference library that keeps SBM guidance separate from statutory limits." },
+  { id: "report", label: "Report preview", who: "Assessor", device: "desktop", note: "Desktop. The report is assembled from what storage holds for the client. Outstanding results and unapproved findings are surfaced before anything is issued." },
+  { id: "questionnaire", label: "Pre-visit questionnaire", who: "Client", device: "phone", note: "Phone, shown with example client EG-001. The client describes concerns, chooses rooms and shares documents before the visit. Answers flow into the client record." },
+  { id: "portal", label: "Client portal", who: "Client", device: "phone", note: "Phone, shown with example client EG-001. The client sees where to begin, works through the action plan, downloads the report and asks questions. Internal notes never appear here." },
+  { id: "dashboard", label: "Today", who: "Assessor", device: "desktop", note: "Desktop. A daily overview across all clients: upcoming visits, work in progress, outstanding laboratory results and follow-ups." },
+  { id: "equipment", label: "Equipment register", who: "Assessor", device: "desktop", note: "Desktop. Your equipment, kits and methods in one register. Each entry carries its parameters, default result class, checks and limitations, and every reading links back to it." }
 ];
+
+/* ---------- Client references ----------
+   EG-001 to EG-099 are reserved for example and test records. Real clients start at EG-100,
+   and a reference is never reused, even if a record is later removed. */
+const REF_START = 100;
+const fmtRef = n => "EG-" + String(n).padStart(3, "0");
+const ASSESSOR = "Iza";
+const TAB_ID = "tab-" + Math.random().toString(36).slice(2, 10);
+const ALL_POINTS = SBM.flatMap(g => g.points.map(p => p[0]));
+const allocFrom = list => Object.fromEntries(ALL_POINTS.map(c => [c, list.includes(c)]));
+const DEFAULT_ROOMS = [
+  { id: "bed1", name: "Main bedroom", type: "bedroom", floor: "First floor" },
+  { id: "bath", name: "Bathroom", type: "bathroom", floor: "First floor" },
+  { id: "kitchen", name: "Kitchen", type: "kitchen", floor: "Ground floor" },
+  { id: "living", name: "Living room", type: "living", floor: "Ground floor" }
+];
+const ROOM_TYPES = { bedroom: "Bedroom", bathroom: "Bathroom", kitchen: "Kitchen", living: "Living room", office: "Home office", loft: "Loft", other: "Other" };
+/* The tests usually recorded in each kind of room */
+const ROOM_POINTS = {
+  bedroom: ["A1", "A2", "A3", "A6", "A9", "B6", "C1", "S5"], bathroom: ["B6", "C1", "S2", "S3", "S4", "S5"],
+  kitchen: ["B1", "B5", "B6", "S1", "S5"], living: ["A3", "B1", "B2", "B5", "B6", "C4"],
+  office: ["A1", "A2", "A3", "A9", "B6"], loft: ["C1", "S2", "S3"], other: ["B6", "S2"]
+};
+const EXAMPLES = [
+  { ref: "EG-001", num: 1, example: true, name: "Harriet and Tom Ashworth", propertyName: "", address: { line1: "14 Larkhill Road", line2: "", town: "Bristol", postcode: "BS6" }, email: "harriet.a@example.co.uk", phone: "07700 900418", service: "Home Health Analysis", stage: "Report v1.1 in review", createdAt: "2026-10-02" },
+  { ref: "EG-002", num: 2, example: true, name: "Priya Raman", propertyName: "", address: { line1: "7 Rowan Close", line2: "", town: "Hove", postcode: "BN3" }, email: "priya.r@example.co.uk", phone: "", service: "Home Health Analysis, bedrooms only", stage: "Visit 24 Oct · questionnaire complete", createdAt: "2026-10-12" },
+  { ref: "EG-003", num: 3, example: true, name: "The Okafor family", propertyName: "Mill Cottage", address: { line1: "Mill Lane", line2: "", town: "Lewes", postcode: "BN7" }, email: "okafor@example.co.uk", phone: "", service: "Build and Renovation Consultancy", stage: "Visit 27 Oct · questionnaire 3 of 8", createdAt: "2026-10-15" },
+  { ref: "EG-004", num: 4, example: true, name: "Margaret Ellis", propertyName: "", address: { line1: "22 Linden Terrace", line2: "", town: "Brighton", postcode: "BN1" }, email: "m.ellis@example.co.uk", phone: "", service: "Home Health Analysis", stage: "Visit 30 Oct · questionnaire not started", createdAt: "2026-10-19" }
+];
+
 const S = {
-  screen: "dashboard", device: null, online: true, pending: 0, savedAt: "10:42", saving: false,
+  screen: "clients", device: null, online: true, pending: 0, savedAt: "10:42", saving: false,
+  client: "EG-001", tab: "overview", search: "", showExamples: true, modal: null, modalCtx: null,
   room: "bed1", gridQty: "ef", phase: "compare", cell: 0, mic: false, planPin: null,
   qStep: 0, qRooms: { "Main bedroom": true, "Children's bedroom": true, "Bathroom": true }, qConcerns: { "Sleep": true, "Damp or mould": true },
   qConsent: true, qFiles: ["Damp survey 2023.pdf", "Electrical installation certificate.pdf"], qSent: false,
@@ -819,9 +879,143 @@ const S = {
     { me: true, text: "We moved the extension lead last night. Is it fine to keep the lamp on a timer instead of unplugging it?", when: "Yesterday, 21:04" },
     { me: false, text: "Thank you for letting us know, that is a lovely first step. A plug-in timer still leaves the cable live up to the timer, so unplugging at the wall, or a switched socket, is the better option. We can measure the difference at your follow-up visit.", when: "Today, 08:40 · Iza" }
   ],
-  eq: "bwflex", toast: null
+  eq: "bwflex", toast: null, notes: {}, exRooms: {}
 };
+/* Example records keep their allocation in memory; EG-001 shares the scope used by its report. */
+S.alloc = { "EG-001": S.scope, "EG-002": allocFrom(PACKAGES["Home Health Analysis, bedrooms only"]), "EG-003": allocFrom(PACKAGES["Build and Renovation Consultancy"]), "EG-004": allocFrom(ALL_POINTS) };
 const findingById = id => FINDINGS.find(f => f.id === id);
+
+/* =========================================================================
+   Storage
+   Shared storage when the page is published (Iza and Alfie see the same records);
+   this browser's storage when the file is opened locally. Example records are
+   built into the page and never written to storage.
+   ========================================================================= */
+const LOCAL_KEY = "emerald-grey-studio-v1";
+const COLLECTIONS = ["clients", "readings", "samples", "refs"];
+const Store = {
+  mode: "starting", note: "", readOnly: false, db: null, queue: {},
+  clients: {}, readings: {}, samples: {}, refs: {},
+  loadLocal() {
+    try { const d = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); COLLECTIONS.forEach(k => { this[k] = d[k] || {}; }); }
+    catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
+  },
+  persistLocal() {
+    if (this.mode !== "local") return;
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs })); }
+    catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
+  },
+  async init() {
+    let db = null;
+    try { db = window.claude && typeof window.claude.use === "function" ? await window.claude.use("db") : null; } catch (e) { db = null; }
+    if (!db) { this.mode = "local"; this.loadLocal(); scheduleRender(); return; }
+    this.db = db; this.mode = "shared";
+    let confirmed = false;
+    const timer = setTimeout(() => { if (!confirmed) { this.note = "Shared storage can't be reached yet. Records shown may be out of date."; scheduleRender(); } }, 10000);
+    COLLECTIONS.forEach(name => {
+      db.collection(name).onSnapshot(snap => {
+        const next = {};
+        snap.docs.forEach(d => { next[d.id] = d.data(); });
+        this[name] = next;
+        if (!snap.metadata.fromCache && !confirmed) { confirmed = true; clearTimeout(timer); this.note = ""; }
+        scheduleRender();
+      }, () => { clearTimeout(timer); this.note = "Shared storage has stopped responding. New changes may not be saved."; scheduleRender(); });
+    });
+  },
+  /* Whole-document write, one at a time per document */
+  async put(coll, id, body) {
+    this[coll] = { ...this[coll], [id]: body };
+    if (this.mode !== "shared") { this.persistLocal(); return true; }
+    const key = coll + "/" + id;
+    const run = () => this.db.doc(key).set(body);
+    const p = (this.queue[key] || Promise.resolve()).then(run, run);
+    this.queue[key] = p.catch(() => {});
+    try { await p; return true; } catch (e) { this.fail(e); return false; }
+  },
+  fail(e) {
+    const code = e && e.code;
+    if (code === "invalid_argument") { this.readOnly = true; toast("Your access lets you view these records but not change them."); }
+    else if (code === "quota_exceeded") toast("Storage is full, so this could not be saved.");
+    else toast("That change could not be saved. Please try again.");
+  },
+  nextNum() {
+    const nums = [...Object.values(this.refs), ...Object.values(this.clients)].map(x => x.num || 0);
+    return Math.max(REF_START - 1, ...nums) + 1;
+  },
+  /* Claim the next free reference. In shared storage a short lease stops two people taking the same number. */
+  async claimRef() {
+    let n = this.nextNum();
+    for (let tries = 0; tries < 25; tries++, n++) {
+      const ref = fmtRef(n);
+      if (this.refs[ref] || this.clients[ref]) continue;
+      const claim = { ref, num: n, claimedAt: new Date().toISOString(), by: ASSESSOR };
+      if (this.mode === "shared") {
+        const d = this.db.doc("refs/" + ref);
+        const lease = await d.acquire({ holder: TAB_ID, ttlMs: 5000 });
+        if (!lease.acquired) continue;
+        const snap = await d.get();
+        if (snap.exists) continue;
+        await d.set(claim);
+      }
+      this.refs = { ...this.refs, [ref]: claim };
+      this.persistLocal();
+      return claim;
+    }
+    throw new Error("No free reference");
+  }
+};
+
+/* ---------- Record accessors: example records and stored records look the same to the screens ---------- */
+const isFixture = ref => ref === "EG-001";
+function getClient(ref) { return EXAMPLES.find(c => c.ref === ref) || Store.clients[ref] || null; }
+const C = () => getClient(S.client) || EXAMPLES[0];
+function allClients() { return [...Object.values(Store.clients), ...EXAMPLES].sort((a, b) => b.num - a.num); }
+const addrLine = c => [c.address.line1, c.address.line2, c.address.town, c.address.postcode].filter(Boolean).join(", ");
+const shortName = c => c.propertyName ? `${c.name.split(" ").slice(-1)[0]}, ${c.propertyName}` : c.name.replace(/^The /, "").split(" ").slice(-1)[0];
+function alloc(ref) { const c = getClient(ref); return c && c.example ? S.alloc[ref] : (c && c.tests) || {}; }
+async function setAlloc(ref, map) {
+  const c = getClient(ref);
+  if (c.example) { Object.keys(map).forEach(k => { S.alloc[ref][k] = map[k]; }); markEdited(); render(); return; }
+  await Store.put("clients", ref, { ...c, tests: map, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR });
+  scheduleRender();
+}
+function roomsFor(ref) {
+  if (isFixture(ref)) return ROOMS;
+  const c = getClient(ref);
+  if (c.example) return S.exRooms[ref] || DEFAULT_ROOMS;
+  return c.rooms && c.rooms.length ? c.rooms : DEFAULT_ROOMS;
+}
+const byTime = (a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || ""));
+function readingsFor(ref) { return (isFixture(ref) ? READINGS : []).concat(Object.values(Store.readings).filter(r => r.client === ref).sort(byTime)); }
+function samplesFor(ref) { return (isFixture(ref) ? SAMPLES : []).concat(Object.values(Store.samples).filter(s => s.client === ref).sort(byTime)); }
+function testStatus(ref, code) {
+  if (!alloc(ref)[code]) return "excluded";
+  if (isFixture(ref) && SCOPE[code][0] !== "excluded") return SCOPE[code][0];
+  const rs = readingsFor(ref).filter(r => r.point === code);
+  if (samplesFor(ref).some(s => s.point === code && s.st === "awaiting")) return "awaiting";
+  if (rs.length && rs.every(r => r.result === "observation")) return "inspected";
+  if (rs.length) return "measured";
+  return "planned";
+}
+function roomPoints(ref, room) {
+  if (isFixture(ref) && room.points) return room.points;
+  const rs = readingsFor(ref);
+  return Object.fromEntries((ROOM_POINTS[room.type] || []).filter(c => alloc(ref)[c])
+    .map(c => [c, rs.some(r => r.room === room.id && r.point === c) ? "measured" : "planned"]));
+}
+function clientSummary(ref) {
+  const a = alloc(ref), codes = ALL_POINTS.filter(c => a[c]);
+  const st = codes.map(c => testStatus(ref, c));
+  return {
+    allocated: codes.length,
+    measured: st.filter(s => s === "measured" || s === "inspected").length,
+    planned: st.filter(s => s === "planned").length,
+    readings: readingsFor(ref).length,
+    outstanding: samplesFor(ref).filter(s => s.st === "awaiting").length
+  };
+}
+const nowStamp = () => new Date().toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const dateOnly = iso => { try { return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ""; } };
 
 /* =========================================================================
    Screens
@@ -832,13 +1026,18 @@ function syncBadge() {
   return `<span class="sync" id="sync" data-state="${st}" role="status"><span class="sync-dot" aria-hidden="true"></span><span>${text}</span></span>`;
 }
 
+function storeBadge() {
+  const t = { starting: "Connecting to storage…", shared: "Shared storage · Iza and Alfie see the same records", local: "Saved in this browser only" }[Store.mode];
+  return `<span class="sync" data-state="${Store.mode === "shared" ? "online" : Store.mode === "local" ? "offline" : "saving"}"><span class="sync-dot" aria-hidden="true"></span><span>${t}</span></span>`;
+}
 function assessorShell(active, body) {
-  const links = [["dashboard", "home", "Dashboard"], ["profile", "users", "Clients", "24"], ["visits", "cal", "Visits", "6"], ["lab", "flask", "Laboratory", "9"], ["finding", "doc", "Findings"], ["report", "book", "Reports", "3"], ["equipment", "gauge", "Equipment", "22"]];
+  const links = [["clients", "users", "Clients", String(allClients().length)], ["dashboard", "home", "Today"], ["room", "cal", "On-site capture"], ["finding", "doc", "Findings"], ["report", "book", "Reports"], ["equipment", "gauge", "Equipment", "22"]];
   return `<div class="shell">
     <aside class="side" aria-label="Workspace">
       <div class="wordmark">${logoInner("Assessors")}</div>
-      ${links.map(([id, ic, label, n]) => `<button class="side-link" data-action="side" data-target="${id}" ${active === id ? 'aria-current="page"' : ""}>${icon(ic)}<span>${label}</span>${n ? `<span class="count">${n}</span>` : ""}</button>`).join("")}
+      ${links.map(([id, ic, label, n]) => `<button class="side-link" data-action="go" data-screen="${id}" ${active === id ? 'aria-current="page"' : ""}>${icon(ic)}<span>${label}</span>${n ? `<span class="count">${n}</span>` : ""}</button>`).join("")}
       <div class="side-foot">
+        ${storeBadge()}
         ${syncBadge()}
         <div class="row"><span class="avatar av-iza">IZ</span><div class="small"><b>Iza</b><div class="muted xsmall">Assessor · MFA on</div></div></div>
       </div>
@@ -846,142 +1045,243 @@ function assessorShell(active, body) {
     <div class="main">${body}</div>
   </div>`;
 }
+function crumbs(extra) {
+  const c = C();
+  return `<nav class="crumbs" aria-label="Breadcrumb"><a href="#clients" data-action="go" data-screen="clients">Clients</a><span aria-hidden="true">/</span><a href="#client" data-action="go" data-screen="client">${c.ref} · ${esc(c.name)}</a>${extra ? `<span aria-hidden="true">/</span><span>${extra}</span>` : ""}</nav>`;
+}
+function storeNotice() {
+  const notes = [];
+  if (Store.note) notes.push(`<div class="notice notice-warn">${icon("info")}<span class="small">${esc(Store.note)}</span></div>`);
+  if (Store.readOnly) notes.push(`<div class="notice notice-muted">${icon("lock")}<span class="small">You can view these records but not change them. Ask the page owner for Contributor access.</span></div>`);
+  return notes.join("");
+}
 
-/* ---------- 1. Dashboard ---------- */
+/* ---------- 1. Clients ---------- */
+function screenClients() {
+  const list = allClients().filter(c => S.showExamples || !c.example);
+  const real = Object.keys(Store.clients).length;
+  const row = c => {
+    const sm = clientSummary(c.ref);
+    const pct = sm.allocated ? Math.round(sm.measured / sm.allocated * 100) : 0;
+    const search = [c.ref, c.name, c.propertyName, addrLine(c), c.service].join(" ").toLowerCase();
+    return `<tr data-ref="${c.ref}" data-search="${esc(search)}" data-action="openclient" tabindex="0">
+      <td><span class="ref-badge">${c.ref}</span></td>
+      <td><b>${esc(c.name)}</b>${c.propertyName ? `<div class="xsmall muted">${esc(c.propertyName)}</div>` : ""}</td>
+      <td class="small">${esc(addrLine(c))}</td>
+      <td class="small">${esc(c.service || "Tests chosen individually")}</td>
+      <td style="min-width:140px"><div class="progress" aria-hidden="true"><i style="width:${pct}%"></i></div><div class="xsmall muted">${sm.measured} of ${sm.allocated} tests · ${sm.readings} readings</div></td>
+      <td>${c.example ? `<span class="chip c-muted">Example record</span>` : `<span class="chip c-emerald">${sm.readings ? "Data being collected" : "New"}</span>`}</td>
+    </tr>`;
+  };
+  return assessorShell("clients", `
+    <div class="topline">
+      <div class="stack" style="gap:4px"><span class="eyebrow">Client records</span><h1>Clients</h1><p class="muted">Every visit, test, reading, sample and report belongs to a client.</p></div>
+      <div class="row"><button class="btn btn-primary" data-action="newclient" ${Store.mode === "starting" || Store.readOnly ? "disabled" : ""}>${icon("plus")}New client</button></div>
+    </div>
+    ${storeNotice()}
+    <div class="notice notice-muted">${icon("shield")}<span class="small">This is a prototype. Please use test details rather than real client information until the secure build is in place. EG-001 to EG-099 are reserved for test records; real clients start at EG-100.</span></div>
+    <div class="spread">
+      <div class="field" style="flex:1 1 280px;max-width:420px"><label for="client-search">Find a client</label><input id="client-search" class="input" type="search" placeholder="Name, reference, address or property" value="${esc(S.search)}" data-search-input></div>
+      <div class="row small"><span class="muted">${real} client${real === 1 ? "" : "s"} saved · next reference ${fmtRef(Store.nextNum())}</span><button class="pill-check" aria-pressed="${S.showExamples}" data-action="toggleexamples">Show example records</button></div>
+    </div>
+    ${list.length ? `<div class="table-wrap"><table class="client-table"><thead><tr><th>Reference</th><th>Client</th><th>Address</th><th>Service</th><th>Tests</th><th>Status</th></tr></thead><tbody>${list.map(row).join("")}</tbody></table></div>
+      <p class="small muted" id="no-match" hidden>No client matches that search.</p>`
+    : `<div class="card stack" style="align-items:flex-start"><h3>No clients yet</h3><p class="small muted">Add your first client to start their record. They will be given reference ${fmtRef(Store.nextNum())}.</p><button class="btn btn-primary" data-action="newclient">${icon("plus")}New client</button></div>`}
+  `);
+}
+
+/* ---------- 2. Client record ---------- */
+function testsTab(c) {
+  const a = alloc(c.ref), sm = clientSummary(c.ref), rs = readingsFor(c.ref);
+  const services = Object.keys(PACKAGES).map(p => `<option ${p === c.service ? "selected" : ""}>${p}</option>`).join("");
+  const row = (code, name) => {
+    const on = !!a[code], st = testStatus(c.ref, code), mine = rs.filter(r => r.point === code);
+    const rooms = [...new Set(mine.map(r => (roomsFor(c.ref).find(x => x.id === r.room) || {}).name).filter(Boolean))];
+    return `<div class="test-row">
+      <button class="switch" role="switch" aria-checked="${on}" aria-label="Allocate ${esc(name)}" data-action="alloc" data-code="${code}" ${Store.readOnly ? "disabled" : ""}></button>
+      <span class="scope-code">${code}</span>
+      <span class="grow"><span class="small">${name}</span>${rooms.length ? `<span class="xsmall muted" style="display:block">${rooms.join(", ")}</span>` : ""}</span>
+      ${covChip(st)}
+      <span class="xsmall muted num" style="text-align:right">${mine.length} reading${mine.length === 1 ? "" : "s"}</span>
+      <button class="btn btn-s" data-action="record" data-point="${code}" ${on && !Store.readOnly ? "" : "disabled"}>${icon("plus")}Record</button>
+    </div>`;
+  };
+  return `
+    <div class="notice notice-calm">${icon("info")}<span class="small">Readings save to storage as they are captured, against this client, the test and the room. The report reads them back from storage, so this page only needs to show each test's status.</span></div>
+    <div class="card stack">
+      <div class="spread">
+        <div class="row"><div class="field"><label for="svc">Allocate from a service</label><select id="svc" class="input">${services}</select></div><button class="btn" style="align-self:flex-end" data-action="applysvc" ${Store.readOnly ? "disabled" : ""}>Apply</button></div>
+        <div class="row" style="align-self:flex-end"><button class="btn btn-s" data-action="allocall" ${Store.readOnly ? "disabled" : ""}>Select all</button><button class="btn btn-s" data-action="allocnone" ${Store.readOnly ? "disabled" : ""}>Clear all</button><span class="small muted">${sm.allocated} of ${ALL_POINTS.length} allocated</span></div>
+      </div>
+      ${SBM.map(g => `<div class="stack" style="gap:0"><h4 style="margin:10px 0 2px">${g.code === "S" ? g.title : `${g.code} · ${g.title}`}</h4>${g.points.map(([code, name]) => row(code, name)).join("")}</div>`).join("")}
+    </div>`;
+}
+function overviewTab(c) {
+  const sm = clientSummary(c.ref);
+  const prop = isFixture(c.ref) ? PROPERTY : Object.entries(c.property || {}).filter(([, v]) => v).map(([k, v]) => [PROPERTY_FIELDS.find(f => f[0] === k)[1], esc(v)]);
+  const next = sm.readings === 0 ? "Send the pre-visit questionnaire and arrange visit 1." : sm.planned ? `${sm.planned} allocated test${sm.planned === 1 ? "" : "s"} still to measure.` : sm.outstanding ? `${sm.outstanding} laboratory result${sm.outstanding === 1 ? "" : "s"} outstanding.` : "All allocated tests have data. Draft the findings.";
+  return `
+    <div class="tiles">
+      <button class="tile" data-action="tab" data-tab="tests"><b class="num">${sm.allocated}</b><span>Tests allocated</span></button>
+      <button class="tile" data-action="tab" data-tab="tests"><b class="num">${sm.measured}</b><span>Tests with data</span></button>
+      <button class="tile" data-action="tab" data-tab="report"><b class="num">${sm.readings}</b><span>Readings saved</span></button>
+      <button class="tile" data-action="tab" data-tab="samples"><b class="num">${sm.outstanding}</b><span>Samples outstanding</span></button>
+    </div>
+    <div class="profile-grid">
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-det">
+          <div class="spread"><h3 id="h-det">Client and property</h3>${c.example ? "" : `<button class="btn btn-s" data-action="editclient" ${Store.readOnly ? "disabled" : ""}>Edit details</button>`}</div>
+          <div class="facts">
+            <div class="fact"><div class="k">Address</div><div class="v">${esc(addrLine(c))}</div></div>
+            ${c.propertyName ? `<div class="fact"><div class="k">Property name</div><div class="v">${esc(c.propertyName)}</div></div>` : ""}
+            <div class="fact"><div class="k">Email</div><div class="v">${esc(c.email || "Not recorded")}</div></div>
+            <div class="fact"><div class="k">Phone</div><div class="v">${esc(c.phone || "Not recorded")}</div></div>
+            ${prop.map(([k, v]) => `<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}
+          </div>
+          ${!isFixture(c.ref) && !prop.length ? `<p class="small muted">Property details (age, construction, alterations, heating, ventilation, leak history and routines) are not recorded yet.${c.example ? "" : " Add them with Edit details, or they arrive with the questionnaire."}</p>` : ""}
+        </section>
+        ${isFixture(c.ref) ? `<section class="card stack" aria-labelledby="h-house"><h3 id="h-house">Household and priorities</h3>
+          <p class="small">"We both wake around 3am and feel heavy in the mornings. There's a musty smell in the bathroom in winter. We'd like our son's room checked too."</p>
+          <div class="row"><span class="chip c-muted">Sleep</span><span class="chip c-muted">Damp or mould</span><span class="chip c-muted">Children's bedroom</span></div></section>` : ""}
+      </div>
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-next"><h3 id="h-next">Next step</h3><p class="small">${next}</p>
+          <div class="row"><button class="btn btn-s" data-action="toast" data-msg="In the live app the questionnaire link is emailed to ${esc(c.email || "the client")}">${icon("doc")}Send questionnaire</button><button class="btn btn-s btn-primary" data-action="capture">${icon("arrow")}Open on-site capture</button></div></section>
+        ${isFixture(c.ref) ? `<section class="card stack locked" aria-labelledby="h-well">
+          <div class="spread"><h3 id="h-well">Optional wellbeing information</h3>${icon("lock")}</div>
+          <p class="small">Visible to assigned assessors only. Used to understand priorities. Emerald Grey assessments do not diagnose or treat medical conditions.</p>
+          <dl class="kv"><dt>Sleep</dt><dd>Both wake 3 to 4am most nights</dd><dt>Allergies</dt><dd>Harriet: hay fever, house dust</dd><dt>Sensitivities</dt><dd>None noted</dd></dl>
+          <p class="xsmall muted">${CLIENT.consent} · Access logged</p></section>` : ""}
+        <section class="card stack" aria-labelledby="h-int" style="border-style:dashed">
+          <div class="spread"><h3 id="h-int">Internal notes</h3><span class="tag">Never shared with client</span></div>
+          <textarea id="int-${c.ref}" class="input" rows="3" data-intnote="${c.ref}" placeholder="Working notes for Iza and Alfie" ${Store.readOnly && !c.example ? "disabled" : ""}>${esc(c.example ? (S.notes["int-" + c.ref] ?? (isFixture(c.ref) ? "Tom keen on technical detail; Harriet prefers the short version. Offer a call when v1.1 is issued." : "")) : (c.internalNote || ""))}</textarea>
+          <span class="xsmall muted">Saves automatically</span>
+        </section>
+      </div>
+    </div>`;
+}
+function visitsTab(c) {
+  const rooms = roomsFor(c.ref), rs = readingsFor(c.ref);
+  return `
+    <section class="card stack" aria-labelledby="h-v1">
+      <div class="spread"><div><h3 id="h-v1">Visit 1</h3><p class="small muted">${isFixture(c.ref) ? "9 October 2026 · Alfie and Iza · 6 rooms, 34 readings, 7 samples" : c.example ? esc(c.stage) : "Date to be arranged · rooms below can be adjusted before the visit"}</p></div>
+        <button class="btn btn-primary" data-action="capture">${icon("arrow")}Open on-site capture</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Room</th><th>Floor</th><th>Tests in this room</th><th class="num">Readings</th><th></th></tr></thead><tbody>
+        ${rooms.map(r => { const pts = roomPoints(c.ref, r); const done = Object.values(pts).filter(s => s === "measured" || s === "inspected").length;
+          return `<tr><td><b class="small">${esc(r.name)}</b>${r.inaccessible ? `<div class="xsmall muted">Not accessible</div>` : ""}</td><td class="small">${esc(r.floor || "")}</td><td class="small">${done} of ${Object.keys(pts).length} with data</td><td class="num">${rs.filter(x => x.room === r.id).length}</td><td><button class="btn btn-s" data-action="openroom" data-room="${r.id}">Open</button></td></tr>`; }).join("")}
+      </tbody></table></div>
+      ${isFixture(c.ref) ? "" : `<div class="row" style="align-items:flex-end">
+        <div class="field"><label for="nr-name">Add a room</label><input id="nr-name" class="input" placeholder="For example, Guest bedroom"></div>
+        <div class="field"><label for="nr-type">Type</label><select id="nr-type" class="input">${Object.entries(ROOM_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></div>
+        <div class="field"><label for="nr-floor">Floor</label><input id="nr-floor" class="input" placeholder="First floor"></div>
+        <button class="btn" data-action="addroom" ${Store.readOnly && !c.example ? "disabled" : ""}>${icon("plus")}Add room</button></div>`}
+    </section>
+    ${isFixture(c.ref) ? `<section class="card stack"><h3>Repeat visit</h3><p class="small muted">Planned April 2027. Bedroom readings will be compared with visit 1.</p></section>` : ""}`;
+}
+function samplesTab(c) {
+  const ss = samplesFor(c.ref), rooms = roomsFor(c.ref);
+  return `<section class="card stack" aria-labelledby="h-smp">
+    <div class="spread"><div><h3 id="h-smp">Samples</h3><p class="small muted">Each sample takes the client's reference, for example ${c.ref}-W01 for the first water sample.</p></div><button class="btn btn-primary" data-action="newsample" ${Store.readOnly && !c.example ? "disabled" : ""}>${icon("plus")}Add sample</button></div>
+    ${ss.length ? `<div class="table-wrap"><table><thead><tr><th>Reference</th><th>Sample</th><th>Room</th><th>Laboratory</th><th>Status</th></tr></thead><tbody>
+      ${ss.map(s => `<tr><td class="mono xsmall">${s.ref}</td><td><div class="small">${esc(s.what)}</div><div class="xsmall muted">${esc(s.method)} · ${esc(s.date)}</div></td><td class="small">${esc((rooms.find(r => r.id === s.room) || {}).name || "")}</td><td class="small">${esc(s.lab)}</td><td>${covChip(s.st)}<div class="xsmall muted">${esc(s.status)}</div></td></tr>`).join("")}
+    </tbody></table></div>` : `<p class="small muted">No samples yet.</p>`}
+  </section>`;
+}
+function reportTab(c) {
+  const rs = readingsFor(c.ref), sm = clientSummary(c.ref), a = alloc(c.ref);
+  const planned = ALL_POINTS.filter(code => a[code] && testStatus(c.ref, code) === "planned");
+  const byPoint = ALL_POINTS.filter(code => rs.some(r => r.point === code));
+  return `
+    <div class="notice notice-calm">${icon("book")}<span class="small">The report is built from what storage holds for ${c.ref}: ${sm.readings} reading${sm.readings === 1 ? "" : "s"} across ${byPoint.length} test${byPoint.length === 1 ? "" : "s"}. Tests without data appear in the report as not yet measured, never as satisfactory.</span></div>
+    <div class="profile-grid">
+      <section class="card stack" aria-labelledby="h-rd"><h3 id="h-rd">Data available for the report</h3>
+        ${byPoint.length ? `<div class="table-wrap"><table><thead><tr><th>Test</th><th class="num">Readings</th><th>Latest</th></tr></thead><tbody>
+          ${byPoint.map(code => { const mine = rs.filter(r => r.point === code); const last = mine[mine.length - 1];
+            return `<tr><td class="small"><span class="scope-code">${code}</span> ${POINT_NAME[code]}</td><td class="num">${mine.length}</td><td class="small">${esc(last.label)}${last.value != null ? ` · <span class="num">${fmt(last.value, last.value % 1 ? 1 : 0)} ${esc(last.unit)}</span>` : ""}</td></tr>`; }).join("")}
+        </tbody></table></div>` : `<p class="small muted">No readings saved yet.</p>`}
+      </section>
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-nm"><h3 id="h-nm">Not yet measured</h3>
+          ${planned.length ? `<p class="small">${planned.map(code => `${code} ${POINT_NAME[code]}`).join(", ")}</p>` : `<p class="small muted">Every allocated test has data.</p>`}</section>
+        <section class="card stack"><h3>Report</h3><p class="small muted">${isFixture(c.ref) ? "Draft v1.1 in review. v1.0 issued 20 October 2026." : "No report drafted yet. The preview assembles one from the saved data."}</p>
+          <button class="btn btn-primary" data-action="go" data-screen="report">${icon("book")}Open report preview</button></section>
+      </div>
+    </div>`;
+}
+function screenClient() {
+  const c = C(), sm = clientSummary(c.ref);
+  const tabs = [["overview", "Overview"], ["tests", `Tests · ${sm.allocated}`], ["visits", "Visits"], ["samples", `Samples · ${samplesFor(c.ref).length}`], ["report", "Report"]];
+  const body = { overview: overviewTab, tests: testsTab, visits: visitsTab, samples: samplesTab, report: reportTab }[S.tab] || overviewTab;
+  return assessorShell("clients", `
+    ${crumbs()}
+    <div class="profile-head">
+      <div class="stack" style="gap:8px">
+        <div class="row"><span class="ref-badge lg">${c.ref}</span>${c.example ? `<span class="chip c-muted">Example record</span>` : `<span class="chip c-emerald">${Store.mode === "shared" ? "Saved to shared storage" : "Saved in this browser"}</span>`}</div>
+        <h1>${esc(c.name)}</h1>
+        <p class="muted">${c.propertyName ? `${esc(c.propertyName)} · ` : ""}${esc(addrLine(c))}</p>
+        <div class="row"><span class="chip c-emerald">${esc(c.service || "Tests chosen individually")}</span>${isFixture(c.ref) ? `<span class="chip c-muted">Lead: Alfie · Support: Iza</span><span class="chip c-info">Portal active</span>` : `<span class="chip c-muted">Created ${dateOnly(c.createdAt)}${c.createdBy ? " by " + esc(c.createdBy) : ""}</span>`}</div>
+      </div>
+      <div class="row"><button class="btn btn-primary" data-action="capture">${icon("arrow")}Open on-site capture</button></div>
+    </div>
+    ${storeNotice()}
+    <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${S.tab === k}" data-action="tab" data-tab="${k}">${l}</button>`).join("")}</div>
+    ${body(c)}`);
+}
+
+/* ---------- Today ---------- */
 function screenDashboard() {
   const visits = [
-    { d: "24", m: "Oct", t: "09:30", who: "Priya Raman", where: "Hove BN3", pkg: "Home Health Analysis, bedrooms only", a: "alfie", q: "Questionnaire complete" },
-    { d: "27", m: "Oct", t: "13:00", who: "The Okafor family", where: "Lewes BN7", pkg: "Build and Renovation Consultancy", a: "iza", q: "Questionnaire 3 of 8 sections" },
-    { d: "30", m: "Oct", t: "10:00", who: "Margaret Ellis", where: "Brighton BN1", pkg: "Home Health Analysis", a: "alfie", q: "Questionnaire not started" }
+    { d: "24", m: "Oct", t: "09:30", ref: "EG-002", a: "alfie", q: "Questionnaire complete" },
+    { d: "27", m: "Oct", t: "13:00", ref: "EG-003", a: "iza", q: "Questionnaire 3 of 8 sections" },
+    { d: "30", m: "Oct", t: "10:00", ref: "EG-004", a: "alfie", q: "Questionnaire not started" }
   ];
-  const progress = [
-    { who: "Harriet and Tom Ashworth", stage: 4, note: "Report v1.1 in review · 2 findings in draft", target: "report" },
-    { who: "Daniel Whitcombe", stage: 3, note: "Visit complete · 6 of 9 rooms written up", target: "room" },
-    { who: "Sophie and Mae Lindqvist", stage: 2, note: "Visit 1 Nov · property research in progress", target: "profile" }
-  ];
-  const lab = [
-    ["EG-2610-ASH-W04", "Ashworth", "Water, first draw, lead and copper", "At laboratory", "12 days"],
-    ["EG-2610-ASH-D01", "Ashworth", "Settled dust", "At laboratory", "13 days"],
-    ["EG-2610-ASH-R01", "Ashworth", "Radon, 3 months", "Deployed", "Due 9 Jan"],
-    ["EG-2609-WHI-M01", "Whitcombe", "Mould swab", "Result received", "Ready to review"]
-  ];
-  const follow = [
-    ["Harriet Ashworth", "Asked about lamp timers", "Answered today", "c-ok"],
-    ["Daniel Whitcombe", "Uploaded 3 progress photographs", "New", "c-info"],
-    ["James Patel", "Repeat visit due in November", "Book visit", "c-slight"]
-  ];
+  const all = allClients();
+  const outstanding = all.flatMap(c => samplesFor(c.ref).filter(s => s.st === "awaiting").map(s => ({ s, c })));
+  const recent = Object.values(Store.clients).sort((a, b) => b.num - a.num).slice(0, 4);
   return assessorShell("dashboard", `
     <div class="topline">
-      <div class="stack" style="gap:4px"><span class="eyebrow">Friday 23 October 2026</span><h1>Good morning, Iza</h1><p class="muted">Alfie is working on the Whitcombe write-up. Two reports need your review.</p></div>
-      <div class="row"><button class="btn" data-action="go" data-screen="profile">${icon("users")}Clients</button><button class="btn btn-primary" data-action="toast" data-msg="New assessment started for a new client record">${icon("plus")}New assessment</button></div>
+      <div class="stack" style="gap:4px"><span class="eyebrow">Friday 23 October 2026</span><h1>Good morning, Iza</h1><p class="muted">Alfie is on site with Priya Raman tomorrow. One report needs your review.</p></div>
+      <div class="row"><button class="btn" data-action="go" data-screen="clients">${icon("users")}Clients</button><button class="btn btn-primary" data-action="newclient" ${Store.mode === "starting" || Store.readOnly ? "disabled" : ""}>${icon("plus")}New client</button></div>
     </div>
+    ${storeNotice()}
     <div class="kpis">
-      ${[["3", "Upcoming visits", "Next: tomorrow 09:30", "profile"], ["5", "Assessments in progress", "2 with Alfie", "room"], ["9", "Outstanding laboratory results", "1 ready to review", "room"], ["2", "Reports awaiting review", "Ashworth v1.1, Whitcombe", "report"], ["4", "Client follow-ups", "1 question, 3 photo uploads", "portal"]]
-        .map(([n, l, s, t]) => `<button class="kpi" data-action="go" data-screen="${t}"><b class="num">${n}</b><span>${l}</span><small>${s}</small></button>`).join("")}
+      ${[[String(visits.length), "Upcoming visits", "Next: tomorrow 09:30", "go", "clients"], [String(all.length), "Client records", `${Object.keys(Store.clients).length} saved, ${EXAMPLES.length} examples`, "go", "clients"], [String(outstanding.length), "Outstanding laboratory results", "Across all clients", "go", "clients"], ["1", "Reports awaiting review", "EG-001 v1.1", "openreport", "EG-001"], ["2", "Client follow-ups", "1 question, 1 questionnaire", "go", "portal"]]
+        .map(([n, l, s, act, t]) => `<button class="kpi" data-action="${act}" data-screen="${t}" data-ref="${t}"><b class="num">${n}</b><span>${l}</span><small>${s}</small></button>`).join("")}
     </div>
     <div class="dash-grid">
       <div class="stack-l">
         <section class="card stack" aria-labelledby="h-visits">
           <div class="spread"><h3 id="h-visits">Upcoming visits</h3><button class="btn btn-quiet btn-s" data-action="toast" data-msg="Calendar opens in the live app">View calendar</button></div>
-          <div class="list">${visits.map(v => `
-            <div class="list-item">
+          <div class="list">${visits.map(v => { const c = getClient(v.ref); return `
+            <div class="list-item" data-action="openclient" data-ref="${c.ref}" style="cursor:pointer">
               <div class="date-block"><b>${v.d}</b><small>${v.m}</small></div>
-              <div class="grow"><div><b>${v.who}</b> <span class="muted small">· ${v.where} · ${v.t}</span></div><div class="small muted">${v.pkg} · ${v.q}</div></div>
+              <div class="grow"><div><span class="ref-badge">${c.ref}</span> <b>${esc(c.name)}</b> <span class="muted small">· ${esc(c.address.town)} · ${v.t}</span></div><div class="small muted">${esc(c.service)} · ${v.q}</div></div>
               <span class="avatar av-${v.a}" title="${v.a === "iza" ? "Iza" : "Alfie"}">${v.a === "iza" ? "IZ" : "AL"}</span>
-            </div>`).join("")}</div>
+            </div>`; }).join("")}</div>
         </section>
-        <section class="card stack" aria-labelledby="h-prog">
-          <h3 id="h-prog">Assessments in progress</h3>
-          <div class="list">${progress.map(p => `
-            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto">
-              <div class="stack" style="gap:6px">
-                <div class="spread"><b>${p.who}</b><span class="small muted">${["Questionnaire", "Research", "Visit", "Write-up", "Review", "Issued"][p.stage]}</span></div>
-                <div class="stage-steps" aria-label="Stage ${p.stage + 1} of 6">${[0, 1, 2, 3, 4, 5].map(i => `<i class="${i <= p.stage ? "on" : ""}"></i>`).join("")}</div>
-                <span class="small muted">${p.note}</span>
-              </div>
-              <button class="btn btn-s" data-action="go" data-screen="${p.target}">Open</button>
-            </div>`).join("")}</div>
+        <section class="card stack" aria-labelledby="h-new">
+          <div class="spread"><h3 id="h-new">Recently added clients</h3><button class="btn btn-quiet btn-s" data-action="go" data-screen="clients">All clients</button></div>
+          ${recent.length ? `<div class="list">${recent.map(c => { const sm = clientSummary(c.ref); return `<div class="list-item" style="grid-template-columns:auto minmax(0,1fr) auto;cursor:pointer" data-action="openclient" data-ref="${c.ref}"><span class="ref-badge">${c.ref}</span><div><b class="small">${esc(c.name)}</b><div class="xsmall muted">${esc(addrLine(c))}</div></div><span class="xsmall muted">${sm.readings} readings</span></div>`; }).join("")}</div>`
+            : `<p class="small muted">No clients added yet. New clients receive references from EG-100.</p>`}
         </section>
       </div>
       <div class="stack-l">
         <section class="card stack" aria-labelledby="h-lab">
-          <div class="spread"><h3 id="h-lab">Outstanding laboratory results</h3><span class="chip c-slight">9 open</span></div>
-          <div class="table-wrap"><table><thead><tr><th>Sample</th><th>Status</th></tr></thead><tbody>
-            ${lab.map(r => `<tr><td><div class="mono xsmall">${r[0]}</div><div class="small">${r[1]} · ${r[2]}</div></td><td><div class="small">${r[3]}</div><div class="xsmall muted">${r[4]}</div></td></tr>`).join("")}
-          </tbody></table></div>
+          <div class="spread"><h3 id="h-lab">Outstanding laboratory results</h3><span class="chip c-slight">${outstanding.length} open</span></div>
+          ${outstanding.length ? `<div class="table-wrap"><table><thead><tr><th>Sample</th><th>Status</th></tr></thead><tbody>
+            ${outstanding.map(({ s, c }) => `<tr><td><div class="mono xsmall">${s.ref}</div><div class="small">${esc(shortName(c))} · ${esc(s.what.split(",")[0])}</div></td><td class="small">${esc(s.status)}</td></tr>`).join("")}
+          </tbody></table></div>` : `<p class="small muted">Nothing outstanding.</p>`}
         </section>
         <section class="card stack" aria-labelledby="h-rev">
           <h3 id="h-rev">Reports awaiting review</h3>
-          <div class="list">
-            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b>Ashworth</b> <span class="tag">v1.1</span><div class="small muted">Prepared by Iza · 2 findings in draft · 3 results outstanding</div></div><button class="btn btn-s btn-primary" data-action="go" data-screen="report">Review</button></div>
-            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b>Whitcombe</b> <span class="tag">v1.0</span><div class="small muted">Prepared by Alfie · ready for second read</div></div><button class="btn btn-s" data-action="go" data-screen="report">Review</button></div>
-          </div>
+          <div class="list"><div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><span class="ref-badge">EG-001</span> <b>Ashworth</b> <span class="tag">v1.1</span><div class="small muted">Prepared by Iza · 2 findings in draft · 3 results outstanding</div></div><button class="btn btn-s btn-primary" data-action="openreport" data-ref="EG-001">Review</button></div></div>
         </section>
         <section class="card stack" aria-labelledby="h-fu">
           <h3 id="h-fu">Client follow-ups</h3>
-          <div class="list">${follow.map(f => `<div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b class="small">${f[0]}</b><div class="small muted">${f[1]}</div></div><span class="chip ${f[3]}">${f[2]}</span></div>`).join("")}</div>
-        </section>
-      </div>
-    </div>`);
-}
-
-/* ---------- 2. Client and property profile ---------- */
-function screenProfile() {
-  const pkgOptions = Object.keys(PACKAGES).map(p => `<option ${p === S.pkg ? "selected" : ""}>${p}</option>`).join("");
-  const scopeRows = g => g.points.map(([code, name]) => {
-    const on = S.scope[code]; const st = on ? (SCOPE[code][0] === "excluded" ? "inspected" : SCOPE[code][0]) : "excluded";
-    return `<div class="scope-row"><span class="scope-code">${code}</span><span>${name}</span>${covChip(st)}<button class="switch" role="switch" aria-checked="${on}" aria-label="Include ${esc(name)}" data-action="scope" data-code="${code}"></button></div>`;
-  }).join("");
-  return assessorShell("profile", `
-    <div class="profile-head">
-      <div class="stack" style="gap:6px">
-        <span class="eyebrow">Client · ${CLIENT.ref}</span>
-        <h1>${CLIENT.name}</h1>
-        <p class="muted">${CLIENT.address} · ${CLIENT.household}</p>
-        <div class="row" style="margin-top:6px"><span class="chip c-emerald">${CLIENT.package}</span><span class="chip c-muted">Lead: Alfie · Support: Iza</span><span class="chip c-info">Portal active</span></div>
-      </div>
-      <div class="row"><button class="btn" data-action="go" data-screen="questionnaire">${icon("doc")}Questionnaire answers</button><button class="btn btn-primary" data-action="go" data-screen="room">${icon("arrow")}Open visit record</button></div>
-    </div>
-    <div class="profile-grid">
-      <div class="stack-l">
-        <section class="card stack" aria-labelledby="h-prop">
-          <div class="spread"><h3 id="h-prop">Property</h3><span class="xsmall muted">Last edited by Alfie, 18 Oct · from questionnaire and Land Registry title</span></div>
-          <div class="facts">${PROPERTY.map(([k, v]) => `<div class="fact"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("")}</div>
-        </section>
-        <section class="card stack" aria-labelledby="h-scope">
-          <div class="spread">
-            <div><h3 id="h-scope">Assessment scope · SBM-2024</h3><p class="small muted">Choose a package, then adjust each point for this visit. Points not included are listed as such in the report and never shown as satisfactory.</p></div>
-            <div class="field" style="min-width:220px"><label for="pkg">Service package</label><select id="pkg" class="input" data-change="pkg">${pkgOptions}</select></div>
+          <div class="list">
+            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b class="small">EG-001 · Harriet Ashworth</b><div class="small muted">Asked about lamp timers</div></div><span class="chip c-ok">Answered today</span></div>
+            <div class="list-item" style="grid-template-columns:minmax(0,1fr) auto"><div><b class="small">EG-003 · The Okafor family</b><div class="small muted">Questionnaire 3 of 8 sections</div></div><span class="chip c-slight">Send reminder</span></div>
           </div>
-          ${SBM.map(g => `<div class="stack" style="gap:2px"><h4>${g.code === "S" ? g.title : `${g.code} · ${g.title}`}</h4><div class="scope-group">${scopeRows(g)}</div></div>`).join("")}
-        </section>
-      </div>
-      <div class="stack-l">
-        <section class="card stack" aria-labelledby="h-tl">
-          <h3 id="h-tl">Visits and milestones</h3>
-          <div class="timeline">
-            ${[["done", "Questionnaire received", "2 Oct 2026 · 6 rooms, 2 documents"], ["done", "Property research", "6 Oct · Alfie · flood map, radon map, planning history"], ["done", "Visit 1", "9 Oct · Iza and Alfie · 6 rooms, 34 readings, 7 samples"], ["done", "Interim report v1.0 issued", "20 Oct · 3 laboratory results pending"], ["", "Report v1.1 in review", "Adds air and mould results"], ["later", "Radon detectors returned", "Due 9 Jan 2027"], ["later", "Repeat visit", "Planned April 2027 · compare bedroom readings"]]
-              .map(([c, t, s]) => `<div class="tl"><span class="tl-dot ${c}"></span><div><b class="small">${t}</b><div class="xsmall muted">${s}</div></div></div>`).join("")}
-          </div>
-        </section>
-        <section class="card stack" aria-labelledby="h-house">
-          <h3 id="h-house">Household and priorities</h3>
-          <p class="small">"We both wake around 3am and feel heavy in the mornings. There's a musty smell in the bathroom in winter. We'd like our son's room checked too."</p>
-          <div class="row"><span class="chip c-muted">Sleep</span><span class="chip c-muted">Damp or mould</span><span class="chip c-muted">Children's bedroom</span></div>
-        </section>
-        <section class="card stack locked" aria-labelledby="h-well">
-          <div class="spread"><h3 id="h-well">Optional wellbeing information</h3>${icon("lock")}</div>
-          <p class="small">Visible to assigned assessors only. Used to understand priorities. Emerald Grey assessments do not diagnose or treat medical conditions.</p>
-          <dl class="kv"><dt>Sleep</dt><dd>Both wake 3 to 4am most nights</dd><dt>Allergies</dt><dd>Harriet: hay fever, house dust</dd><dt>Sensitivities</dt><dd>None noted</dd></dl>
-          <p class="xsmall muted">${CLIENT.consent} · Access logged</p>
-        </section>
-        <section class="card stack" aria-labelledby="h-docs">
-          <h3 id="h-docs">Documents</h3>
-          ${["Damp survey 2023.pdf · from client", "Electrical installation certificate.pdf · from client", "Radon map extract.pdf · Alfie", "Floor plan sketch.png · Iza"].map(d => `<div class="file-row">${icon("file")}<span class="grow">${d}</span></div>`).join("")}
-        </section>
-        <section class="card stack" aria-labelledby="h-int" style="border-style:dashed">
-          <div class="spread"><h3 id="h-int">Internal notes</h3><span class="tag">Never shared with client</span></div>
-          <p class="small">Tom keen on technical detail; Harriet prefers the short version. Offer a call when v1.1 is issued. <span class="muted">Alfie, 18 Oct</span></p>
         </section>
       </div>
     </div>`);
@@ -1064,79 +1364,97 @@ function phoneShell(body, foot) {
   return `<div class="phone"><div class="phone-top"><div class="wordmark">${logoInner("Your home")}</div><span class="avatar av-client">HA</span></div><div class="phone-body">${body}</div>${foot ? `<div class="phone-foot">${foot}</div>` : ""}</div>`;
 }
 
-/* ---------- 4. Room assessment (tablet) ---------- */
+/* ---------- 4. On-site capture (tablet) ---------- */
 function visitTop(title, sub) {
+  const c = C();
   return `<div class="visit-top">
-    <div class="row"><button class="btn btn-s" data-action="go" data-screen="profile">${icon("back")}Ashworth</button><div><b>${title}</b><div class="xsmall muted">${sub}</div></div></div>
+    <div class="row"><button class="btn btn-s" data-action="go" data-screen="client">${icon("back")}<span class="ref-badge" style="font-size:.8rem;padding:0 6px">${c.ref}</span>${esc(shortName(c))}</button><div><b>${title}</b><div class="xsmall muted">${sub}</div></div></div>
     <div class="row">
-      <span class="row small muted" title="Iza is working in the Bathroom"><span class="avatar av-iza" style="width:24px;height:24px;font-size:.62rem">IZ</span>Iza · Bathroom</span>
+      ${isFixture(c.ref) ? `<span class="row small muted" title="Iza is working in the Bathroom"><span class="avatar av-iza" style="width:24px;height:24px;font-size:.62rem">IZ</span>Iza · Bathroom</span>` : ""}
       ${syncBadge()}
       <button class="btn btn-s" data-action="online" aria-pressed="${!S.online}">${S.online ? icon("cloudoff") + "Simulate offline" : icon("wifi") + "Reconnect"}</button>
     </div></div>`;
 }
+function currentRoom() {
+  const rooms = roomsFor(S.client);
+  return rooms.find(r => r.id === S.room) || rooms[0];
+}
 function roomRail() {
   return `<nav class="rooms" aria-label="Rooms">
-    ${ROOMS.map(r => {
-      const sts = Object.values(r.points);
-      const done = sts.filter(s => s !== "awaiting" && s !== "inaccessible").length;
-      return `<button class="room-btn" data-action="room" data-room="${r.id}" aria-current="${S.room === r.id}"><b>${r.name}</b><small>${r.inaccessible ? "Not accessible" : `${done} of ${sts.length} points recorded`} · ${r.by}</small></button>`;
+    ${roomsFor(S.client).map(r => {
+      const sts = Object.values(roomPoints(S.client, r));
+      const done = sts.filter(s => s === "measured" || s === "inspected" || s === "referred").length;
+      return `<button class="room-btn" data-action="room" data-room="${r.id}" aria-current="${currentRoom().id === r.id}"><b>${esc(r.name)}</b><small>${r.inaccessible ? "Not accessible" : `${done} of ${sts.length} tests with data`}${r.by ? " · " + r.by : ""}</small></button>`;
     }).join("")}
     <div class="rooms-actions stack" style="margin-top:10px;gap:6px">
-      <button class="btn btn-s" data-action="toast" data-msg="New room added from template">${icon("plus")}Add room</button>
+      <button class="btn btn-s" data-action="tabgo" data-tab="visits">${icon("plus")}Add room</button>
       <button class="btn btn-s" data-action="duplicate">${icon("copy")}Duplicate structure</button>
     </div></nav>`;
 }
 function readingCard(r) {
   const k = readingEval(r);
+  const cond = r.cond || {};
   return `<div class="reading-card">
     <div class="stack" style="gap:4px">
-      <div class="row"><span class="scope-code">${r.point}</span><b class="small">${r.label}</b></div>
-      <div class="row"><span class="tag">${TIMING[r.timing]}</span><span class="chip ${RESULT_CLS[r.result]}">${RESULT[r.result]}</span>${r.phase === "after" ? `<span class="tag">After change</span>` : ""}</div>
+      <div class="row"><span class="scope-code">${r.point}</span><b class="small">${esc(r.label)}</b></div>
+      <div class="row"><span class="tag">${TIMING[r.timing] || "Spot reading"}</span><span class="chip ${RESULT_CLS[r.result]}">${RESULT[r.result]}</span>${r.phase === "after" ? `<span class="tag">After change</span>` : r.phase === "before" && r.grid ? `<span class="tag">Before change</span>` : ""}${r.grid ? `<span class="tag">${GRID_POS[r.grid.pos]}</span>` : ""}</div>
     </div>
     <div class="stack" style="gap:4px;align-items:flex-end">
-      ${r.value != null ? `<span class="reading-val">${fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0)}<small>${r.unit}</small></span>` : ""}
+      ${r.value != null ? `<span class="reading-val">${fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0)}<small>${esc(r.unit)}</small></span>` : ""}
       ${evalChip(k)}
     </div>
+    ${r.axes ? `<p class="xsmall muted" style="grid-column:1/-1">X ${r.axes[0]} · Y ${r.axes[1]} · Z ${r.axes[2]} ${esc(r.unit)} · resultant calculated</p>` : ""}
     ${r.note ? `<p class="small" style="grid-column:1/-1">${esc(r.note)}</p>` : ""}
-    <div class="ctx"><span><b>Where</b> ${r.loc}</span><span><b>When</b> ${r.when}</span>${r.dur ? `<span><b>Duration</b> ${r.dur}</span>` : ""}<span><b>Method</b> ${r.methodLabel}</span><span><b>Equipment</b> ${instNames(r)}</span><span><b>Occupancy</b> ${r.cond.occupancy}</span><span><b>Windows</b> ${r.cond.windows}</span><span><b>Heating</b> ${r.cond.heating}</span><span><b>Appliances</b> ${r.cond.appliances}</span><span><b>By</b> ${r.by}</span></div>
+    <div class="ctx">${r.loc ? `<span><b>Where</b> ${esc(r.loc)}</span>` : ""}<span><b>When</b> ${esc(r.when)}</span>${r.dur ? `<span><b>Duration</b> ${esc(r.dur)}</span>` : ""}<span><b>Method</b> ${esc(r.methodLabel)}</span>${r.inst ? `<span><b>Equipment</b> ${esc(instNames(r))}</span>` : ""}${cond.occupancy ? `<span><b>Occupancy</b> ${esc(cond.occupancy)}</span>` : ""}${cond.windows ? `<span><b>Windows</b> ${esc(cond.windows)}</span>` : ""}${cond.heating ? `<span><b>Heating</b> ${esc(cond.heating)}</span>` : ""}${cond.appliances ? `<span><b>Appliances</b> ${esc(cond.appliances)}</span>` : ""}<span><b>By</b> ${esc(r.by)}</span></div>
   </div>`;
 }
+function noteFor(ref, roomId) {
+  const c = getClient(ref);
+  if (!c.example) return (c.notes || {})[roomId] || "";
+  const k = ref + ":" + roomId;
+  if (k in S.notes) return S.notes[k];
+  return isFixture(ref) && roomId === "bed1" ? "Bed against party wall. Extension lead behind headboard feeding lamps and phone chargers. Client reports waking 3 to 4am." : "";
+}
 function screenRoom() {
-  const room = ROOMS.find(r => r.id === S.room);
+  const c = C(), fixture = isFixture(c.ref);
+  const room = currentRoom();
   const prompt = PROMPTS[room.type];
-  const readings = READINGS.filter(r => r.room === room.id);
-  const samples = SAMPLES.filter(s => s.room === room.id);
-  const recs = FINDINGS.filter(f => f.room === room.name);
-  const photos = { bed1: [["", "Headboard wall, extension lead"], ["thermal", "Thermal: NE ceiling corner"], ["wall", "Staining above wardrobe"]], bath: [["wall", "Window reveal"], ["thermal", "Thermal: cold bridge at reveal"], ["", "Extractor grille"]], kitchen: [["", "Cold tap, sample point"], ["", "Cooker hood filter"]], living: [["", "Air sample set-up"]], bed2: [["", "Bed position"]], loft: [] }[room.id] || [];
-  return `${visitTop("Visit 1 · 9 October 2026", "Alfie and Iza · Home Health Analysis")}
+  const readings = readingsFor(c.ref).filter(r => r.room === room.id);
+  const samples = samplesFor(c.ref).filter(s => s.room === room.id);
+  const recs = fixture ? FINDINGS.filter(f => f.room === room.name) : [];
+  const photos = fixture ? ({ bed1: [["", "Headboard wall, extension lead"], ["thermal", "Thermal: NE ceiling corner"], ["wall", "Staining above wardrobe"]], bath: [["wall", "Window reveal"], ["thermal", "Thermal: cold bridge at reveal"], ["", "Extractor grille"]], kitchen: [["", "Cold tap, sample point"], ["", "Cooker hood filter"]], living: [["", "Air sample set-up"]], bed2: [["", "Bed position"]], loft: [] }[room.id] || []) : [];
+  const pts = roomPoints(c.ref, room);
+  const locked = Store.readOnly && !c.example;
+  return `${visitTop(fixture ? "Visit 1 · 9 October 2026" : "Visit 1", fixture ? "Alfie and Iza · Home Health Analysis" : `${esc(c.service || "Tests chosen individually")} · readings save to ${Store.mode === "shared" ? "shared storage" : "this browser"}`)}
   <div class="visit">${roomRail()}
     <div class="visit-main">
       <div class="spread">
-        <div><span class="eyebrow">${room.floor} · recorded by ${room.by}</span><h2>${room.name}</h2></div>
+        <div><span class="eyebrow">${esc(room.floor || ROOM_TYPES[room.type] || "")}${room.by ? " · recorded by " + room.by : ""}</span><h2>${esc(room.name)}</h2></div>
         <div class="row">
           ${room.type === "bedroom" ? `<button class="btn btn-primary" data-action="go" data-screen="bedroom">${icon("bed")}Bedroom grid</button>` : ""}
-          <button class="btn" data-action="modal" data-modal="reading">${icon("plus")}Add reading</button>
+          <button class="btn" data-action="record" data-room="${room.id}" ${locked ? "disabled" : ""}>${icon("plus")}Add reading</button>
           <button class="btn" data-action="modal" data-modal="csv">${icon("upload")}Import CSV</button>
         </div>
       </div>
-      ${room.inaccessible ? `<div class="notice notice-warn">${icon("info")}<span><b>Not accessible.</b> ${room.inaccessible}. The points below will be reported as not accessible, never as satisfactory.</span></div>` : ""}
-      <section class="stack" aria-labelledby="h-pts"><h4 id="h-pts">Assessment points in this room</h4>
-        <div class="point-strip">${Object.entries(room.points).map(([c, s]) => `<div class="point"><span class="scope-code">${c}</span><span class="small"><b>${POINT_NAME[c]}</b></span>${covChip(s)}</div>`).join("")}</div>
+      ${room.inaccessible ? `<div class="notice notice-warn">${icon("info")}<span><b>Not accessible.</b> ${room.inaccessible}. The tests below will be reported as not accessible, never as satisfactory.</span></div>` : ""}
+      <section class="stack" aria-labelledby="h-pts"><h4 id="h-pts">Tests in this room</h4>
+        ${Object.keys(pts).length ? `<div class="point-strip">${Object.entries(pts).map(([code, s]) => `<button class="point" style="text-align:left;cursor:pointer" data-action="record" data-point="${code}" data-room="${room.id}" ${locked ? "disabled" : ""}><span class="scope-code">${code}</span><span class="small"><b>${POINT_NAME[code]}</b></span>${covChip(s)}</button>`).join("")}</div>`
+          : `<p class="small muted">None of this client's allocated tests usually apply to this kind of room. Readings for any test can still be added.</p>`}
       </section>
       ${prompt ? `<div class="prompt"><b class="small">${prompt.title}</b><ul>${prompt.items.map(i => `<li>${i}</li>`).join("")}</ul>${prompt.cta ? `<button class="btn btn-s" style="align-self:flex-start" data-action="go" data-screen="bedroom">${prompt.cta}</button>` : ""}</div>` : ""}
       <section class="stack" aria-labelledby="h-notes"><h4 id="h-notes">Quick notes</h4>
-        <div class="quick-note"><textarea id="note-${room.id}" class="input" rows="2" data-input="note" placeholder="Type or dictate an observation">${room.id === "bed1" ? "Bed against party wall. Extension lead behind headboard feeding lamps and phone chargers. Client reports waking 3 to 4am." : ""}</textarea>
+        <div class="quick-note"><textarea id="note-${c.ref}-${room.id}" class="input" rows="2" data-note="${room.id}" placeholder="Type or dictate an observation" ${locked ? "disabled" : ""}>${esc(noteFor(c.ref, room.id))}</textarea>
         <button class="mic" data-action="mic" aria-pressed="${S.mic}" aria-label="${S.mic ? "Stop dictation" : "Dictate a note"}">${icon("mic")}</button></div>
-        ${S.mic ? `<p class="xsmall muted">Listening. Dictated notes are transcribed on the device and marked as observations until you confirm them.</p>` : ""}
+        ${S.mic ? `<p class="xsmall muted">Listening. Dictated notes are transcribed on the device and marked as observations until you confirm them.</p>` : `<p class="xsmall muted">Notes save automatically.</p>`}
       </section>
       <section class="stack" aria-labelledby="h-read"><div class="spread"><h4 id="h-read">Readings and observations (${readings.length})</h4><span class="xsmall muted">Unmeasured items are never shown as satisfactory</span></div>
-        ${readings.length ? readings.map(readingCard).join("") : `<div class="notice notice-muted">${icon("info")}<span class="small">No readings yet in this room.</span></div>`}
+        ${readings.length ? readings.map(readingCard).join("") : `<div class="notice notice-muted">${icon("info")}<span class="small">No readings yet in this room. Select a test above, or Add reading.</span></div>`}
       </section>
       <div class="grid-2">
         <section class="card stack" aria-labelledby="h-ph"><div class="spread"><h3 id="h-ph">Photographs</h3><label class="btn btn-s" for="ph-add">${icon("camera")}Add</label><input id="ph-add" type="file" accept="image/*" hidden data-change="roomphoto"></div>
-          <div class="photo-grid">${photos.map(([c, t]) => `<div class="photo ${c}"><span>${t}</span></div>`).join("") || `<p class="small muted">No photographs yet.</p>`}</div></section>
-        <section class="card stack" aria-labelledby="h-sm"><div class="spread"><h3 id="h-sm">Samples</h3><button class="btn btn-s" data-action="toast" data-msg="New sample reference generated: EG-2610-ASH-${room.id.toUpperCase().slice(0, 1)}04">${icon("plus")}Sample</button></div>
-          ${samples.length ? samples.map(s => `<div class="sample-row"><div><div class="mono xsmall">${s.ref}</div><div class="small"><b>${s.what}</b></div><div class="xsmall muted">${s.method} · ${s.lab} · ${s.date}</div></div>${covChip(s.st)}</div>`).join("") : `<p class="small muted">No samples taken in this room.</p>`}
+          <div class="photo-grid">${photos.map(([cl, t]) => `<div class="photo ${cl}"><span>${t}</span></div>`).join("") || `<p class="small muted">No photographs yet.</p>`}</div></section>
+        <section class="card stack" aria-labelledby="h-sm"><div class="spread"><h3 id="h-sm">Samples</h3><button class="btn btn-s" data-action="newsample" data-room="${room.id}" ${locked ? "disabled" : ""}>${icon("plus")}Sample</button></div>
+          ${samples.length ? samples.map(s => `<div class="sample-row"><div><div class="mono xsmall">${s.ref}</div><div class="small"><b>${esc(s.what)}</b></div><div class="xsmall muted">${esc(s.method)} · ${esc(s.lab)} · ${esc(s.date)}</div></div>${covChip(s.st)}</div>`).join("") : `<p class="small muted">No samples taken in this room.</p>`}
         </section>
       </div>
       <section class="card stack" aria-labelledby="h-rc"><div class="spread"><h3 id="h-rc">Findings and recommendations</h3><button class="btn btn-s" data-action="go" data-screen="finding">Open editor</button></div>
@@ -1217,7 +1535,7 @@ function rfPanel() {
     </tbody></table></div>
   </div>`;
 }
-function screenBedroom() {
+function screenBedroomExample() {
   const g = GRID[S.gridQty];
   const qtyTabs = [["ef", "E-field (earthed)"], ["efpf", "E-field (potential-free)"], ["bv", "Body voltage"], ["mf", "Magnetic, 3 axes"], ["rf", "Radio frequency"]];
   const eq = g && g.inst ? inst(g.inst) : null;
@@ -1272,8 +1590,92 @@ function screenBedroom() {
   </div>`;
 }
 
+/* Bedroom grid for clients other than the worked example: values come from saved readings. */
+const GRID_DEF = {
+  ef:  { point: "A1", method: "earthed", unit: "V/m", inst: "me3951", label: "Electric field, earthed method", ref: "sbm-ef" },
+  efpf:{ point: "A1", method: "potential-free", unit: "V/m", inst: null, label: "Electric field, potential-free", ref: "sbm-ef-pf" },
+  bv:  { point: "A1", method: "body-voltage", unit: "mV", inst: "bvset", label: "Body voltage", ref: "sbm-bv" },
+  mf:  { point: "A2", method: "three-axis", unit: "nT", inst: "me3951", label: "Magnetic field, three axes", ref: "sbm-mf" }
+};
+function gridReading(qty, pos, phase, roomId) {
+  const rs = readingsFor(S.client).filter(r => r.room === roomId && r.grid && r.grid.qty === qty && r.grid.pos === pos && (r.phase || "before") === phase);
+  return rs[rs.length - 1] || null;
+}
+function cellGeneric(qty, i, roomId) {
+  const g = GRID_DEF[qty];
+  const b = gridReading(qty, i, "before", roomId), a = gridReading(qty, i, "after", roomId);
+  const sel = S.cell === i;
+  const show = S.phase === "after" ? a : S.phase === "compare" ? (a || b) : b;
+  if (!show) return `<button class="cell k-nm" aria-pressed="${sel}" data-action="cell" data-i="${i}"><span class="pos">${GRID_POS[i]}</span><span class="lab">Not measured</span></button>`;
+  const dec = v => v == null ? "" : v % 1 ? fmt(v, 1) : fmt(v);
+  const k = classify(show.value, g.ref, g.method);
+  const line = S.phase === "compare" && a && b
+    ? `<span class="compare-v"><span>${dec(b.value)}</span><span class="arrow">→</span><b>${dec(a.value)}</b><small class="muted">${g.unit}</small></span>`
+    : `<span class="v">${dec(show.value)}<small> ${g.unit}</small></span>`;
+  return `<button class="cell k-${k}" aria-pressed="${sel}" data-action="cell" data-i="${i}"><span class="pos">${GRID_POS[i]}</span>${line}<span class="lab">${EVAL[k].label}${S.phase === "compare" && a ? " after" : ""}</span></button>`;
+}
+function screenBedroomGeneric() {
+  const c = C(), rooms = roomsFor(c.ref);
+  const room = currentRoom().type === "bedroom" ? currentRoom() : (rooms.find(r => r.type === "bedroom") || currentRoom());
+  const qtyTabs = [["ef", "E-field (earthed)"], ["efpf", "E-field (potential-free)"], ["bv", "Body voltage"], ["mf", "Magnetic, 3 axes"], ["rf", "Radio frequency"]];
+  const locked = Store.readOnly && !c.example;
+  let main;
+  if (S.gridQty === "rf") {
+    const rf = readingsFor(c.ref).filter(r => r.room === room.id && r.point === "A3");
+    main = `${rfCoverage()}
+      <button class="btn btn-primary" style="align-self:flex-start" data-action="record" data-point="A3" data-room="${room.id}" data-meth="peak" ${locked ? "disabled" : ""}>${icon("plus")}Record RF reading</button>
+      ${rf.length ? rf.map(readingCard).join("") : `<p class="small muted">No RF readings saved for this room yet.</p>`}`;
+  } else if (S.gridQty === "efpf") {
+    main = `<div class="notice notice-muted">${icon("info")}<div class="small stack" style="gap:6px"><b>No potential-free readings</b><span>Your equipment register has no potential-free meter, so electric fields are measured with the earthed method. Potential-free readings are kept apart from earthed readings and evaluated against their own reference entry.</span><button class="btn btn-s" style="align-self:flex-start" data-action="go" data-screen="equipment">Open equipment register</button></div></div>`;
+  } else {
+    const i = S.cell, b = gridReading(S.gridQty, i, "before", room.id), a = gridReading(S.gridQty, i, "after", room.id);
+    const box = (r, label) => r ? `<div class="axis ${label === "After" ? "res" : ""}"><div class="k">${label}</div><div class="v">${fmt(r.value, r.value % 1 ? 1 : 0)} <small class="muted">${GRID_DEF[S.gridQty].unit}</small></div>${r.axes ? `<div class="xsmall muted">X ${r.axes[0]} · Y ${r.axes[1]} · Z ${r.axes[2]}</div>` : ""}</div>` : `<div class="axis"><div class="k">${label}</div><div class="small muted">Not measured</div></div>`;
+    main = `<div class="mattress"><div class="pillows" aria-hidden="true"><i></i><i></i></div><div class="mgrid">${GRID_POS.map((_, k) => cellGeneric(S.gridQty, k, room.id)).join("")}</div></div>
+      <p class="xsmall muted">Select a position, then record its reading. Each colour has a text label, and classification is shown only where the method matches the reference entry.</p>
+      <div class="stack"><b class="small">${GRID_POS[i]}</b>
+        <div class="grid-2">${box(b, "Before")}${box(a, "After")}</div>
+        <div class="row"><button class="btn btn-s btn-primary" data-action="recordgrid" data-phase="before" data-room="${room.id}" ${locked ? "disabled" : ""}>${icon("plus")}Record before</button><button class="btn btn-s" data-action="recordgrid" data-phase="after" data-room="${room.id}" ${locked ? "disabled" : ""}>${icon("plus")}Record after a change</button></div></div>`;
+  }
+  const rows = ["ef", "bv", "mf"].map(q => { const b = gridReading(q, S.cell, "before", room.id), a = gridReading(q, S.cell, "after", room.id); const g = GRID_DEF[q];
+    return `<tr><td>${g.label}</td><td class="num">${b ? fmt(b.value, b.value % 1 ? 1 : 0) + " " + g.unit : "Not measured"}</td><td class="num">${a ? fmt(a.value, a.value % 1 ? 1 : 0) + " " + g.unit : "Not measured"}</td><td>${a ? evalChip(classify(a.value, g.ref, g.method)) : evalChip("nm")}</td></tr>`; }).join("");
+  return `${visitTop(`${esc(room.name)} · bed measurements`, "Visit 1 · readings save as you record them")}
+  <div class="visit-main">
+    <div class="spread">
+      <div class="row"><button class="btn btn-s" data-action="go" data-screen="room">${icon("back")}Room</button><h2>Bed measurements</h2></div>
+      <div class="seg" role="group" aria-label="Measured quantity">${qtyTabs.map(([k, l]) => `<button aria-pressed="${S.gridQty === k}" data-action="qty" data-q="${k}">${l}</button>`).join("")}</div>
+    </div>
+    ${S.gridQty !== "rf" && S.gridQty !== "efpf" ? `<div class="card card-tight spread"><div class="small">Record a reading at each position, then again after switching off a device or circuit to compare.</div><div class="seg" role="group" aria-label="Condition">${[["before", "Before"], ["after", "After"], ["compare", "Compare"]].map(([k, l]) => `<button aria-pressed="${S.phase === k}" data-action="phase" data-p="${k}">${l}</button>`).join("")}</div></div>` : ""}
+    <div class="bed-layout">
+      <section class="stack" aria-labelledby="h-grid"><h3 id="h-grid">${S.gridQty === "rf" ? "Radio frequency at the pillow" : GRID_DEF[S.gridQty].label + " · nine-point grid"}</h3>${main}</section>
+      <div class="stack-l">
+        <section class="card stack" aria-labelledby="h-ba"><h3 id="h-ba">Before and after · ${GRID_POS[S.cell]}</h3>
+          <div class="table-wrap"><table><thead><tr><th>Measurement</th><th class="num">Before</th><th class="num">After</th><th>After, SBM</th></tr></thead><tbody>${rows}</tbody></table></div>
+          <p class="xsmall muted">Comparable readings share position, equipment and method.</p></section>
+        <section class="card stack"><h3>Room plan</h3><p class="small muted">Readings, suspected sources and photographs can be placed on a simple plan of the room. The worked example (EG-001) shows a completed plan.</p></section>
+      </div>
+    </div>
+  </div>`;
+}
+function rfCoverage() {
+  const meters = [inst("hf38"), inst("hfw35")];
+  const pos = f => ((Math.log10(f) - 1) / 3) * 100;
+  const bands = [["FM", 100, 0], ["TETRA", 400, 1], ["Mobile 800", 800, 0], ["DECT", 1900, 1], ["Wi-Fi 2.4", 2450, 0], ["Wi-Fi 5", 5500, 0], ["Wi-Fi 6E", 6500, 1]];
+  return `<div class="stack" style="gap:2px">
+      <span class="small"><b>Equipment coverage</b> · ${meters.map(m => `${m.name} (${m.fmin >= 1000 ? m.fmin / 1000 + " GHz" : m.fmin + " MHz"} to ${m.fmax / 1000} GHz)`).join(" and ")}</span>
+      <div class="coverage" aria-label="Meters cover about 700 MHz to 6 GHz. Below 700 MHz and above 6 GHz are outside coverage.">
+        <div class="track"></div>
+        ${meters.map((m, i) => `<div class="cov" style="left:${pos(m.fmin)}%;width:${pos(m.fmax) - pos(m.fmin)}%;opacity:${i ? .65 : .9}"></div>`).join("")}
+        ${bands.map(([n, f, row]) => `<span class="tick" style="left:${pos(f)}%"></span><span class="band" style="left:${pos(f)}%;top:${row * 11}px">${n}</span>`).join("")}
+        ${[[10, "10 MHz"], [100, "100 MHz"], [1000, "1 GHz"], [10000, "10 GHz"]].map(([f, l]) => `<span class="axislab" style="left:${Math.min(96, Math.max(4, pos(f)))}%">${l}</span>`).join("")}
+      </div>
+    </div>
+    <div class="notice notice-warn">${icon("info")}<span class="small">Below 700 MHz (FM, DAB, TETRA, some TV) and above 6 GHz (Wi-Fi 6E) are outside your meters' range. This caveat carries into the finding and report automatically.</span></div>`;
+}
+function screenBedroom() { return isFixture(S.client) ? screenBedroomExample() : screenBedroomGeneric(); }
+
 /* ---------- 6. Finding and recommendation editor ---------- */
 function screenFinding() {
+  if (!isFixture(S.client)) return findingsFromStore();
   const f = findingById(S.findingId);
   const rs = f.readings.map(id => READINGS.find(r => r.id === id)).filter(Boolean);
   const main = rs[0];
@@ -1292,7 +1694,8 @@ function screenFinding() {
     return `<div class="ref-card ${r.kind === "sbm" ? "sbm" : ""}"><span class="chip ${k.cls}" style="align-self:flex-start">${k.label}</span><b class="small">${r.quantity}</b><span class="xsmall muted">${r.source} · Edition ${r.edition} · Unit ${r.unit}</span><span class="xsmall">${r.conditions}</span>${verdict}</div>`;
   };
   return assessorShell("finding", `
-    <div class="topline"><div><span class="eyebrow">Ashworth · report v1.1</span><h1>Findings and recommendations</h1></div>
+    ${crumbs("Findings")}
+    <div class="topline"><div><span class="eyebrow">EG-001 · report v1.1</span><h1>Findings and recommendations</h1></div>
       <div class="row">${syncBadge()}<button class="btn" data-action="go" data-screen="report">${icon("book")}Preview report</button></div></div>
     ${S.conflict && f.id === "f1" ? `<div class="notice notice-warn" role="alert">${icon("users")}<div class="grow stack" style="gap:6px"><span class="small"><b>Alfie also edited this recommendation</b> at 09:14, changing the cost range to "Free to £400". Your version says "Free to £350". Nothing has been overwritten.</span><div class="row"><button class="btn btn-s" data-action="conflict" data-keep="mine">Keep mine</button><button class="btn btn-s" data-action="conflict" data-keep="theirs">Use Alfie's</button></div></div></div>` : ""}
     <div class="editor">
@@ -1332,12 +1735,14 @@ function screenFinding() {
 
 /* ---------- 7. Report preview ---------- */
 function screenReport() {
+  if (!isFixture(S.client)) return reportFromStore();
   const outstanding = SAMPLES.filter(s => s.st === "awaiting");
   const drafts = FINDINGS.filter(f => f.status !== "approved");
   const ready = drafts.length === 0 && S.checks.scope && S.checks.refs;
   const notCovered = Object.entries(S.scope).filter(([, on]) => !on).map(([c]) => `${c} ${POINT_NAME[c]}`);
   return assessorShell("report", `
-    <div class="topline"><div><span class="eyebrow">Ashworth · ${CLIENT.ref}</span><h1>Report preview</h1></div>
+    ${crumbs("Report")}
+    <div class="topline"><div><span class="eyebrow">${CLIENT.ref} · report v1.1</span><h1>Report preview</h1></div>
       <div class="row"><div class="seg" role="group" aria-label="Format"><button aria-pressed="true" data-action="noop">Online report</button><button aria-pressed="false" data-action="toast" data-msg="PDF preview renders from the same approved content">PDF</button></div></div></div>
     <div class="report-layout">
       <nav class="outline card card-tight stack" aria-label="Report sections">
@@ -1480,27 +1885,173 @@ function screenEquipment() {
     </div>`);
 }
 
+/* Findings and report for clients other than the worked example: built from saved data */
+function findingsFromStore() {
+  const c = C(), rs = readingsFor(c.ref);
+  const pts = ALL_POINTS.filter(code => rs.some(r => r.point === code));
+  return assessorShell("finding", `
+    ${crumbs("Findings")}
+    <div class="topline"><div><span class="eyebrow">${c.ref}</span><h1>Findings and recommendations</h1></div></div>
+    <div class="card stack" style="align-items:flex-start">
+      <h3>No findings drafted yet</h3>
+      <p class="small muted">Findings are written from saved readings. ${rs.length ? `${rs.length} reading${rs.length === 1 ? "" : "s"} saved across ${pts.length} test${pts.length === 1 ? "" : "s"} so far.` : "No readings have been saved for this client yet."}</p>
+      ${pts.length ? `<div class="table-wrap" style="width:100%"><table><thead><tr><th>Test</th><th class="num">Readings</th><th>Evaluations</th></tr></thead><tbody>${pts.map(code => { const mine = rs.filter(r => r.point === code);
+        return `<tr><td class="small"><span class="scope-code">${code}</span> ${POINT_NAME[code]}</td><td class="num">${mine.length}</td><td>${[...new Set(mine.map(readingEval))].map(k => evalChip(k)).join(" ")}</td></tr>`; }).join("")}</tbody></table></div>` : ""}
+      <div class="row"><button class="btn" data-action="capture">${icon("arrow")}Open on-site capture</button><button class="btn btn-quiet" data-action="openfinding" data-ref="EG-001">See the worked example (EG-001)</button></div>
+    </div>`);
+}
+function reportFromStore() {
+  const c = C(), rs = readingsFor(c.ref), a = alloc(c.ref), ss = samplesFor(c.ref);
+  const allocated = ALL_POINTS.filter(code => a[code]);
+  const notIncluded = ALL_POINTS.filter(code => !a[code]);
+  const planned = allocated.filter(code => testStatus(c.ref, code) === "planned");
+  const outstanding = ss.filter(s => s.st === "awaiting");
+  const rooms = roomsFor(c.ref);
+  return assessorShell("report", `
+    ${crumbs("Report")}
+    <div class="topline"><div><span class="eyebrow">${c.ref} · assembled from storage</span><h1>Report preview</h1></div></div>
+    <div class="report-layout">
+      <nav class="outline card card-tight stack" aria-label="Report sections"><h4>Sections</h4>${["Scope and limitations", "Measurements", "Samples", "Findings and action plan"].map((s, i) => `<span class="side-link">${i + 1}. ${s}</span>`).join("")}</nav>
+      <article class="paper" aria-label="Report draft">
+        <div class="cover"><div class="cover-top">${LOGO(150)}<span class="tagline">where home meets health</span></div>
+          <div class="cover-band"><h1>Your Home Health <em class="gold">Analysis</em></h1><p>Prepared for ${esc(c.name)}</p></div>
+          <p class="muted small">${c.propertyName ? esc(c.propertyName) + " · " : ""}${esc(addrLine(c))} · Reference ${c.ref}</p></div>
+        <span class="chip c-slight draft-mark">Draft · not visible to client</span>
+        <section><div class="sec-head"><span class="ghost" aria-hidden="true">01</span><span class="eyebrow">01 / 04 · Scope</span><h2>Scope and limitations</h2></div>
+          <p>This assessment followed the Standard of Building Biology Testing Methods, SBM-2024. It looks at your home environment and does not diagnose or treat any medical condition.</p>
+          <div class="table-wrap"><table><thead><tr><th>Test</th><th>Status</th></tr></thead><tbody>${allocated.map(code => `<tr><td class="small">${code} ${POINT_NAME[code]}</td><td>${covChip(testStatus(c.ref, code))}</td></tr>`).join("")}</tbody></table></div>
+          ${notIncluded.length ? `<p class="small muted">Not included: ${notIncluded.map(code => `${code} ${POINT_NAME[code]}`).join(", ")}. Points not measured carry no evaluation.</p>` : ""}</section>
+        <section><div class="sec-head"><span class="ghost" aria-hidden="true">02</span><span class="eyebrow">02 / 04 · Measurements</span><h2>Measurements</h2></div>
+          ${rs.length ? `<div class="table-wrap"><table><thead><tr><th>Measurement</th><th>Room</th><th class="num">Value</th><th>Type</th><th>Evaluation</th></tr></thead><tbody>
+            ${rs.map(r => `<tr><td class="small"><span class="scope-code">${r.point}</span> ${esc(r.label)}${r.phase === "after" ? " (after)" : ""}</td><td class="small">${esc((rooms.find(x => x.id === r.room) || {}).name || "")}</td><td class="num">${r.value != null ? fmt(r.value, r.value % 1 ? (r.value < 1 ? 2 : 1) : 0) + " " + esc(r.unit) : "See note"}</td><td class="small">${TIMING[r.timing] || ""}<br><span class="muted">${RESULT[r.result]}</span></td><td>${evalChip(readingEval(r))}</td></tr>`).join("")}
+          </tbody></table></div>` : `<p class="small muted">No readings saved yet.</p>`}</section>
+        <section><div class="sec-head"><span class="ghost" aria-hidden="true">03</span><span class="eyebrow">03 / 04 · Samples</span><h2>Samples</h2></div>
+          ${ss.length ? `<div class="table-wrap"><table><thead><tr><th>Reference</th><th>Sample</th><th>Status</th></tr></thead><tbody>${ss.map(s => `<tr><td class="mono xsmall">${s.ref}</td><td class="small">${esc(s.what)}</td><td>${covChip(s.st)}</td></tr>`).join("")}</tbody></table></div>` : `<p class="small muted">No samples recorded.</p>`}</section>
+        <section><div class="sec-head"><span class="ghost" aria-hidden="true">04</span><span class="eyebrow">04 / 04 · Action plan</span><h2>Findings and action plan</h2></div>
+          <p class="small muted">Written once the readings are reviewed. Each recommendation will explain what we found, why it matters, what you can do, the likely cost and whether specialist help is needed.</p></section>
+        <div class="paper-foot"><span>Home Health Analysis · ${c.ref} · Draft</span><i>emerald-grey.co.uk</i></div>
+      </article>
+      <aside class="stack-l">
+        <section class="card stack" aria-labelledby="h-pre"><h3 id="h-pre">Before publishing</h3>
+          <div class="checklist">
+            <div class="check"><span class="st ${planned.length ? "st-wait" : "st-ok"}">${planned.length || "✓"}</span><div><b>${planned.length ? `${planned.length} allocated tests without data` : "Every allocated test has data"}</b>${planned.length ? `<div class="xsmall muted">Listed as not yet measured</div>` : ""}</div></div>
+            <div class="check"><span class="st ${outstanding.length ? "st-wait" : "st-ok"}">${outstanding.length || "✓"}</span><div><b>${outstanding.length ? `${outstanding.length} laboratory results outstanding` : "No results outstanding"}</b></div></div>
+            <div class="check"><span class="st st-wait">!</span><div><b>No findings approved yet</b><div class="xsmall muted">Draft findings in the finding editor</div></div></div>
+          </div>
+          <button class="btn btn-primary" disabled>Publish to client portal</button>
+          <span class="xsmall muted">Publishing becomes available once findings are approved.</span>
+        </section>
+      </aside>
+    </div>`);
+}
+
 /* ---------- Modals ---------- */
-function modalHTML(kind) {
-  if (kind === "reading") return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
-    <div class="spread"><h2 id="m-title">Add reading · Main bedroom</h2><button class="btn btn-s" data-action="close">Close</button></div>
+const PROPERTY_FIELDS = [["built", "Built"], ["type", "Type"], ["construction", "Construction"], ["alterations", "Alterations"], ["heating", "Heating"], ["ventilation", "Ventilation"], ["leaks", "Leak history"], ["electrical", "Electrical"], ["water", "Water"], ["routines", "Household routines"]];
+const UNITS = ["V/m", "mV", "nT", "µW/m²", "mV p-p", "ppm", "µg/m³", "mg/m³", "%RH", "°C", "hPa", "WME %", "Bq/m³", "K", "lx", "dB(A)"];
+const METHODS = [["any", "Standard method for this test"], ["earthed", "Earthed method (electric field)"], ["potential-free", "Potential-free (electric field)"], ["body-voltage", "Body voltage against earth"], ["three-axis", "Three orientations, resultant calculated"], ["peak", "Peak, max hold (RF)"], ["rms", "Average, RMS (RF)"]];
+const SAMPLE_TYPES = { W: ["Water", "S1", "tespert"], A: ["Air", "B1", "lab"], D: ["Settled dust", "C1", "dust"], M: ["Mould swab", "C1", "swab"], R: ["Radon detector", "A6", "radon"], X: ["Other material", "S4", "lab"] };
+const SAMPLE_STATUS = [["Collected", "awaiting"], ["At laboratory", "awaiting"], ["Deployed", "awaiting"], ["Screened on site", "measured"], ["Result received", "measured"]];
+/* Reference entry chosen from the test, unit and method, so classification only appears where it applies */
+function refFor(point, unit, method) {
+  if (point === "A1" && unit === "V/m") return method === "earthed" ? "sbm-ef" : method === "potential-free" ? "sbm-ef-pf" : null;
+  if (point === "A1" && unit === "mV" && method === "body-voltage") return "sbm-bv";
+  if (point === "A2" && unit === "nT" && method === "three-axis") return "sbm-mf";
+  if (point === "A3" && unit === "µW/m²" && method === "peak") return "sbm-rf";
+  if (point === "B6" && unit === "ppm") return "sbm-co2";
+  return null;
+}
+const opt = (v, l, sel) => `<option value="${esc(v)}" ${sel ? "selected" : ""}>${esc(l)}</option>`;
+const fld = (id, label, input, hint) => `<div class="field"><label for="${id}">${label}</label>${input}${hint ? `<span class="hint">${hint}</span>` : ""}<span class="err" id="${id}-err" hidden></span></div>`;
+const inp = (id, v = "", extra = "") => `<input id="${id}" class="input" value="${esc(v)}" ${extra}>`;
+function clientModal() {
+  const editing = S.modalCtx && S.modalCtx.edit, c = editing ? C() : null;
+  const preview = editing ? c.ref : fmtRef(Store.nextNum());
+  const p = (c && c.property) || {};
+  return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="spread"><h2 id="m-title">${editing ? "Edit client details" : "New client"}</h2><button class="btn btn-s" data-action="close">Close</button></div>
+    <div class="ref-preview"><span class="eyebrow">Client reference</span><b>${preview}</b><span class="xsmall muted">${editing ? "References never change." : "Given automatically when you save, and never reused."}</span></div>
     <div class="grid-2">
-      <div class="field"><label for="m-pt">Assessment point</label><select id="m-pt" class="input">${SBM.flatMap(g => g.points).map(([c, n]) => `<option>${c} ${n}</option>`).join("")}</select></div>
-      <div class="field"><label for="m-type">Timing</label><select id="m-type" class="input">${Object.values(TIMING).map(k => `<option>${k}</option>`).join("")}</select></div>
-      <div class="field"><label for="m-val">Value</label><input id="m-val" class="input" inputmode="decimal" placeholder="0.0"></div>
-      <div class="field"><label for="m-unit">Unit</label><select id="m-unit" class="input"><option>V/m</option><option>nT</option><option>mV</option><option>µW/m²</option><option>ppm</option><option>µg/m³</option><option>%RH</option><option>°C</option></select></div>
-      <div class="field"><label for="m-inst">Instrument</label><select id="m-inst" class="input">${EQUIPMENT.filter(i => i.kind !== "method" && i.kind !== "sampling").map(i => `<option>${i.name}</option>`).join("")}</select><span class="hint">Calibration status shows from the equipment register</span></div>
-      <div class="field"><label for="m-meth">Method</label><input id="m-meth" class="input" value="Earthed method, meter referenced to earth"></div>
-      <div class="field"><label for="m-loc">Location</label><input id="m-loc" class="input" value="Grid head left, pillow height"></div>
-      <div class="field"><label for="m-dur">Duration</label><input id="m-dur" class="input" value="60 s"></div>
-      <div class="field"><label for="m-occ">Occupancy</label><input id="m-occ" class="input" value="Unoccupied"></div>
-      <div class="field"><label for="m-win">Windows</label><select id="m-win" class="input"><option>Closed</option><option>Open</option><option>Trickle vents open</option></select></div>
-      <div class="field"><label for="m-heat">Heating</label><input id="m-heat" class="input" value="On, 19 °C"></div>
-      <div class="field"><label for="m-app">Appliance and circuit states</label><input id="m-app" class="input" value="Bedside lamps plugged in, off"></div>
+      ${fld("m-name", "Client name", inp("m-name", c ? c.name : "", 'autocomplete="off" data-dupcheck'), "For example, Harriet and Tom Ashworth")}
+      ${fld("m-pname", "Property name (optional)", inp("m-pname", c ? c.propertyName : ""), "Helps tell two homes apart when the client name is the same")}
+      ${fld("m-l1", "Address line 1", inp("m-l1", c ? c.address.line1 : ""))}
+      ${fld("m-l2", "Address line 2 (optional)", inp("m-l2", c ? c.address.line2 : ""))}
+      ${fld("m-town", "Town or city", inp("m-town", c ? c.address.town : ""))}
+      ${fld("m-pc", "Postcode", inp("m-pc", c ? c.address.postcode : "", 'autocapitalize="characters"'))}
+      ${fld("m-email", "Email (optional)", inp("m-email", c ? c.email : "", 'type="email"'))}
+      ${fld("m-phone", "Phone (optional)", inp("m-phone", c ? c.phone : "", 'type="tel"'))}
     </div>
-    <div class="field"><span class="label">Result class</span><div class="seg">${Object.values(RESULT).map((k, i) => `<button aria-pressed="${i === 0}" data-action="noop">${k}</button>`).join("")}</div><span class="hint">Set by the instrument profile; screening kits and apps default to indicative screening</span></div>
-    <p class="xsmall muted">Date, time and assessor are recorded automatically: 9 Oct 2026, 20:14 · Iza.</p>
+    <div id="m-dup"></div>
+    ${editing ? `<div class="stack"><h4>Property</h4><div class="grid-2">${PROPERTY_FIELDS.map(([k, l]) => fld("m-p-" + k, l, k === "alterations" || k === "leaks" || k === "routines" ? `<textarea id="m-p-${k}" class="input" rows="2">${esc(p[k] || "")}</textarea>` : inp("m-p-" + k, p[k] || ""))).join("")}</div></div>`
+    : `<div class="field"><span class="label">Tests to allocate</span><div class="choice-list" role="radiogroup">
+        <label class="choice"><input type="radio" name="m-alloc" value="all" checked> <span class="grow"><b class="small">Test everything</b><br><span class="xsmall muted">All ${ALL_POINTS.length} tests. Usual for a Home Health Analysis.</span></span></label>
+        <label class="choice"><input type="radio" name="m-alloc" value="service"> <span class="grow"><b class="small">Start from a service</b><br><select id="m-svc" class="input" style="margin-top:6px">${Object.keys(PACKAGES).map(k => opt(k, k, false)).join("")}</select></span></label>
+        <label class="choice"><input type="radio" name="m-alloc" value="none"> <span class="grow"><b class="small">Choose tests individually</b><br><span class="xsmall muted">Opens the Tests tab with nothing selected.</span></span></label>
+      </div></div>`}
+    <div id="m-err" class="notice notice-warn" hidden></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="saveclient">${editing ? "Save changes" : `Create client ${preview}`}</button></div></div>`;
+}
+function readingModal() {
+  const c = C(), ctx = S.modalCtx || {}, rooms = roomsFor(c.ref);
+  const roomId = ctx.room || currentRoom().id;
+  const g = ctx.grid ? GRID_DEF[ctx.grid.qty] : null;
+  const point = ctx.point || (g && g.point) || "A1";
+  const method = ctx.method || (g && g.method) || "any";
+  const unit = (g && g.unit) || (point === "A3" ? "µW/m²" : point === "B6" ? "ppm" : point === "A2" ? "nT" : "V/m");
+  const instId = (g && g.inst) || (point === "A3" ? "hf38" : point === "B6" ? "aranet4" : point === "A1" || point === "A2" ? "me3951" : "");
+  const label = g ? `${g.label}, ${GRID_POS[ctx.grid.pos].toLowerCase()}` : "";
+  const axes = method === "three-axis";
+  return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="spread"><div><span class="ref-badge">${c.ref}</span><h2 id="m-title" style="margin-top:6px">Add reading</h2></div><button class="btn btn-s" data-action="close">Close</button></div>
+    ${g ? `<div class="notice notice-calm">${icon("grid")}<span class="small">${GRID_POS[ctx.grid.pos]} · ${ctx.phase === "after" ? "after a change" : "before any change"}</span></div>` : ""}
+    <div class="grid-2">
+      ${fld("m-pt", "Test", `<select id="m-pt" class="input">${ALL_POINTS.map(code => opt(code, `${code} ${POINT_NAME[code]}`, code === point)).join("")}</select>`)}
+      ${fld("m-room", "Room", `<select id="m-room" class="input">${rooms.map(r => opt(r.id, r.name, r.id === roomId)).join("")}</select>`)}
+      ${fld("m-label", "What was measured", inp("m-label", label, 'placeholder="For example, electric field at pillow, left side"'))}
+      ${fld("m-timing", "Timing", `<select id="m-timing" class="input">${Object.entries(TIMING).map(([k, v]) => opt(k, v, k === "spot")).join("")}</select>`)}
+      ${fld("m-inst", "Equipment", `<select id="m-inst" class="input"><option value="">None</option>${EQUIPMENT.filter(e => e.kind !== "method").map(e => opt(e.id, e.name, e.id === instId)).join("")}</select>`)}
+      ${fld("m-result", "Result class", `<select id="m-result" class="input">${Object.entries(RESULT).map(([k, v]) => opt(k, v, k === ((inst(instId) || {}).result || "reading"))).join("")}</select>`, "Follows the equipment entry; screening results are never classified automatically")}
+      ${fld("m-meth", "Method", `<select id="m-meth" class="input">${METHODS.map(([k, v]) => opt(k, v, k === method)).join("")}</select>`)}
+      ${fld("m-mdet", "Method details (optional)", inp("m-mdet", ""))}
+      <div id="m-valwrap" ${axes ? "hidden" : ""}>${fld("m-val", "Value", inp("m-val", "", 'inputmode="decimal" placeholder="Leave empty for an observation"'))}</div>
+      <div id="m-axes" class="row" style="align-items:flex-start;flex-wrap:nowrap" ${axes ? "" : "hidden"}>${["x", "y", "z"].map(a => fld("m-" + a, a.toUpperCase() + " axis", inp("m-" + a, "", 'inputmode="decimal"'))).join("")}</div>
+      ${fld("m-unit", "Unit", `<select id="m-unit" class="input">${UNITS.map(u => opt(u, u, u === unit)).join("")}</select>`)}
+      ${fld("m-loc", "Location", inp("m-loc", g ? `Grid ${GRID_POS[ctx.grid.pos].toLowerCase()}, pillow height` : ""))}
+      ${fld("m-dur", "Duration", inp("m-dur", "", 'placeholder="For example, 60 s or 9 h"'))}
+      ${fld("m-occ", "Occupancy", inp("m-occ", ""))}
+      ${fld("m-win", "Windows", `<select id="m-win" class="input">${["Closed", "Open", "Trickle vents open", "Not recorded"].map(w => opt(w, w, false)).join("")}</select>`)}
+      ${fld("m-heat", "Heating", inp("m-heat", ""))}
+      ${fld("m-app", "Appliance and circuit states", inp("m-app", ctx.phase === "after" ? "Describe what was switched off" : ""))}
+      ${fld("m-phase", "Comparison", `<select id="m-phase" class="input">${[["single", "Single reading"], ["before", "Before a change"], ["after", "After a change"]].map(([k, v]) => opt(k, v, k === (ctx.phase || (g ? "before" : "single")))).join("")}</select>`)}
+    </div>
+    ${fld("m-note", "Notes (optional)", `<textarea id="m-note" class="input" rows="2"></textarea>`)}
+    <p class="xsmall muted">Date, time and assessor are recorded automatically. Saved against ${c.ref}, the test and the room.</p>
+    <div id="m-err" class="notice notice-warn" hidden></div>
     <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="savereading">Save reading</button></div></div>`;
+}
+function sampleModal() {
+  const c = C(), ctx = S.modalCtx || {}, rooms = roomsFor(c.ref), roomId = ctx.room || currentRoom().id;
+  return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
+    <div class="spread"><div><span class="ref-badge">${c.ref}</span><h2 id="m-title" style="margin-top:6px">Add sample</h2></div><button class="btn btn-s" data-action="close">Close</button></div>
+    <div class="grid-2">
+      ${fld("s-type", "Sample type", `<select id="s-type" class="input">${Object.entries(SAMPLE_TYPES).map(([k, v]) => opt(k, v[0], k === "W")).join("")}</select>`, `The reference follows the type, for example ${c.ref}-W01`)}
+      ${fld("s-room", "Room", `<select id="s-room" class="input">${rooms.map(r => opt(r.id, r.name, r.id === roomId)).join("")}</select>`)}
+      ${fld("s-loc", "Collection location", inp("s-loc", "", 'placeholder="For example, kitchen cold tap"'))}
+      ${fld("s-meth", "Method and equipment", inp("s-meth", "", 'placeholder="For example, 16-in-1 strip, on site"'))}
+      ${fld("s-lab", "Laboratory", inp("s-lab", "On-site screening"))}
+      ${fld("s-status", "Status", `<select id="s-status" class="input">${SAMPLE_STATUS.map(([l]) => opt(l, l, l === "Collected")).join("")}</select>`)}
+    </div>
+    <div id="s-water" class="grid-2">
+      ${fld("s-supply", "Supply", `<select id="s-supply" class="input">${["Cold", "Hot"].map(v => opt(v, v, false)).join("")}</select>`)}
+      ${fld("s-filt", "Filtered", `<select id="s-filt" class="input">${["Unfiltered", "Filtered"].map(v => opt(v, v, false)).join("")}</select>`)}
+      ${fld("s-draw", "Draw", `<select id="s-draw" class="input">${["First draw", "Flushed"].map(v => opt(v, v, false)).join("")}</select>`)}
+    </div>
+    <div id="s-err" class="notice notice-warn" hidden></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="savesample">Save sample</button></div></div>`;
+}
+function modalHTML(kind) {
+  if (kind === "client") return clientModal();
+  if (kind === "reading") return readingModal();
+  if (kind === "sample") return sampleModal();
   if (kind === "csv") return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
     <div class="spread"><h2 id="m-title">Import instrument data</h2><button class="btn btn-s" data-action="close">Close</button></div>
     <label class="upload" for="csv-file">${icon("upload")}<b>Choose a CSV file</b><span class="small muted">Logger exports with a timestamp column. Or use the sample below.</span></label><input id="csv-file" type="file" accept=".csv,text/csv" hidden data-change="csv">
@@ -1532,8 +2083,11 @@ function csvPreview(text, name) {
 /* =========================================================================
    Rendering and interaction
    ========================================================================= */
-const RENDER = { equipment: screenEquipment, dashboard: screenDashboard, profile: screenProfile, questionnaire: screenQuestionnaire, room: screenRoom, bedroom: screenBedroom, finding: screenFinding, report: screenReport, portal: screenPortal };
+const RENDER = { clients: screenClients, client: screenClient, room: screenRoom, bedroom: screenBedroom, finding: screenFinding, report: screenReport, questionnaire: screenQuestionnaire, portal: screenPortal, dashboard: screenDashboard, equipment: screenEquipment };
+const LEGACY = { profile: "client" };
+let pendingRender = false;
 function render() {
+  pendingRender = false;
   const sc = SCREENS.find(s => s.id === S.screen);
   const device = S.device || sc.device;
   document.getElementById("screen-nav").innerHTML = SCREENS.map(s => `<button data-action="go" data-screen="${s.id}" ${s.id === S.screen ? 'aria-current="page"' : ""}><small>${s.who}</small>${s.label}</button>`).join("");
@@ -1542,9 +2096,20 @@ function render() {
   document.getElementById("device").dataset.device = device;
   document.getElementById("screen").innerHTML = RENDER[S.screen]();
   document.getElementById("overlay").innerHTML = (S.modal ? `<div class="modal-back" data-action="backdrop">${modalHTML(S.modal)}</div>` : "") + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : "");
+  applySearch();
 }
+/* Storage updates arrive while people type: hold the redraw until they leave the field or close the form. */
+const isTyping = () => { const a = document.activeElement; return !!(a && a.matches && a.matches("input, textarea, select")); };
+function scheduleRender() { if (S.modal || isTyping()) { pendingRender = true; return; } render(); }
+document.addEventListener("focusout", () => setTimeout(() => { if (pendingRender && !S.modal && !isTyping()) render(); }, 0));
 let toastTimer;
-function toast(msg) { S.toast = msg; render(); clearTimeout(toastTimer); toastTimer = setTimeout(() => { S.toast = null; render(); }, 2600); }
+function toast(msg) {
+  S.toast = msg; clearTimeout(toastTimer);
+  const ov = document.getElementById("overlay");
+  const old = ov.querySelector(".toast"); if (old) old.remove();
+  ov.insertAdjacentHTML("beforeend", `<div class="toast" role="status">${esc(msg)}</div>`);
+  toastTimer = setTimeout(() => { S.toast = null; const t = ov.querySelector(".toast"); if (t) t.remove(); }, 2800);
+}
 function nowHM() { return new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }); }
 let saveTimer;
 function markEdited() {
@@ -1554,27 +2119,170 @@ function markEdited() {
   saveTimer = setTimeout(() => { S.saving = false; S.savedAt = nowHM(); const e2 = document.getElementById("sync"); if (e2) e2.outerHTML = syncBadge(); }, 700);
 }
 function go(screen) {
-  S.screen = screen; S.device = null; S.modal = null;
-  try { history.replaceState(null, "", "#" + screen); } catch (e) { /* hash optional */ }
+  S.screen = LEGACY[screen] || screen; S.device = null; S.modal = null;
+  try { history.replaceState(null, "", "#" + S.screen); } catch (e) { /* hash is optional */ }
   render(); window.scrollTo({ top: 0 });
+}
+function openModal(kind, ctx) { S.modal = kind; S.modalCtx = ctx || {}; render(); const f = document.querySelector(".modal input:not([type=radio]), .modal select"); if (f) f.focus(); }
+function closeModal() { S.modal = null; S.modalCtx = null; render(); }
+function applySearch() {
+  const box = document.getElementById("client-search"); if (!box) return;
+  const q = S.search.trim().toLowerCase(); let shown = 0;
+  document.querySelectorAll("tr[data-search]").forEach(tr => { const hit = !q || tr.dataset.search.includes(q); tr.hidden = !hit; if (hit) shown++; });
+  const nm = document.getElementById("no-match"); if (nm) nm.hidden = shown > 0;
+}
+const val = id => { const el = document.getElementById(id); return el ? String(el.value).trim() : ""; };
+function showErrors(errs, boxId) {
+  document.querySelectorAll(".modal .err").forEach(e => { e.hidden = true; });
+  document.querySelectorAll(".modal [aria-invalid]").forEach(e => e.removeAttribute("aria-invalid"));
+  Object.entries(errs).forEach(([id, msg]) => { const el = document.getElementById(id), er = document.getElementById(id + "-err"); if (el) el.setAttribute("aria-invalid", "true"); if (er) { er.textContent = msg; er.hidden = false; } });
+  const first = Object.keys(errs)[0]; if (first) document.getElementById(first)?.focus();
+  const box = boxId && document.getElementById(boxId); if (box) box.hidden = true;
+  return Object.keys(errs).length > 0;
+}
+function boxError(boxId, msg) { const b = document.getElementById(boxId); if (b) { b.textContent = msg; b.hidden = false; } }
+const noteTimers = {};
+function debounce(key, fn, ms = 800) { clearTimeout(noteTimers[key]); noteTimers[key] = setTimeout(fn, ms); }
+async function updateClient(ref, patch) {
+  const c = getClient(ref); if (!c || c.example) return;
+  await Store.put("clients", ref, { ...c, ...patch, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR });
+}
+/* Recording data for a test allocates it, so saved data is never left out of the report. */
+async function allocateIfNeeded(ref, point) {
+  const a = alloc(ref);
+  if (!a[point]) await setAlloc(ref, { ...a, [point]: true });
+}
+function addRoomTo(ref, room) {
+  const c = getClient(ref);
+  if (c.example) { S.exRooms[ref] = [...roomsFor(ref), room]; render(); return; }
+  updateClient(ref, { rooms: [...roomsFor(ref), room] }).then(scheduleRender);
 }
 
 const ACT = {
   go: d => go(d.screen),
-  side: d => go({ dashboard: "dashboard", profile: "profile", visits: "room", lab: "room", finding: "finding", report: "report", equipment: "equipment" }[d.target] || "dashboard"),
   device: d => { S.device = d.d; render(); },
   toast: d => toast(d.msg),
   noop: () => {},
-  scope: d => { S.scope[d.code] = !S.scope[d.code]; markEdited(); render(); },
+  openclient: d => { S.client = d.ref; S.tab = "overview"; go("client"); },
+  openreport: d => { S.client = d.ref; go("report"); },
+  openfinding: d => { S.client = d.ref; go("finding"); },
+  toggleexamples: () => { S.showExamples = !S.showExamples; render(); },
+  newclient: () => openModal("client", {}),
+  editclient: () => openModal("client", { edit: true }),
+  async saveclient(d, btn) {
+    const editing = S.modalCtx && S.modalCtx.edit;
+    const errs = {};
+    if (!val("m-name")) errs["m-name"] = "Enter the client's name";
+    if (!val("m-l1")) errs["m-l1"] = "Enter the first line of the address";
+    if (!val("m-town")) errs["m-town"] = "Enter the town or city";
+    if (!val("m-pc")) errs["m-pc"] = "Enter the postcode";
+    if (val("m-email") && !/^\S+@\S+\.\S+$/.test(val("m-email"))) errs["m-email"] = "Enter an email address like name@example.co.uk";
+    if (showErrors(errs, "m-err")) return;
+    const base = { name: val("m-name"), propertyName: val("m-pname"), address: { line1: val("m-l1"), line2: val("m-l2"), town: val("m-town"), postcode: val("m-pc").toUpperCase() }, email: val("m-email"), phone: val("m-phone") };
+    if (editing) {
+      const property = Object.fromEntries(PROPERTY_FIELDS.map(([k]) => [k, val("m-p-" + k)]));
+      await updateClient(S.client, { ...base, property });
+      closeModal(); toast("Details saved"); return;
+    }
+    btn.disabled = true; btn.textContent = "Creating…";
+    let claim;
+    try { claim = await Store.claimRef(); }
+    catch (e) { btn.disabled = false; btn.textContent = "Create client"; boxError("m-err", "A reference could not be given just now. Please try again."); return; }
+    const mode = (document.querySelector('input[name="m-alloc"]:checked') || {}).value || "all";
+    const svc = val("m-svc");
+    const tests = mode === "all" ? allocFrom(ALL_POINTS) : mode === "service" ? allocFrom(PACKAGES[svc] || []) : allocFrom([]);
+    const client = { ref: claim.ref, num: claim.num, ...base, service: mode === "all" ? "Home Health Analysis" : mode === "service" ? svc : "", tests, rooms: DEFAULT_ROOMS, notes: {}, property: {}, internalNote: "", createdAt: new Date().toISOString(), createdBy: ASSESSOR };
+    const ok = await Store.put("clients", claim.ref, client);
+    S.modal = null; S.modalCtx = null; S.client = claim.ref; S.tab = mode === "none" ? "tests" : "overview"; S.room = "bed1";
+    go("client");
+    toast(ok ? `${claim.ref} created for ${base.name}` : `${claim.ref} could not be saved. Please try again.`);
+  },
+  tab: d => { S.tab = d.tab; render(); },
+  tabgo: d => { S.tab = d.tab; go("client"); },
+  alloc: d => { const a = { ...alloc(S.client) }; a[d.code] = !a[d.code]; setAlloc(S.client, a); },
+  allocall: () => setAlloc(S.client, allocFrom(ALL_POINTS)),
+  allocnone: () => setAlloc(S.client, allocFrom([])),
+  applysvc: () => {
+    const svc = val("svc"), c = C();
+    if (c.example) c.service = svc; else updateClient(c.ref, { service: svc });
+    setAlloc(S.client, allocFrom(PACKAGES[svc] || [])); toast(`Tests allocated from ${svc}`);
+  },
+  record: d => openModal("reading", { point: d.point, room: d.room, method: d.meth }),
+  recordgrid: d => openModal("reading", { grid: { qty: S.gridQty, pos: S.cell }, phase: d.phase, room: d.room }),
+  async savereading() {
+    const c = C(), ctx = S.modalCtx || {};
+    const method = val("m-meth"), result = val("m-result"), errs = {};
+    let value = null, axes = null;
+    if (method === "three-axis") {
+      const xyz = ["m-x", "m-y", "m-z"].map(id => parseFloat(val(id).replace(",", ".")));
+      if (xyz.some(isNaN)) { if (result !== "observation") ["m-x", "m-y", "m-z"].forEach((id, i) => { if (isNaN(xyz[i])) errs[id] = "Enter a number"; }); }
+      else { axes = xyz; value = Math.round(resultant(xyz) * 10) / 10; }
+    } else if (val("m-val")) {
+      value = parseFloat(val("m-val").replace(",", "."));
+      if (isNaN(value)) errs["m-val"] = "Enter a number, for example 2.1";
+    } else if (result !== "observation") errs["m-val"] = "Enter a value, or choose Professional observation and add a note";
+    if (result === "observation" && value == null && !val("m-note")) errs["m-note"] = "Add a note describing the observation";
+    if (showErrors(errs, "m-err")) return;
+    const point = val("m-pt"), unit = val("m-unit"), phase = val("m-phase");
+    const id = `${c.ref}-R${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+    const reading = {
+      id, client: c.ref, room: val("m-room"), point, label: val("m-label") || POINT_NAME[point], value, axes,
+      unit: value != null ? unit : "", ref: value != null && result !== "screening" ? refFor(point, unit, method) : null,
+      method, methodLabel: METHODS.find(m => m[0] === method)[1] + (val("m-mdet") ? ", " + val("m-mdet") : ""),
+      inst: val("m-inst") || null, timing: val("m-timing"), result, when: nowStamp(), dur: val("m-dur"), loc: val("m-loc"),
+      cond: { occupancy: val("m-occ"), windows: val("m-win"), heating: val("m-heat"), appliances: val("m-app") },
+      by: ASSESSOR, phase: phase === "single" ? null : phase, grid: ctx.grid || null, note: val("m-note"), createdAt: new Date().toISOString()
+    };
+    const ok = await Store.put("readings", id, reading);
+    if (ok) await allocateIfNeeded(c.ref, point);
+    closeModal(); markEdited();
+    toast(ok ? `Reading saved to ${c.ref} · ${point}` : "The reading could not be saved. Please try again.");
+  },
+  newsample: d => openModal("sample", { room: d.room }),
+  async savesample() {
+    const c = C(), type = val("s-type"), [label, point] = SAMPLE_TYPES[type];
+    const taken = new Set(samplesFor(c.ref).map(s => s.ref));
+    let n = 1, ref; do { ref = `${c.ref}-${type}${String(n).padStart(2, "0")}`; n++; } while (taken.has(ref));
+    const loc = val("s-loc"), status = val("s-status"), st = SAMPLE_STATUS.find(x => x[0] === status)[1];
+    const water = type === "W" ? { supply: val("s-supply"), filtered: val("s-filt") === "Filtered", draw: val("s-draw") } : null;
+    const what = water ? `Water, ${loc || "outlet not recorded"}, ${val("s-supply").toLowerCase()}, ${val("s-filt").toLowerCase()}, ${val("s-draw").toLowerCase()}` : `${label}${loc ? ", " + loc : ""}`;
+    const sample = { ref, client: c.ref, room: val("s-room"), point, type, what, method: val("s-meth") || label, lab: val("s-lab") || "Not recorded", date: nowStamp(), status, st, water, by: ASSESSOR, createdAt: new Date().toISOString() };
+    const ok = await Store.put("samples", ref, sample);
+    if (ok) await allocateIfNeeded(c.ref, point);
+    closeModal(); toast(ok ? `Sample ${ref} saved` : "The sample could not be saved. Please try again.");
+  },
+  capture: () => { const rooms = roomsFor(S.client); if (!rooms.some(r => r.id === S.room)) S.room = rooms[0].id; go("room"); },
+  openroom: d => { S.room = d.room; go("room"); },
+  addroom: () => {
+    const name = val("nr-name"); if (!name) { toast("Enter a room name first"); document.getElementById("nr-name")?.focus(); return; }
+    const type = val("nr-type"); addRoomTo(S.client, { id: `${type}-${Date.now().toString(36)}`, name, type, floor: val("nr-floor") });
+    toast(`${name} added`);
+  },
   room: d => { S.room = d.room; render(); },
-  duplicate: () => toast(`Structure of ${ROOMS.find(r => r.id === S.room).name} copied: points, prompts and measurement positions, without readings`),
-  online: () => { S.online = !S.online; if (S.online && S.pending) { const n = S.pending; S.pending = 0; S.savedAt = nowHM(); render(); toast(`${n} change${n === 1 ? "" : "s"} synced`); } else { if (!S.online) S.pending = Math.max(S.pending, 0); render(); } },
-  mic: () => { S.mic = !S.mic; render(); if (!S.mic) { const t = document.getElementById("note-" + S.room); if (t) { t.value += (t.value ? " " : "") + "Dictated: musty smell faint near wardrobe, client confirms only in winter."; markEdited(); } } },
-  modal: d => { S.modal = d.modal; render(); },
-  close: () => { S.modal = null; render(); },
-  backdrop: (d, el, e) => { if (e.target === el) { S.modal = null; render(); } },
-  savereading: () => { S.modal = null; markEdited(); toast(S.online ? "Reading saved and synced" : "Reading saved on this tablet"); },
-  importcsv: () => { S.modal = null; markEdited(); toast("Overnight data imported: 10 points, maximum 1,450 ppm at 05:00"); },
+  duplicate: () => {
+    const r = currentRoom();
+    if (isFixture(S.client)) { toast(`Structure of ${r.name} copied: tests, prompts and measurement positions, without readings`); return; }
+    addRoomTo(S.client, { id: `${r.type}-${Date.now().toString(36)}`, name: `${r.name} (copy)`, type: r.type, floor: r.floor || "" });
+    toast(`${r.name} duplicated without readings`);
+  },
+  online: () => { S.online = !S.online; if (S.online && S.pending) { const n = S.pending; S.pending = 0; S.savedAt = nowHM(); render(); toast(`${n} change${n === 1 ? "" : "s"} synced`); } else render(); },
+  mic: () => {
+    S.mic = !S.mic; const roomId = currentRoom().id; render();
+    if (!S.mic) { const t = document.querySelector(`textarea[data-note="${roomId}"]`); if (t) { t.value += (t.value ? " " : "") + "Dictated: musty smell faint near wardrobe, client confirms only in winter."; saveNote(S.client, roomId, t.value); } }
+  },
+  modal: d => openModal(d.modal, {}),
+  close: () => closeModal(),
+  backdrop: (d, el, e) => { if (e.target === el) closeModal(); },
+  async importcsv() {
+    const c = C(), room = currentRoom();
+    if (isFixture(c.ref)) { closeModal(); markEdited(); toast("Overnight data imported: 10 points, maximum 1,450 ppm at 05:00"); return; }
+    const text = (S.csv && S.csv.text) || SAMPLE_CSV, rows = text.trim().split(/\r?\n/).slice(1).map(l => l.split(","));
+    const vals = rows.map(r => parseFloat(r[1])).filter(v => !isNaN(v));
+    if (!vals.length) { toast("No readings found in that file"); return; }
+    const max = Math.max(...vals), id = `${c.ref}-R${Date.now().toString(36)}`;
+    const ok = await Store.put("readings", id, { id, client: c.ref, room: room.id, point: "B6", label: "CO₂ overnight maximum, imported from CSV", value: max, axes: null, unit: "ppm", ref: "sbm-co2", method: "any", methodLabel: `Logger CSV import, ${vals.length} points`, inst: "aranet4", timing: "overnight", result: "reading", when: nowStamp(), dur: `${vals.length} readings`, loc: (S.csv && S.csv.name) || "Aranet4 export", cond: {}, by: ASSESSOR, phase: null, grid: null, note: "", createdAt: new Date().toISOString() });
+    closeModal(); toast(ok ? `Imported to ${c.ref}: ${vals.length} points, maximum ${fmt(max)} ppm` : "The import could not be saved.");
+  },
   qty: d => { S.gridQty = d.q; S.cell = d.q === "bv" ? 0 : S.cell; render(); },
   phase: d => { S.phase = d.p; render(); },
   cell: d => { S.cell = +d.i; render(); },
@@ -1599,25 +2307,50 @@ const ACT = {
   ptab: d => { S.portalTab = d.t; render(); },
   done: d => { S.done[d.id] = !S.done[d.id]; render(); if (S.done[d.id]) toast("Marked as done. Iza and Alfie can see your progress."); }
 };
+function saveNote(ref, roomId, text) {
+  const c = getClient(ref); markEdited();
+  if (c.example) { S.notes[ref + ":" + roomId] = text; return; }
+  debounce("note:" + ref + roomId, () => updateClient(ref, { notes: { ...(getClient(ref).notes || {}), [roomId]: text } }));
+}
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-action]");
-  if (!el) return;
+  if (!el || el.disabled) return;
   if (el.tagName === "A") e.preventDefault();
   const fn = ACT[el.dataset.action];
   if (fn) fn(el.dataset, el, e);
 });
 document.addEventListener("keydown", e => {
-  if ((e.key === "Enter" || e.key === " ") && e.target.matches("g[data-action]")) { e.preventDefault(); ACT[e.target.dataset.action](e.target.dataset); }
-  if (e.key === "Escape" && S.modal) { S.modal = null; render(); }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches("g[data-action], tr[data-action], div[data-action][tabindex]")) { e.preventDefault(); ACT[e.target.dataset.action](e.target.dataset, e.target, e); }
+  if (e.key === "Escape" && S.modal) closeModal();
 });
-document.addEventListener("input", e => { if (e.target.matches("[data-input]")) markEdited(); });
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.getAttribute("aria-invalid") === "true") { t.removeAttribute("aria-invalid"); const er = document.getElementById(t.id + "-err"); if (er) er.hidden = true; }
+  if (t.matches("[data-input]")) markEdited();
+  if (t.matches("[data-search-input]")) { S.search = t.value; applySearch(); }
+  if (t.matches("[data-note]")) saveNote(S.client, t.dataset.note, t.value);
+  if (t.matches("[data-intnote]")) {
+    const ref = t.dataset.intnote, c = getClient(ref); markEdited();
+    if (c.example) S.notes["int-" + ref] = t.value; else debounce("int:" + ref, () => updateClient(ref, { internalNote: t.value }));
+  }
+  if (t.matches("[data-dupcheck]")) {
+    const name = t.value.trim().toLowerCase(), editing = S.modalCtx && S.modalCtx.edit;
+    const same = name ? allClients().filter(c => c.name.toLowerCase() === name && !(editing && c.ref === S.client)) : [];
+    document.getElementById("m-dup").innerHTML = same.length ? `<div class="notice notice-info">${icon("info")}<span class="small">${same.map(c => `${c.ref} · ${esc(c.name)} · ${esc(addrLine(c))}`).join("<br>")}<br>A client with this name already exists. If this is a second home, add a property name so the two records are easy to tell apart.</span></div>` : "";
+  }
+});
 document.addEventListener("change", e => {
   const t = e.target, kind = t.dataset.change;
-  if (kind === "pkg") { S.pkg = t.value; const inc = PACKAGES[t.value]; Object.keys(S.scope).forEach(k => { S.scope[k] = inc.includes(k); }); markEdited(); render(); toast(`Scope set from ${t.value}. Adjust any point for this visit.`); }
+  if (t.id === "m-meth") { const axes = t.value === "three-axis"; document.getElementById("m-axes").hidden = !axes; document.getElementById("m-valwrap").hidden = axes; }
+  if (t.id === "m-inst") { const eq = inst(t.value); if (eq) document.getElementById("m-result").value = eq.result; }
+  if (t.id === "s-type") {
+    document.getElementById("s-water").hidden = t.value !== "W";
+    document.getElementById("s-lab").value = t.value === "W" ? "On-site screening" : t.value === "R" ? "Analysis on return" : "External specialist laboratory";
+  }
   if (kind === "qfile" && t.files.length) { S.qFiles.push(...[...t.files].map(f => f.name)); render(); }
-  if (kind === "roomphoto" && t.files.length) { markEdited(); toast(`Photograph attached to ${ROOMS.find(r => r.id === S.room).name}${S.online ? "" : ", queued for upload"}`); }
+  if (kind === "roomphoto" && t.files.length) { markEdited(); toast(`Photograph attached to ${currentRoom().name}${S.online ? "" : ", queued for upload"}`); }
   if (kind === "progress" && t.files[0]) { const id = t.dataset.id; const rd = new FileReader(); rd.onload = () => { S.photos[id] = rd.result; render(); toast("Progress photo shared with Iza and Alfie"); }; rd.readAsDataURL(t.files[0]); }
-  if (kind === "csv" && t.files[0]) { const f = t.files[0]; const rd = new FileReader(); rd.onload = () => { document.getElementById("csv-preview").innerHTML = csvPreview(String(rd.result).slice(0, 200000), f.name); }; rd.readAsText(f); }
+  if (kind === "csv" && t.files[0]) { const f = t.files[0]; const rd = new FileReader(); rd.onload = () => { const text = String(rd.result).slice(0, 200000); S.csv = { text, name: f.name }; document.getElementById("csv-preview").innerHTML = csvPreview(text, f.name); }; rd.readAsText(f); }
 });
 document.addEventListener("submit", e => {
   if (e.target.matches("[data-form='ask']")) {
@@ -1631,9 +2364,11 @@ document.addEventListener("submit", e => {
 (function start() {
   document.getElementById("brand").innerHTML = logoInner("Assessment Studio");
   const h = (location.hash || "").replace("#", "");
-  if (RENDER[h]) S.screen = h;
+  const k = LEGACY[h] || h;
+  if (RENDER[k]) S.screen = k;
   render();
-  window.addEventListener("hashchange", () => { const k = location.hash.replace("#", ""); if (RENDER[k] && k !== S.screen) go(k); });
+  window.addEventListener("hashchange", () => { const n = location.hash.replace("#", ""); const m = LEGACY[n] || n; if (RENDER[m] && m !== S.screen) go(m); });
+  Store.init();
 })();
 </script>
 </body>

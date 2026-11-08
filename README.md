@@ -18,13 +18,16 @@ A bespoke app for Emerald Grey that brings together on-site data collection, pro
 
 ## Viewing the prototype
 
-Open `prototype/index.html` in any modern browser. The bar at the top moves between the nine screens, and each screen opens in its intended device frame (desktop, tablet or phone). The device buttons switch frames to show how a screen adapts.
+Open `prototype/index.html` in any modern browser. The bar at the top moves between the ten screens, and each screen opens in its intended device frame (desktop, tablet or phone). The device buttons switch frames to show how a screen adapts.
 
-Screens can be linked directly by name: `#dashboard`, `#profile`, `#questionnaire`, `#room`, `#bedroom`, `#finding`, `#report`, `#equipment`, `#portal`.
+Screens can be linked directly by name: `#clients`, `#client`, `#room`, `#bedroom`, `#finding`, `#report`, `#questionnaire`, `#portal`, `#dashboard`, `#equipment`.
+
+The prototype opens on the Clients page. New clients, readings, samples and notes are saved: to shared storage on the published page, so Iza and Alfie see the same records, or to this browser when the file is opened locally. Please use test details only.
 
 Things to try:
 
-- **Room assessment:** switch rooms, choose "Simulate offline" and type a note to see changes wait for sync, then reconnect. Open "Import CSV" to preview an overnight logger file.
+- **Clients:** choose New client, fill in a name and address, and the record is created as EG-100, then EG-101 and so on. Allocate tests, record readings from the Tests tab or on site, add a sample, then open the Report tab to see the data read back.
+- **On-site capture:** switch rooms, choose "Simulate offline" and type a note to see changes wait for sync, then reconnect. Open "Import CSV" to preview an overnight logger file.
 - **Bedroom grid:** move between the electric-field methods, body voltage, three-axis magnetic and RF; compare before and after; select markers on the room plan.
 - **Finding editor:** resolve Alfie's conflicting edit, insert a reusable explanation, approve findings.
 - **Report preview:** publishing stays locked until every finding is approved and the checks are confirmed.
