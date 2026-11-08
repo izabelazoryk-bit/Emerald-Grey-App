@@ -63,13 +63,41 @@ The Assessment section follows Emerald Grey's paper form, *Healthy Bedroom Asses
 - **Saving.** Each section is saved as one record per client and room as it is typed, with the time and the assessor. The Overview shows which sections have been started for the chosen room.
 - **Results.** Numbers on the sheets become results for the client record and report, linked to the matching SBM-2024 point. Three-axis magnetic readings (X, Y, Z) are combined into a resultant. The two RF band peaks are added to give the combined peak. Body-voltage steps and breaker readings are recorded as before or after a change.
 - **Words.** Written observations, and the findings and priorities, are carried into the report as written.
-- **Picture of the mattress.** A2 shows the nine points as they lie on the bed, coloured with a text label for the chosen quantity.
 
 The same evaluation rules apply as everywhere else:
 
 - SBM sleeping-area guidance only classifies bedroom readings.
 - Radio frequency is classified on the combined peak. Each band on its own, and RMS values, are not classified.
 - Screening instruments (the VOC screener and the sound app) are never classified automatically.
+
+### A2. Nine-point mattress test: guided entry
+
+A2 replaces typing into small table cells with guided entry, built for a tablet. The page has these parts:
+
+- **Client and room.** The client, and a room from Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4. The bed or mattress recorded on the client profile is shown alongside.
+- **Three tests, kept as separate records.** Potential-free AC electric field (V/m), ground-referenced AC electric field (V/m) and AC magnetic field (nT). The potential-free and ground-referenced labels apply only to electric fields.
+- **A map of the mattress.** The nine positions, each showing Not started, In progress, Complete or Not measured in words and symbols, with the current position highlighted.
+- **One large number field.** It names the position, axis and unit, for example "Top left · X-axis, V/m". Selecting it opens a large dial pad.
+
+**The dial pad**
+
+- Keys for 0 to 9, a decimal point and Delete, plus Back, Cancel, Clear and Not measured.
+- A large "Confirm and continue" button in the bottom right. It stays unavailable until a valid number or Not measured is chosen.
+- Zero, whole numbers and decimals are accepted. Letters, negative values and a second decimal point cannot be entered, and an empty field is never treated as zero.
+
+**Order of entry.** Readings go X, Y, Z at each position, from Top left to Bottom right: 27 readings in all. After each Z the app shows the three values and the 3D resultant, √(X² + Y² + Z²), then moves on to the next position. The resultant is always calculated, never typed. Progress shows as "Position 4 of 9" and "10 of 27 readings complete".
+
+**Saving.** Every confirmed number is saved immediately with the client, property, visit, room, bed or mattress, test, method, position, axis, value, unit, assessor and time. Returning to a test reopens it at the first incomplete reading.
+
+**Corrections.** Back reviews the previous reading without deleting it. Selecting a saved value shows it in the large field. Changing it requires "Confirm change", recalculates the resultant, and keeps the old value, new value, assessor and time in the history.
+
+**Completion.** After the final reading the page shows "Nine-point mattress test complete. Review the measurements before continuing." with three buttons: Review measurements, Amend a measurement, and Save and continue to next section (the primary button). The completed results table is then saved to the client's assessment record. Starting a new test keeps the earlier one, which can still be viewed.
+
+**Results tables.** Each test is shown as Mattress position, X, Y, Z and 3D resultant. Entered values can be selected to inspect or amend; resultant cells are read-only.
+
+### Client profile: bedrooms
+
+The client profile lists Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4, each with who sleeps there and the bed or mattress. All fields may be left blank.
 
 ### Room templates
 

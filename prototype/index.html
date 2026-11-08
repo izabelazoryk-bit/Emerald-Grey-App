@@ -152,11 +152,64 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .sheet td.center { text-align: center; vertical-align: middle; }
 .sheet input[type="checkbox"], .checks input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--forest); }
 .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; }
-.tick { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--cream); cursor: pointer; font-size: .9rem; }
-.tick input { margin-top: 1px; flex: none; }
+.tickrow { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--cream); cursor: pointer; font-size: .9rem; line-height: 1.4; }
+.tickrow input { margin-top: 1px; flex: none; }
+.tickrow span { min-width: 0; }
 .sheet-nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @container (max-width: 640px) { .checks { grid-template-columns: minmax(0, 1fr); } }
+
+/* Nine-point mattress test */
+.mt-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mt-ds { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-m); padding: 12px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 64px; }
+.mt-ds b { font-weight: 500; color: var(--forest); }
+.mt-ds span { font-size: .78rem; color: var(--ink-3); }
+.mt-ds[aria-selected="true"] { border-color: var(--forest); box-shadow: inset 0 -3px 0 var(--forest); background: var(--cream); }
+.mt-guided { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; align-items: start; }
+.mt-map .cell { min-height: 84px; cursor: pointer; font: inherit; border: 2px solid transparent; }
+.mt-map .cell.is-current { border-color: var(--forest); outline: 3px solid var(--gold); outline-offset: 1px; }
+.mt-pos.st-complete { background: var(--ok-bg); } .mt-pos.st-complete .lab { color: var(--ok); }
+.mt-pos.st-progress { background: var(--slight-bg); } .mt-pos.st-progress .lab { color: var(--slight); }
+.mt-pos.st-nm { background: var(--muted-bg); } .mt-pos.st-nm .lab { color: var(--muted); }
+.mt-pos.st-notstarted { background: var(--surface); } .mt-pos.st-notstarted .lab { color: var(--ink-3); }
+.mt-panel { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mt-entry { display: flex; flex-direction: column; gap: 12px; }
+.mt-progress { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .9rem; }
+.mt-label { font-family: var(--font-display); font-size: 1.45rem; color: var(--forest); }
+.mt-label b { font-weight: 400; font-style: italic; }
+.mt-field-row { display: flex; align-items: center; gap: 12px; }
+.mt-field { flex: 1; min-width: 0; min-height: 104px; border: 2px solid var(--forest); border-radius: var(--r-l); background: var(--cream); font-family: var(--font-body); font-size: 3rem; font-variant-numeric: tabular-nums; color: var(--ink); cursor: pointer; text-align: center; }
+.mt-field span { font-size: 1.15rem; color: var(--ink-3); }
+.mt-field:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.mt-unit { font-size: 1.4rem; color: var(--ink-2); min-width: 3ch; }
+.mt-axes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.mt-axis { border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); padding: 8px 10px; text-align: left; display: flex; flex-direction: column; gap: 2px; cursor: pointer; font: inherit; min-height: 60px; }
+.mt-axis span { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+.mt-axis b { font-weight: 500; font-variant-numeric: tabular-nums; }
+.mt-axis.is-current { border: 2px solid var(--forest); }
+.mt-axis.is-calc { background: var(--emerald-tint); cursor: default; }
+.mt-flash, .mt-complete { border: 1px solid var(--gold); background: var(--blush); border-radius: var(--r-l); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.mt-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+.mt-actions .btn-primary { margin-left: auto; }
+.btn-lg { min-height: 52px; padding: 12px 22px; font-size: 1rem; }
+.mt-cell { width: 100%; min-height: 40px; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface); font: inherit; font-variant-numeric: tabular-nums; text-align: right; padding: 6px 10px; cursor: pointer; }
+.mt-cell.is-current { border: 2px solid var(--forest); }
+.mt-table td { vertical-align: middle; }
+.mt-table td.resultant { background: var(--sunk); }
+.pad { max-width: 520px; display: flex; flex-direction: column; gap: 12px; }
+.pad-display { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 92px; border: 2px solid var(--forest); border-radius: var(--r-l); background: var(--cream); font-size: 2.8rem; font-variant-numeric: tabular-nums; }
+.pad-msg { min-height: 1.2em; color: var(--ink-3); text-align: center; margin: 0; }
+.pad-keys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pad-key { min-height: 64px; font-size: 1.6rem; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); color: var(--ink); cursor: pointer; font-family: var(--font-body); }
+.pad-key:active { background: var(--emerald-tint); }
+.pad-key[data-key="del"] { font-size: 1rem; }
+.pad-foot { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
+.pad-secondary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; flex: 1 1 220px; }
+.pad-secondary .btn { min-height: 46px; }
+.pad-secondary [aria-pressed="true"] { background: var(--muted-bg); border-color: var(--ink-3); }
+.pad-confirm { flex: 1 1 200px; min-height: 98px; font-size: 1.1rem; }
+@container (max-width: 820px) { .mt-guided { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 560px) { .mt-tabs { grid-template-columns: minmax(0, 1fr); } .mt-axes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mt-field { font-size: 2.4rem; } }
 
 /* Client and room chooser */
 .client-bar { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; }
@@ -885,7 +938,7 @@ const BASE_ROOMS = [
   { id: "bath-gf", name: "Ground floor bathroom", type: "bathroom", floor: "Ground floor" },
   { id: "bath-up", name: "Upstairs bathroom", type: "bathroom", floor: "First floor" }
 ];
-const bedroomsN = n => Array.from({ length: n }, (_, i) => ({ id: "bed" + (i + 1), name: "Bedroom " + (i + 1), type: "bedroom", floor: "First floor" }));
+const bedroomsN = n => Array.from({ length: n }, (_, i) => ({ id: "bed" + (i + 1), name: i === 0 ? "Master bedroom" : "Bedroom " + (i + 1), type: "bedroom", floor: "First floor" }));
 const ROOM_TEMPLATES = {
   t1: { name: "Template 1 · one bedroom", rooms: [...BASE_ROOMS, ...bedroomsN(1)] },
   t2: { name: "Template 2 · two bedrooms", rooms: [...BASE_ROOMS, ...bedroomsN(2)] },
@@ -926,7 +979,9 @@ const S = {
 /* Example records keep their allocation in memory; EG-001 shares the scope used by its report. */
 S.alloc = { "EG-001": S.scope, "EG-002": allocFrom(PACKAGES["Home Health Analysis, bedrooms only"]), "EG-003": allocFrom(PACKAGES["Build and Renovation Consultancy"]), "EG-004": allocFrom(ALL_POINTS) };
 S.exRooms = { "EG-002": ROOM_TEMPLATES.t2.rooms, "EG-003": ROOM_TEMPLATES.t3.rooms, "EG-004": ROOM_TEMPLATES.t1.rooms };
-Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, a2q: "gv", navParts: {} });
+Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, navParts: {}, bedDraft: {},
+  mt: { ds: "pf", idx: {}, pad: null, flash: null, amendHint: false, confirmNew: false, viewRun: null },
+  exBedrooms: { "EG-001": { bed1: { who: "Tom (left) and Harriet (right)", bed: "Upholstered divan, pocket-sprung mattress" }, bed2: { who: "Their son, aged 6", bed: "Single pine bed, foam mattress" } } } });
 const findingById = id => FINDINGS.find(f => f.id === id);
 
 /* =========================================================================
@@ -936,17 +991,17 @@ const findingById = id => FINDINGS.find(f => f.id === id);
    built into the page and never written to storage.
    ========================================================================= */
 const LOCAL_KEY = "emerald-grey-studio-v1";
-const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets"];
+const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress"];
 const Store = {
   mode: "starting", note: "", readOnly: false, db: null, queue: {},
-  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {},
+  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {},
   loadLocal() {
     try { const d = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); COLLECTIONS.forEach(k => { this[k] = d[k] || {}; }); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   persistLocal() {
     if (this.mode !== "local") return;
-    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets })); }
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress })); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   async init() {
@@ -1031,7 +1086,7 @@ function roomsFor(ref) {
   return c.rooms && c.rooms.length ? c.rooms : DEFAULT_ROOMS;
 }
 const byTime = (a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || ""));
-function readingsFor(ref) { return (isFixture(ref) ? READINGS : []).concat(Object.values(Store.readings).filter(r => r.client === ref).sort(byTime), sheetReadings(ref)); }
+function readingsFor(ref) { return (isFixture(ref) ? READINGS : []).concat(Object.values(Store.readings).filter(r => r.client === ref).sort(byTime), sheetReadings(ref), mattressReadings(ref)); }
 function samplesFor(ref) { return (isFixture(ref) ? SAMPLES : []).concat(Object.values(Store.samples).filter(s => s.client === ref).sort(byTime)); }
 function testStatus(ref, code) {
   if (!alloc(ref)[code]) return "excluded";
@@ -1173,6 +1228,12 @@ function overviewTab(c) {
           </div>
           ${!isFixture(c.ref) && !prop.length ? `<p class="small muted">Property details (age, construction, alterations, heating, ventilation, leak history and routines) are not recorded yet.${c.example ? "" : " Add them with Edit details, or they arrive with the questionnaire."}</p>` : ""}
         </section>
+        <section class="card stack" aria-labelledby="h-beds"><div class="spread"><h3 id="h-beds">Bedrooms</h3><span class="xsmall muted">Saves automatically</span></div>
+          <p class="small muted">Used by the mattress test. Leave a bedroom blank if it does not apply.</p>
+          <div class="table-wrap"><table><thead><tr><th>Room</th><th>Who sleeps here</th><th>Bed or mattress</th></tr></thead><tbody>
+            ${BEDROOMS.map(b => { const info = { ...bedroomInfo(c.ref, b.id), ...((S.bedDraft[c.ref] || {})[b.id] || {}) };
+              return `<tr><td class="small"><b>${b.name}</b></td>${["who", "bed"].map(f => `<td><input class="input" aria-label="${b.name}: ${f === "who" ? "who sleeps here" : "bed or mattress"}" value="${esc(info[f] || "")}" data-bedroom="${c.ref}|${b.id}|${f}" ${Store.readOnly && !c.example ? "disabled" : ""}></td>`).join("")}</tr>`; }).join("")}
+          </tbody></table></div></section>
         ${isFixture(c.ref) ? `<section class="card stack" aria-labelledby="h-house"><h3 id="h-house">Household and priorities</h3>
           <p class="small">"We both wake around 3am and feel heavy in the mornings. There's a musty smell in the bathroom in winter. We'd like our son's room checked too."</p>
           <div class="row"><span class="chip c-muted">Sleep</span><span class="chip c-muted">Damp or mould</span><span class="chip c-muted">Children's bedroom</span></div></section>` : ""}
@@ -1894,6 +1955,7 @@ function sampleModal() {
     <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="savesample">Save sample</button></div></div>`;
 }
 function modalHTML(kind) {
+  if (kind === "pad") return padHTML();
   if (kind === "client") return clientModal();
   if (kind === "reading") return readingModal();
   if (kind === "sample") return sampleModal();
@@ -1925,7 +1987,7 @@ function csvPreview(text, name) {
     <p class="xsmall muted">Equipment detected from the file: ${inst("aranet4").name}. Imported as overnight monitoring linked to Main bedroom. Context fields can be completed after import.</p></div>`;
 }
 
-const roomName = (ref, id) => id === "outdoor" || id === "property" ? "Whole property" : ((roomsFor(ref).find(r => r.id === id) || {}).name || "");
+const roomName = (ref, id) => id === "outdoor" || id === "property" ? "Whole property" : ((roomsFor(ref).find(r => r.id === id) || {}).name || (BEDROOMS.find(b => b.id === id) || {}).name || "");
 /* Client and room chooser shared by every assessment page */
 function clientBar(opts = {}) {
   const c = C();
@@ -1971,11 +2033,7 @@ const SECTIONS = [
       { k: "house", label: "Age of house and any smells or flooding", type: "textarea" }, tx("router", "Router and consumer unit location")] },
   { id: "a1", part: "A", code: "A1", title: "Screening", scope: "room", points: ["A1", "A2", "A3"],
     checks: ["Socket earth configuration checked", "AM radio screening done", "Compass screening done", "Electric blanket, heated pad or electric bed present", "Phone, charger, clock or baby monitor near the head", "Router, extender or smart device in or beside the room", "Sockets, wiring or consumer unit behind the bed head wall", "Metal bed frame or springs"] },
-  { id: "a2", part: "A", code: "A2", title: "Mattress grid", scope: "room", points: ["A1", "A2"],
-    intro: "Top row is the pillow end. PF: potential-free (hands-free). G: grounded.",
-    fields: [{ k: "from", label: "Time from", type: "time" }, { k: "to", label: "Time to", type: "time" }],
-    tables: [{ k: "grid", head: "Point", rows: MATTRESS_ROWS, cols: [n("pfv", "PF", "V/m"), n("pfx", "PF X", "nT"), n("pfy", "PF Y", "nT"), n("pfz", "PF Z", "nT"), n("gv", "G", "V/m"), n("gx", "G X", "nT"), n("gy", "G Y", "nT"), n("gz", "G Z", "nT")] }],
-    texts: [{ k: "second", label: "Second sleeper's side, if different" }], visual: true },
+  { id: "a2", part: "A", code: "A2", title: "Nine-point mattress test", scope: "room", points: ["A1", "A2"], custom: true, texts: [{ k: "second", label: "Notes, including the second sleeper's side if different" }] },
   { id: "a3", part: "A", code: "A3", title: "Low-frequency fields", scope: "room", points: ["A1", "A2"],
     intro: "Take three positions along each wall, holding the meter, then four directions at the room centre.",
     fields: [{ k: "from", label: "Time from", type: "time" }, { k: "to", label: "Time to", type: "time" }],
@@ -2062,16 +2120,11 @@ const sheetId = (ref, room, sec) => `${ref}__${room}__${sec}`;
 const blankSheet = (ref, room, section) => ({ ref, room, section, f: {}, c: {}, t: {}, x: {} });
 function seedSheet(ref, room, sec) {
   if (ref !== "EG-001" || room !== "bed1") return null;
-  if (sec === "a2") {
-    const cell = {};
-    MATTRESS_ROWS.forEach((_, i) => { cell[i + "|gv"] = String(GRID.ef.before[i]); const m = GRID.mf.before[i]; ["gx", "gy", "gz"].forEach((k, j) => { cell[i + "|" + k] = String(m[j]); }); });
-    return { ...blankSheet(ref, room, sec), f: { from: "19:40", to: "19:56" }, t: { grid: { cell } }, x: { second: "Harriet's side read slightly lower at the head end." }, updatedBy: "Alfie", updatedAt: "2026-10-09T19:56:00" };
-  }
   if (sec === "visit") return { ...blankSheet(ref, room, sec), f: { date: "2026-10-09", start: "19:20", end: "21:05", assessor: "Iza and Alfie", bedhead: "North", bed: "Upholstered divan, pocket-sprung mattress", floor: "Wool carpet", sleepers: "Tom on the left, Harriet on the right", concerns: "Both wake between 3 and 4am most nights.", heating: "Radiator on until 23:00; windows closed at night.", house: "c. 1934. Faint musty smell in winter; roof valley leak 2023.", router: "Router in hallway; consumer unit under the stairs" }, updatedBy: "Iza", updatedAt: "2026-10-09T21:05:00" };
   return null;
 }
 function sheetGet(ref, room, sec) { const id = sheetId(ref, room, sec); return S.sheetDraft[id] || Store.sheets[id] || seedSheet(ref, room, sec) || blankSheet(ref, room, sec); }
-const sheetRoomKey = sec => sec.scope === "property" ? "property" : (currentRoom() || {}).id;
+const sheetRoomKey = sec => sec.scope === "property" ? "property" : sec.id === "a2" ? mtRoom() : (currentRoom() || {}).id;
 let sheetVer = 0;
 const sheetTimers = {};
 function setSheet(ref, room, secId, path, value) {
@@ -2131,14 +2184,6 @@ function deriveSheet(sh) {
   const f = sh.f || {};
   const each = (k, fn) => { const tb = sec.tables.find(t => t.k === k); rowsOf(tb).forEach((label, i) => fn(label || `Row ${i + 1}`, i)); };
   switch (sh.section) {
-    case "a2": each("grid", (row, i) => {
-      const pfv = parseNum(cell("grid", i, "pfv")), gv = parseNum(cell("grid", i, "gv"));
-      if (pfv != null) add(`pfv${i}`, { point: "A1", label: `Electric field, potential-free, ${row}`, value: pfv, unit: "V/m", method: "potential-free", grid: { qty: "efpf", pos: i } });
-      if (gv != null) add(`gv${i}`, { point: "A1", label: `Electric field, grounded, ${row}`, value: gv, unit: "V/m", method: "earthed", inst: "me3951", grid: { qty: "ef", pos: i } });
-      const pm = xyz("grid", i, ["pfx", "pfy", "pfz"]), gm = xyz("grid", i, ["gx", "gy", "gz"]);
-      if (pm) add(`pfm${i}`, { point: "A2", label: `Magnetic field, potential-free, ${row}`, value: res3(pm), axes: pm, unit: "nT", method: "three-axis", inst: "me3951" });
-      if (gm) add(`gm${i}`, { point: "A2", label: `Magnetic field, grounded, ${row}`, value: res3(gm), axes: gm, unit: "nT", method: "three-axis", inst: "me3951", grid: { qty: "mf", pos: i } });
-    }); break;
     case "a3": each("walls", (row, i) => {
       const vm = parseNum(cell("walls", i, "vm")); if (vm != null) add(`vm${i}`, { point: "A1", label: `Electric field, ${row}`, value: vm, unit: "V/m", method: "earthed", inst: "me3951", loc: row });
       const m = xyz("walls", i, ["x", "y", "z"]); if (m) add(`m${i}`, { point: "A2", label: `Magnetic field, ${row}`, value: res3(m), axes: m, unit: "nT", method: "three-axis", inst: "me3951", loc: row });
@@ -2205,7 +2250,7 @@ function sheetReadings(ref) {
   if (derivedCache.ver !== ver) derivedCache = { ver, map: {} };
   if (!derivedCache.map[ref]) {
     const own = new Map(allSheets().filter(s => s.ref === ref).map(s => [sheetId(s.ref, s.room, s.section), s]));
-    if (ref === "EG-001") ["a2", "visit"].forEach(sec => { const id = sheetId(ref, "bed1", sec); if (!own.has(id)) own.set(id, seedSheet(ref, "bed1", sec)); });
+    if (ref === "EG-001") ["visit"].forEach(sec => { const id = sheetId(ref, "bed1", sec); if (!own.has(id)) own.set(id, seedSheet(ref, "bed1", sec)); });
     derivedCache.map[ref] = [...own.values()].flatMap(deriveSheet);
   }
   return derivedCache.map[ref];
@@ -2253,22 +2298,6 @@ function sheetTable(sec, tb, sh) {
     </tbody></table></div>
     ${tb.free ? `<button class="btn btn-s" style="align-self:flex-start" data-action="addsheetrow" data-table="${tb.k}">${icon("plus")}Add a row</button>` : ""}</div>`;
 }
-function a2Visual(sh) {
-  const q = S.a2q || "gv";
-  const opts = [["gv", "G electric field"], ["pfv", "PF electric field"], ["gm", "G magnetic"], ["pfm", "PF magnetic"]];
-  const room = currentRoom(), bedroom = room && room.type === "bedroom";
-  const cellOf = i => {
-    const c = k => parseNum((((sh.t || {}).grid || {}).cell || {})[i + "|" + k]);
-    if (q === "gv" || q === "pfv") { const v = c(q); return v == null ? null : { v, unit: "V/m", k: bedroom ? classify(v, q === "gv" ? "sbm-ef" : "sbm-ef-pf", q === "gv" ? "earthed" : "potential-free") : "nsa" }; }
-    const keys = q === "gm" ? ["gx", "gy", "gz"] : ["pfx", "pfy", "pfz"], a = keys.map(c);
-    if (a.some(x => x == null)) return null;
-    const v = Math.round(resultant(a) * 10) / 10; return { v, unit: "nT", k: bedroom ? classify(v, "sbm-mf", "three-axis") : "nsa" };
-  };
-  return `<div class="stack" id="a2-visual" style="gap:10px"><div class="spread"><h4>On the mattress</h4><div class="seg" role="group" aria-label="Show">${opts.map(([k, l]) => `<button aria-pressed="${q === k}" data-action="a2q" data-q="${k}">${l}</button>`).join("")}</div></div>
-    <div class="mattress"><div class="pillows" aria-hidden="true"><i></i><i></i></div><div class="mgrid">${MATTRESS_ROWS.map((pos, i) => { const r = cellOf(i);
-      return r ? `<div class="cell k-${r.k}"><span class="pos">${pos}</span><span class="v">${fmt(r.v, r.v % 1 ? 1 : 0)}<small> ${r.unit}</small></span><span class="lab">${EVAL[r.k].label}</span></div>` : `<div class="cell k-nm"><span class="pos">${pos}</span><span class="lab">Not measured</span></div>`; }).join("")}</div></div>
-    <p class="xsmall muted">Magnetic values are the resultant of X, Y and Z. Each colour has a text label; classification uses SBM sleeping-area guidance and applies in bedrooms only.</p></div>`;
-}
 function screenSection(sec) {
   const c = C(), roomKey = sheetRoomKey(sec);
   const part = PARTS.find(p => p.k === sec.part);
@@ -2286,9 +2315,8 @@ function screenSection(sec) {
     <fieldset class="card stack-l sheet" ${locked ? "disabled" : ""} data-section="${sec.id}">
       <legend class="sr-only">${sectionName(sec)}</legend>
       ${sec.fields ? `<div class="grid-3">${sec.fields.map(fd => sheetField(sec, sh, fd)).join("")}</div>` : ""}
-      ${sec.checks ? `<div class="checks">${sec.checks.map((label, k) => `<label class="tick"><input type="checkbox" ${(sh.c || {})["k" + k] ? "checked" : ""} data-sheet="c|k${k}"><span>${label}</span></label>`).join("")}</div>` : ""}
+      ${sec.checks ? `<div class="checks">${sec.checks.map((label, k) => `<label class="tickrow"><input type="checkbox" ${(sh.c || {})["k" + k] ? "checked" : ""} data-sheet="c|k${k}"><span>${label}</span></label>`).join("")}</div>` : ""}
       ${(sec.tables || []).map(tb => sheetTable(sec, tb, sh)).join("")}
-      ${sec.visual ? a2Visual(sh) : ""}
       ${sec.coverage ? rfCoverage() : ""}
       ${(sec.texts || []).map(t => `<div class="field"><label for="sx-${sec.id}-${t.k}">${t.label}</label><textarea id="sx-${sec.id}-${t.k}" class="input" rows="${t.rows || 5}" data-sheet="x|${t.k}">${esc((sh.x || {})[t.k] || "")}</textarea></div>`).join("")}
       <p class="xsmall muted">Saves as you type, against ${c.ref}${sec.scope === "property" ? " (whole property)" : ` · ${esc(roomName(c.ref, roomKey))}`}.${derived.length ? ` ${derived.length} result${derived.length === 1 ? "" : "s"} from this section feed the client record and report.` : ""}</p>
@@ -2307,11 +2335,257 @@ function screenAssessOverview() {
     ${clientBar()}
     ${PARTS.map(p => `<section class="card stack" aria-labelledby="part-${p.k}"><h3 id="part-${p.k}">${p.title}</h3>
       <div class="list">${SECTIONS.filter(s => s.part === p.k).map(s => {
-        const key = s.scope === "property" ? "property" : room && room.id; const sh = key ? sheetGet(c.ref, key, s.id) : null; const filled = sh ? sheetFilled(sh) : 0;
-        return `<div class="list-item" style="grid-template-columns:minmax(0,1fr) auto auto"><div><b class="small">${sectionName(s)}</b><div class="xsmall muted">${s.scope === "property" ? "Whole property" : esc(room ? room.name : "")}${sh && sh.updatedAt ? ` · saved ${dateOnly(sh.updatedAt)}${sh.updatedBy ? " by " + sh.updatedBy : ""}` : ""}</div></div>
-          <span class="chip ${filled ? "c-emerald" : "c-outline"}">${filled ? `${filled} entr${filled === 1 ? "y" : "ies"}` : "Not started"}</span>
+        const key = s.scope === "property" ? "property" : s.id === "a2" ? mtRoom() : room && room.id; const sh = key ? sheetGet(c.ref, key, s.id) : null;
+        const filled = s.id === "a2" ? Object.keys(MT_TESTS).reduce((t, ds) => t + mtDone(mtDoc(c.ref, key, ds)), 0) : sh ? sheetFilled(sh) : 0;
+        return `<div class="list-item" style="grid-template-columns:minmax(0,1fr) auto auto"><div><b class="small">${sectionName(s)}</b><div class="xsmall muted">${s.scope === "property" ? "Whole property" : s.id === "a2" ? `${bedName(key)} · three tests of ${MT_TOTAL} readings` : esc(room ? room.name : "")}${sh && sh.updatedAt ? ` · saved ${dateOnly(sh.updatedAt)}${sh.updatedBy ? " by " + sh.updatedBy : ""}` : ""}</div></div>
+          <span class="chip ${filled ? "c-emerald" : "c-outline"}">${filled ? (s.id === "a2" ? `${filled} of ${MT_TOTAL * 3} readings` : `${filled} entr${filled === 1 ? "y" : "ies"}`) : "Not started"}</span>
           <button class="btn btn-s" data-action="go" data-screen="${s.id}">Open</button></div>`; }).join("")}</div></section>`).join("")}`);
 }
+
+/* =========================================================================
+   A2. Nine-point mattress test: guided entry
+   One large number field and an on-screen dial pad. Three separate datasets
+   (potential-free and ground-referenced electric field, and magnetic field),
+   each read as X, Y and Z at nine positions, with the 3D resultant calculated.
+   Every confirmed number is saved straight away. A new test never replaces an
+   earlier one: each test is its own record.
+   ========================================================================= */
+const BEDROOMS = [{ id: "bed1", name: "Master bedroom" }, { id: "bed2", name: "Bedroom 2" }, { id: "bed3", name: "Bedroom 3" }, { id: "bed4", name: "Bedroom 4" }];
+const MT_POS = ["Top left", "Top centre", "Top right", "Middle left", "Middle centre", "Middle right", "Bottom left", "Bottom centre", "Bottom right"];
+const AXES = ["X", "Y", "Z"];
+const MT_TESTS = {
+  pf: { label: "Potential-free AC electric field", short: "Potential-free electric field", unit: "V/m", point: "A1", method: "potential-free", inst: null },
+  gr: { label: "Ground-referenced AC electric field", short: "Ground-referenced electric field", unit: "V/m", point: "A1", method: "earthed", inst: "me3951" },
+  mf: { label: "AC magnetic field", short: "Magnetic field", unit: "nT", point: "A2", method: "three-axis", inst: "me3951" }
+};
+const VISIT = { id: "v1", label: "Visit 1" };
+const MT_TOTAL = MT_POS.length * AXES.length;
+const POS_STATUS = { notstarted: ["○", "Not started", "c-outline"], progress: ["◐", "In progress", "c-slight"], complete: ["●", "Complete", "c-emerald"], nm: ["×", "Not measured", "c-muted"] };
+const NUM_OK = /^\d+(\.\d+)?$/;
+
+const mtRoom = () => BEDROOMS.some(b => b.id === S.room) ? S.room : "bed1";
+const bedName = id => (BEDROOMS.find(b => b.id === id) || {}).name || id;
+const mtId = (ref, room, ds, run) => `${ref}__${VISIT.id}__${room}__${ds}__r${run}`;
+const mtKey = k => `${Math.floor(k / 3)}|${k % 3}`;
+const mtFilled = e => !!e && (e.nm === true || typeof e.v === "number");
+
+function bedroomInfo(ref, id) {
+  const c = getClient(ref); if (!c) return {};
+  if (c.example) return (S.exBedrooms[ref] || {})[id] || {};
+  return (c.bedrooms || {})[id] || {};
+}
+/* The worked example keeps its magnetic-field readings as a completed test */
+function mtSeed(ref, room, ds) {
+  if (ref !== "EG-001" || room !== "bed1" || ds !== "mf") return null;
+  const cells = {};
+  GRID.mf.before.forEach((xyz, p) => xyz.forEach((v, a) => { cells[`${p}|${a}`] = { v, nm: false, by: "Alfie", at: "2026-10-09T19:45:00", hist: [] }; }));
+  return { ref, visit: VISIT.id, room, ds, run: 1, cells, startedAt: "2026-10-09T19:41:00", updatedAt: "2026-10-09T19:52:00", updatedBy: "Alfie", completedAt: "2026-10-09T19:53:00", completedBy: "Alfie" };
+}
+function mtRuns(ref, room, ds) {
+  const prefix = `${ref}__${VISIT.id}__${room}__${ds}__r`;
+  const runs = Object.entries(Store.mattress).filter(([id]) => id.startsWith(prefix)).map(([, d]) => d);
+  const seed = mtSeed(ref, room, ds);
+  if (seed && !runs.some(d => d.run === seed.run)) runs.push(seed);
+  return runs.sort((a, b) => a.run - b.run);
+}
+function mtDoc(ref, room, ds) {
+  const runs = mtRuns(ref, room, ds);
+  return runs[runs.length - 1] || { ref, visit: VISIT.id, room, ds, run: 1, cells: {}, startedAt: null };
+}
+const mtDone = doc => Object.values(doc.cells || {}).filter(mtFilled).length;
+function mtPosStatus(doc, p) {
+  const e = [0, 1, 2].map(a => (doc.cells || {})[`${p}|${a}`]);
+  const n = e.filter(mtFilled).length;
+  if (!n) return "notstarted";
+  if (n < 3) return "progress";
+  return e.every(x => typeof x.v === "number") ? "complete" : "nm";
+}
+function mtResultant(doc, p) {
+  const v = [0, 1, 2].map(a => ((doc.cells || {})[`${p}|${a}`] || {}).v);
+  if (!v.every(x => typeof x === "number")) return null;
+  return Math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));
+}
+function mtFirstIncomplete(doc, from = 0) {
+  for (let i = 0; i < MT_TOTAL; i++) { const k = (from + i) % MT_TOTAL; if (!mtFilled((doc.cells || {})[mtKey(k)])) return k; }
+  return -1;
+}
+function mtCurrent(doc) {
+  const id = mtId(doc.ref, doc.room, doc.ds, doc.run);
+  if (S.mt.idx[id] != null) return S.mt.idx[id];
+  const k = mtFirstIncomplete(doc); return k < 0 ? MT_TOTAL - 1 : k;
+}
+const fmtVal = (v, unit) => `${fmt(v, 1)} ${unit}`;
+
+/* Results from the mattress tests, for the client record and report (latest test per room) */
+function mattressReadings(ref) {
+  const out = [];
+  BEDROOMS.forEach(b => Object.entries(MT_TESTS).forEach(([ds, t]) => {
+    const doc = mtDoc(ref, b.id, ds); if (!mtDone(doc)) return;
+    MT_POS.forEach((pos, p) => {
+      const r = mtResultant(doc, p); if (r == null) return;
+      const axes = [0, 1, 2].map(a => doc.cells[`${p}|${a}`].v), last = doc.cells[`${p}|2`];
+      out.push({ id: `${mtId(ref, b.id, ds, doc.run)}:${p}`, client: ref, room: b.id, roomType: "bedroom", test: "a2", point: t.point,
+        label: `${t.short}, ${pos}, 3D resultant`, value: Math.round(r * 10) / 10, axes, unit: t.unit, method: t.method,
+        methodLabel: `Nine-point mattress test, X, Y and Z with the resultant calculated`, ref: refFor(t.point, t.unit, t.method), evalKey: null,
+        inst: t.inst, timing: "spot", result: "reading", when: nowStampFrom(last.at), by: last.by, phase: null,
+        grid: { qty: ds, pos: p }, loc: `${bedName(b.id)}, ${pos}`, cond: {}, note: "", createdAt: last.at });
+    });
+  }));
+  return out;
+}
+function nowStampFrom(iso) { try { return new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } }
+
+/* ---------- Saving ---------- */
+async function mtSave(doc) {
+  const c = getClient(doc.ref), t = MT_TESTS[doc.ds], bed = bedroomInfo(doc.ref, doc.room);
+  const body = { ...doc, customer: c.name, property: [c.propertyName, addrLine(c)].filter(Boolean).join(", "), visitLabel: VISIT.label,
+    roomName: bedName(doc.room), bed: bed.bed || "", testType: t.label, method: t.method, unit: t.unit, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR };
+  const ok = await Store.put("mattress", mtId(doc.ref, doc.room, doc.ds, doc.run), body);
+  if (ok) { const a = alloc(doc.ref); if (!a[t.point]) await setAlloc(doc.ref, { ...a, [t.point]: true }); }
+  return ok;
+}
+async function mtConfirm(nm) {
+  const pad = S.mt.pad; if (!pad) return;
+  const value = nm ? null : parseFloat(pad.buf);
+  if (!nm && !NUM_OK.test(pad.buf)) return;
+  const base = mtDoc(S.client, mtRoom(), S.mt.ds);
+  const doc = JSON.parse(JSON.stringify(base));
+  const key = mtKey(pad.k), old = doc.cells[key], now = new Date().toISOString();
+  const amend = mtFilled(old);
+  doc.cells[key] = { v: value, nm: !!nm, by: ASSESSOR, at: now,
+    hist: amend ? [...(old.hist || []), { at: now, by: ASSESSOR, old: old.nm ? "Not measured" : old.v, new: nm ? "Not measured" : value }] : [] };
+  doc.startedAt = doc.startedAt || now;
+  const ok = await mtSave(doc);
+  if (!ok) { toast("That reading could not be saved. Please try again."); return; }
+  const id = mtId(doc.ref, doc.room, doc.ds, doc.run), p = Math.floor(pad.k / 3);
+  S.modal = null; S.mt.pad = null;
+  if (amend) {
+    const k = mtFirstIncomplete(doc); S.mt.idx[id] = k < 0 ? pad.k : k;
+    toast(`${MT_POS[p]}, ${AXES[pad.k % 3]} changed and saved`);
+  } else {
+    const next = mtFirstIncomplete(doc, pad.k + 1);
+    S.mt.idx[id] = next < 0 ? pad.k : next;
+    if (pad.k % 3 === 2 && mtPosStatus(doc, p) !== "progress") {
+      S.mt.flash = { p, id };
+      clearTimeout(S.mt.flashTimer);
+      S.mt.flashTimer = setTimeout(() => { if (S.mt.flash && S.mt.flash.id === id) { S.mt.flash = null; if (!S.modal) render(); } }, 2400);
+    }
+  }
+  render();
+}
+
+/* ---------- Screen ---------- */
+function mtBar(c) {
+  const list = allClients().slice().sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
+  const room = mtRoom(), bed = bedroomInfo(c.ref, room);
+  return `<section class="card client-bar" aria-label="Client and bedroom">
+    <div class="field"><label for="cb-client">Client</label><select id="cb-client" class="input" data-change="pickclient">${list.map(x => opt(x.ref, `${x.name}${x.propertyName ? " · " + x.propertyName : ""} · ${x.ref}`, x.ref === c.ref)).join("")}</select></div>
+    <div class="field"><label for="cb-bed">Room</label><select id="cb-bed" class="input" data-change="pickbed">${BEDROOMS.map(b => opt(b.id, b.name, b.id === room)).join("")}</select></div>
+    <div class="client-bar-meta"><span class="ref-badge">${c.ref}</span><span class="small muted">${esc(addrLine(c))} · ${VISIT.label}</span><span class="grow"></span>
+      <span class="small">Bed or mattress: ${bed.bed ? esc(bed.bed) : `<span class="muted">not recorded</span>`}</span><button class="btn btn-quiet btn-s" data-action="go" data-screen="client">Client profile</button></div>
+  </section>`;
+}
+function mtTable(doc, opts = {}) {
+  const t = MT_TESTS[doc.ds], cur = opts.readOnly ? -1 : mtCurrent(doc);
+  const cellBtn = (p, a) => {
+    const k = p * 3 + a, e = (doc.cells || {})[`${p}|${a}`];
+    const txt = mtFilled(e) ? (e.nm ? "Not measured" : fmt(e.v, e.v % 1 ? 1 : 0)) : "";
+    if (opts.readOnly) return `<td class="num">${txt || "–"}</td>`;
+    return `<td><button class="mt-cell ${k === cur ? "is-current" : ""}" data-action="mtcell" data-k="${k}" aria-label="${MT_POS[p]}, ${AXES[a]}-axis, ${txt || "not entered"}">${txt || "<span class=muted>Enter</span>"}</button></td>`;
+  };
+  return `<div class="table-wrap" ${opts.id ? `id="${opts.id}"` : ""}><table class="mt-table"><thead><tr><th>Mattress position</th>${AXES.map(a => `<th class="num">${a} <span class="unit">${t.unit}</span></th>`).join("")}<th class="num">3D resultant <span class="unit">${t.unit}</span></th></tr></thead><tbody>
+    ${MT_POS.map((pos, p) => { const r = mtResultant(doc, p), k = r == null ? null : classify(Math.round(r * 10) / 10, refFor(t.point, t.unit, t.method), t.method);
+      const st = POS_STATUS[mtPosStatus(doc, p)];
+      return `<tr><td><b class="small">${pos}</b><div class="xsmall muted">${st[0]} ${st[1]}</div></td>${[0, 1, 2].map(a => cellBtn(p, a)).join("")}
+        <td class="num resultant" aria-readonly="true">${r == null ? `<span class="muted">${mtPosStatus(doc, p) === "nm" ? "Not calculated" : "–"}</span>` : `<b>${fmt(r, 1)}</b><div>${evalChip(k)}</div>`}</td></tr>`; }).join("")}
+  </tbody></table></div>`;
+}
+function screenMattress() {
+  const c = C(), room = mtRoom(), t = MT_TESTS[S.mt.ds];
+  const doc = mtDoc(c.ref, room, S.mt.ds), id = mtId(c.ref, room, S.mt.ds, doc.run);
+  const done = mtDone(doc), complete = done === MT_TOTAL, k = mtCurrent(doc), p = Math.floor(k / 3), a = k % 3;
+  const e = (doc.cells || {})[mtKey(k)], runs = mtRuns(c.ref, room, S.mt.ds), earlier = runs.slice(0, -1);
+  const locked = Store.readOnly && !c.example;
+  const sh = sheetGet(c.ref, room, "a2");
+  const flash = S.mt.flash && S.mt.flash.id === id ? S.mt.flash : null;
+  const nextPos = MT_POS[Math.floor(mtCurrent(doc) / 3)];
+  const dsTabs = Object.entries(MT_TESTS).map(([key, x]) => { const d = mtDoc(c.ref, room, key), n = mtDone(d);
+    return `<button role="tab" class="mt-ds" aria-selected="${S.mt.ds === key}" data-action="mtds" data-ds="${key}"><b>${x.short}</b><span>${x.unit} · ${n === MT_TOTAL ? "Complete" : n ? `${n} of ${MT_TOTAL} readings` : "Not started"}</span></button>`; }).join("");
+  const posMap = `<div class="mattress mt-map" aria-label="Mattress positions"><div class="pillows" aria-hidden="true"><i></i><i></i></div><div class="mgrid">${MT_POS.map((pos, i) => {
+      const st = mtPosStatus(doc, i), s = POS_STATUS[st], r = mtResultant(doc, i);
+      return `<button class="cell mt-pos st-${st} ${i === p && !complete ? "is-current" : ""}" data-action="mtpos" data-p="${i}" ${i === p && !complete ? 'aria-current="step"' : ""}><span class="pos">${pos}</span><span class="lab">${s[0]} ${s[1]}</span>${r != null ? `<span class="xsmall">${fmt(r, 1)} ${t.unit}</span>` : ""}</button>`; }).join("")}</div></div>`;
+  const hist = mtFilled(e) && (e.hist || []).length ? `<div class="xsmall muted">${e.hist.map(h => `Changed ${nowStampFrom(h.at)} by ${esc(h.by)}: ${h.old} to ${h.new}`).join("<br>")}</div>` : "";
+  const entered = mtFilled(e) ? `<div class="xsmall muted">Entered ${nowStampFrom(e.at)} by ${esc(e.by)}. Select the field to change it.</div>` : "";
+  const guided = flash ? (() => { const fp = flash.p, vals = [0, 1, 2].map(x => doc.cells[`${fp}|${x}`]), r = mtResultant(doc, fp);
+      return `<div class="mt-flash" role="status"><h3>${MT_POS[fp]} complete</h3>
+        <dl class="kv">${vals.map((v, x) => `<dt>${AXES[x]}</dt><dd class="num">${v.nm ? "Not measured" : fmtVal(v.v, t.unit)}</dd>`).join("")}<dt>3D resultant</dt><dd class="num"><b>${r == null ? "Not calculated" : fmtVal(r, t.unit)}</b></dd></dl>
+        ${complete ? "" : `<p class="small muted">Continuing to ${nextPos}…</p><button class="btn btn-s" data-action="mtflashnext">Continue now</button>`}</div>`; })()
+    : complete ? `<div class="mt-complete" role="status"><h3>Nine-point mattress test complete. Review the measurements before continuing.</h3>
+        <p class="small muted">${t.label} · ${bedName(room)} · test ${doc.run}${doc.completedAt ? ` · saved to the assessment record ${nowStampFrom(doc.completedAt)}` : ""}</p>
+        <div class="mt-actions"><button class="btn" data-action="mtreview">Review measurements</button><button class="btn" data-action="mtamend">Amend a measurement</button>
+          <button class="btn btn-primary btn-lg" data-action="mtfinish" ${locked ? "disabled" : ""}>Save and continue to next section</button></div></div>`
+    : `<div class="mt-entry">
+        <div class="mt-progress"><span><b>Position ${p + 1} of 9</b> · ${MT_POS[p]}</span><span>${done} of ${MT_TOTAL} readings complete</span></div>
+        <div class="progress" aria-hidden="true"><i style="width:${Math.round(done / MT_TOTAL * 100)}%"></i></div>
+        <label class="mt-label" for="mt-field">${MT_POS[p]} · <b>${AXES[a]}-axis</b></label>
+        <div class="mt-field-row"><button id="mt-field" class="mt-field ${mtFilled(e) ? "has-value" : ""}" data-action="mtfield" ${locked ? "disabled" : ""} aria-describedby="mt-unit">${mtFilled(e) ? (e.nm ? "Not measured" : fmt(e.v, e.v % 1 ? 1 : 0)) : `<span>Tap to enter</span>`}</button><span id="mt-unit" class="mt-unit">${t.unit}</span></div>
+        ${entered}${hist}
+        <div class="mt-axes">${[0, 1, 2].map(x => { const ee = (doc.cells || {})[`${p}|${x}`]; return `<button class="mt-axis ${x === a ? "is-current" : ""}" data-action="mtcell" data-k="${p * 3 + x}"><span>${AXES[x]}</span><b>${mtFilled(ee) ? (ee.nm ? "Not measured" : fmt(ee.v, ee.v % 1 ? 1 : 0)) : "–"}</b></button>`; }).join("")}
+          <div class="mt-axis is-calc" aria-label="3D resultant, calculated"><span>3D resultant</span><b>${mtResultant(doc, p) == null ? "–" : fmt(mtResultant(doc, p), 1)}</b></div></div>
+        <div class="row"><button class="btn" data-action="mtback" ${k === 0 ? "disabled" : ""}>${icon("back")}Back</button></div>
+      </div>`;
+  return assessorShell("", `
+    <div class="topline"><div class="stack" style="gap:6px"><span class="eyebrow">Part A: EMF</span><h1>A2. Nine-point mattress test</h1></div>
+      <span class="chip c-muted" role="status">${done ? `Test ${doc.run} · saved ${nowStampFrom(doc.updatedAt)}` : "Not started"}</span></div>
+    ${storeNotice()}
+    ${mtBar(c)}
+    <div class="mt-tabs" role="tablist" aria-label="Test">${dsTabs}</div>
+    <section class="card mt-guided" aria-label="${t.label}">${posMap}<div class="mt-panel">${guided}</div></section>
+    ${S.mt.amendHint && complete ? `<div class="notice notice-calm">${icon("info")}<span class="small">Select any value in the table to change it. Changes need "Confirm change" and are kept in the history.</span></div>` : ""}
+    <section class="card stack" aria-labelledby="h-mt-table"><div class="spread"><h3 id="h-mt-table">${t.label} · ${bedName(room)}</h3><span class="xsmall muted">Test ${doc.run} · ${VISIT.label} · resultants are calculated and read-only</span></div>
+      ${mtTable(doc, { id: "mt-table" })}</section>
+    <section class="card stack" aria-labelledby="h-mt-notes"><h3 id="h-mt-notes">Notes</h3>
+      <div class="field"><label for="sx-a2-second">Notes, including the second sleeper's side if different</label><textarea id="sx-a2-second" class="input" rows="3" data-sheet="x|second" ${locked ? "disabled" : ""}>${esc((sh.x || {}).second || "")}</textarea></div></section>
+    <section class="card stack" aria-labelledby="h-mt-runs"><div class="spread"><h3 id="h-mt-runs">Earlier tests</h3>
+      ${S.mt.confirmNew ? `<div class="row"><span class="small">Start test ${doc.run + 1}? Test ${doc.run} is kept.</span><button class="btn btn-s btn-primary" data-action="mtnewgo">Start new test</button><button class="btn btn-s" data-action="mtnewno">Keep current test</button></div>`
+        : `<button class="btn btn-s" data-action="mtnew" ${!done || locked ? "disabled" : ""}>${icon("plus")}Start a new test</button>`}</div>
+      ${earlier.length ? earlier.slice().reverse().map(r => `<div class="stack" style="gap:6px"><div class="spread"><span class="small">Test ${r.run} · ${mtDone(r)} of ${MT_TOTAL} readings${r.completedAt ? ` · completed ${nowStampFrom(r.completedAt)}${r.completedBy ? " by " + esc(r.completedBy) : ""}` : ""}</span><button class="btn btn-quiet btn-s" data-action="mtview" data-run="${r.run}">${S.mt.viewRun === r.run ? "Hide" : "View"}</button></div>${S.mt.viewRun === r.run ? mtTable(r, { readOnly: true }) : ""}</div>`).join("")
+        : `<p class="small muted">No earlier ${t.short.toLowerCase()} tests in ${bedName(room)}. Starting a new test keeps this one.</p>`}
+    </section>`);
+}
+
+/* ---------- Dial pad ---------- */
+function padHTML() {
+  const pad = S.mt.pad, t = MT_TESTS[S.mt.ds], doc = mtDoc(S.client, mtRoom(), S.mt.ds), e = (doc.cells || {})[mtKey(pad.k)];
+  const p = Math.floor(pad.k / 3), a = pad.k % 3, amend = mtFilled(e);
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "del"];
+  return `<div class="modal pad" role="dialog" aria-modal="true" aria-labelledby="pad-title">
+    <div class="spread"><div><span class="eyebrow">${MT_POS[p]} · position ${p + 1} of 9</span><h2 id="pad-title">${AXES[a]}-axis</h2></div><span class="ref-badge">${S.client}</span></div>
+    ${amend ? `<p class="small">Current value: <b>${e.nm ? "Not measured" : fmtVal(e.v, t.unit)}</b>. Enter a new value and select Confirm change, or Cancel to keep it.</p>` : ""}
+    <div class="pad-display" aria-live="polite"><span id="pad-value">${padDisplay()}</span><span class="mt-unit">${t.unit}</span></div>
+    <p class="xsmall pad-msg" id="pad-msg">${padMessage()}</p>
+    <div class="pad-keys">${keys.map(k => `<button class="pad-key" data-action="padkey" data-key="${k}" aria-label="${k === "del" ? "Delete last digit" : k === "." ? "Decimal point" : k}">${k === "del" ? "Delete" : k}</button>`).join("")}</div>
+    <div class="pad-foot">
+      <div class="pad-secondary"><button class="btn" data-action="padback" ${pad.k === 0 ? "disabled" : ""}>Back</button><button class="btn" data-action="close">Cancel</button><button class="btn" data-action="padkey" data-key="clear">Clear</button><button class="btn" data-action="padnm" aria-pressed="${!!pad.nm}">Not measured</button></div>
+      <button class="btn btn-primary pad-confirm" id="pad-confirm" data-action="padconfirm" ${padValid() ? "" : "disabled"}>${amend ? "Confirm change" : "Confirm and continue"}</button>
+    </div></div>`;
+}
+const padValid = () => { const pad = S.mt.pad; return !!pad && (pad.nm || NUM_OK.test(pad.buf)); };
+const padDisplay = () => { const pad = S.mt.pad; return pad.nm ? "Not measured" : pad.buf || `<span class="muted" style="font-size:1.1rem">Enter a value</span>`; };
+const padMessage = () => { const pad = S.mt.pad; return pad.nm ? "This reading will be recorded as not measured." : pad.buf === "" ? "Enter a number. An empty field is not treated as zero." : NUM_OK.test(pad.buf) ? "" : "Add a digit after the decimal point."; };
+function padRefresh() {
+  const v = document.getElementById("pad-value"), m = document.getElementById("pad-msg"), b = document.getElementById("pad-confirm"), nm = document.querySelector("[data-action=padnm]");
+  if (v) v.innerHTML = padDisplay(); if (m) m.textContent = padMessage(); if (b) b.disabled = !padValid(); if (nm) nm.setAttribute("aria-pressed", String(!!S.mt.pad.nm));
+}
+function padKey(key) {
+  const pad = S.mt.pad; if (!pad) return;
+  if (key === "clear") { pad.buf = ""; pad.nm = false; }
+  else if (key === "del") pad.buf = pad.buf.slice(0, -1);
+  else if (key === ".") { if (!pad.buf.includes(".")) pad.buf = (pad.buf || "0") + "."; pad.nm = false; }
+  else if (/^\d$/.test(key)) { if (pad.buf.replace(".", "").length < 8) pad.buf = pad.buf === "0" ? key : pad.buf + key; pad.nm = false; }
+  padRefresh();
+}
+function openPad(k) { S.mt.pad = { k, buf: "", nm: false }; S.modal = "pad"; S.modalCtx = {}; render(); document.getElementById("pad-confirm")?.closest(".modal").querySelector(".pad-key")?.focus(); }
 
 /* =========================================================================
    Menu: left-hand on desktop, behind the menu button on tablet and phone
@@ -2406,7 +2680,7 @@ function screenClientExp() {
 function screenData() {
   const n = k => Object.keys(Store[k]).length;
   return assessorShell("", `${settingsHead("Data and storage", "Where saved records live in this prototype.")}
-    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets")}</b><span>Assessment sections saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
+    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets") + n("mattress")}</b><span>Assessment sections and tests saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
     <section class="card stack"><h3>Storage</h3><p class="small">${Store.mode === "shared" ? "Records are saved to shared storage for this page, so Iza and Alfie see the same clients and results." : Store.mode === "local" ? "Records are saved in this browser only. Open the published page to share them." : "Connecting to storage…"}</p>
       <p class="small muted">Please use test details only while this is a prototype. Example records EG-001 to EG-004 are built into the page and are not stored.</p>
       <div class="row"><button class="btn" data-action="copydata">${icon("copy")}Copy all saved data</button></div>
@@ -2426,7 +2700,8 @@ const RENDER = {
   questionnaire: () => previewWrap("Pre-visit questionnaire", screenQuestionnaire()), portal: () => previewWrap("Client portal", screenPortal()),
   templates: screenTemplates, equipment: screenEquipment, references: screenReferences, services: screenServices, access: screenAccess, clientexp: screenClientExp, data: screenData,
   assess: screenAssessOverview,
-  ...Object.fromEntries(SECTIONS.map(x => [x.id, () => screenSection(x)]))
+  ...Object.fromEntries(SECTIONS.map(x => [x.id, () => screenSection(x)])),
+  a2: screenMattress
 };
 const LEGACY = { profile: "client", home: "dashboard", ...LEGACY_SECTIONS };
 let pendingRender = false;
@@ -2471,7 +2746,7 @@ function go(screen) {
   render(); window.scrollTo({ top: 0 });
 }
 function openModal(kind, ctx) { S.modal = kind; S.modalCtx = ctx || {}; render(); const f = document.querySelector(".modal input:not([type=radio]), .modal select"); if (f) f.focus(); }
-function closeModal() { S.modal = null; S.modalCtx = null; render(); }
+function closeModal() { S.modal = null; S.modalCtx = null; S.mt.pad = null; render(); }
 function applySearch() {
   const box = document.getElementById("client-search"); if (!box) return;
   const q = S.search.trim().toLowerCase(); let shown = 0;
@@ -2510,8 +2785,33 @@ const ACT = {
   opennav: () => openNav(),
   closenav: () => closeNav(true),
   frame: d => { S.frame = d.f; render(); },
+  mtds: d => { S.mt.ds = d.ds; S.mt.flash = null; S.mt.amendHint = false; S.mt.confirmNew = false; S.mt.viewRun = null; render(); },
+  mtcell: d => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = +d.k; S.mt.flash = null; render(); document.getElementById("mt-field")?.focus(); if (mtDone(doc) === MT_TOTAL) openPad(+d.k); },
+  mtpos: d => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds), p = +d.p; const free = [0, 1, 2].find(a => !mtFilled((doc.cells || {})[`${p}|${a}`])); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = p * 3 + (free == null ? 0 : free); S.mt.flash = null; render(); document.getElementById("mt-field")?.focus(); },
+  mtfield: () => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); openPad(mtCurrent(doc)); },
+  mtback: () => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds), k = mtCurrent(doc); if (k > 0) { S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = k - 1; render(); document.getElementById("mt-field")?.focus(); } },
+  mtflashnext: () => { S.mt.flash = null; render(); document.getElementById("mt-field")?.focus(); },
+  mtreview: () => document.getElementById("mt-table")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+  mtamend: () => { S.mt.amendHint = true; render(); const b = document.querySelector("#mt-table .mt-cell"); if (b) { b.scrollIntoView({ block: "center" }); b.focus(); } },
+  async mtfinish() {
+    const doc = JSON.parse(JSON.stringify(mtDoc(S.client, mtRoom(), S.mt.ds))), now = new Date().toISOString();
+    doc.completedAt = now; doc.completedBy = ASSESSOR;
+    const ok = await mtSave(doc);
+    if (!ok) { toast("The test could not be saved. Please try again."); return; }
+    S.mt.amendHint = false; toast(`Nine-point mattress test saved to ${doc.ref}`); go("a3");
+  },
+  mtnew: () => { S.mt.confirmNew = true; render(); },
+  mtnewno: () => { S.mt.confirmNew = false; render(); },
+  async mtnewgo() {
+    const cur = mtDoc(S.client, mtRoom(), S.mt.ds), doc = { ref: S.client, visit: VISIT.id, room: mtRoom(), ds: S.mt.ds, run: cur.run + 1, cells: {}, startedAt: new Date().toISOString() };
+    const ok = await mtSave(doc); S.mt.confirmNew = false; render(); toast(ok ? `Test ${doc.run} started. Test ${cur.run} is kept.` : "The new test could not be started.");
+  },
+  mtview: d => { S.mt.viewRun = S.mt.viewRun === +d.run ? null : +d.run; render(); },
+  padkey: d => padKey(d.key),
+  padnm: () => { S.mt.pad.nm = !S.mt.pad.nm; if (S.mt.pad.nm) S.mt.pad.buf = ""; padRefresh(); },
+  padconfirm: () => { if (padValid()) mtConfirm(S.mt.pad.nm); },
+  padback: () => { const k = S.mt.pad.k; if (k > 0) { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = k - 1; openPad(k - 1); } },
   togglepart: d => { const el = document.getElementById("navp-" + d.p), open = el.hidden; el.hidden = !open; S.navParts[d.p] = open; document.querySelector(`[data-action=togglepart][data-p="${d.p}"]`).setAttribute("aria-expanded", String(open)); },
-  a2q: d => { S.a2q = d.q; const sec = sectionById("a2"), el = document.getElementById("a2-visual"); if (el) el.outerHTML = a2Visual(sheetGet(S.client, sheetRoomKey(sec), "a2")); },
   addsheetrow: d => {
     const sec = sectionById(S.screen), tb = sec.tables.find(t => t.k === d.table), room = sheetRoomKey(sec), sh = sheetGet(S.client, room, sec.id);
     const rows = (((sh.t || {})[tb.k] || {}).rows || tb.rows.map(r => rowOf(r).label));
@@ -2527,7 +2827,7 @@ const ACT = {
     toast(`${t.name} applied${keep.length ? `. ${keep.length} room${keep.length === 1 ? "" : "s"} with saved results kept` : ""}`);
   },
   copydata: () => {
-    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets }, null, 2);
+    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress }, null, 2);
     const box = document.getElementById("data-copy");
     const fallback = () => { box.value = text; box.hidden = false; box.focus(); box.select(); toast("Select all and copy the text below"); };
     try { navigator.clipboard.writeText(text).then(() => toast("All saved data copied"), fallback); } catch (e) { fallback(); }
@@ -2681,7 +2981,6 @@ function sheetInput(t) {
   const value = t.type === "checkbox" ? t.checked : t.value;
   if (t.matches("[data-num]")) { if (value !== "" && parseNum(value) == null) t.setAttribute("aria-invalid", "true"); else t.removeAttribute("aria-invalid"); }
   setSheet(S.client, room, sec.id, t.dataset.sheet, value);
-  if (sec.visual) { const el = document.getElementById("a2-visual"); if (el) el.outerHTML = a2Visual(sheetGet(S.client, room, sec.id)); }
 }
 function saveNote(ref, roomId, text) {
   const c = getClient(ref); markEdited();
@@ -2697,6 +2996,12 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches("g[data-action], tr[data-action], div[data-action][tabindex]")) { e.preventDefault(); ACT[e.target.dataset.action](e.target.dataset, e.target, e); }
+  if (S.modal === "pad") {
+    if (/^\d$/.test(e.key)) { e.preventDefault(); padKey(e.key); return; }
+    if (e.key === "." || e.key === ",") { e.preventDefault(); padKey("."); return; }
+    if (e.key === "Backspace") { e.preventDefault(); padKey("del"); return; }
+    if (e.key === "Enter" && !e.target.matches("button")) { e.preventDefault(); if (padValid()) mtConfirm(S.mt.pad.nm); return; }
+  }
   if (e.key === "Escape" && S.modal) closeModal();
   else if (e.key === "Escape") closeNav(true);
 });
@@ -2706,6 +3011,15 @@ document.addEventListener("input", e => {
   if (t.matches("[data-input]")) markEdited();
   if (t.matches("[data-search-input]")) { S.search = t.value; applySearch(); }
   if (t.matches("[data-sheet]")) sheetInput(t);
+  if (t.matches("[data-bedroom]")) {
+    const [ref, id, f] = t.dataset.bedroom.split("|"), c = getClient(ref); markEdited();
+    if (c.example) { S.exBedrooms[ref] = S.exBedrooms[ref] || {}; S.exBedrooms[ref][id] = { ...(S.exBedrooms[ref][id] || {}), [f]: t.value }; }
+    else {
+      const base = { ...(c.bedrooms || {}), ...(S.bedDraft[ref] || {}) };
+      S.bedDraft[ref] = { ...base, [id]: { ...(base[id] || {}), [f]: t.value } };
+      debounce("beds:" + ref, async () => { const next = S.bedDraft[ref]; await updateClient(ref, { bedrooms: next }); if (S.bedDraft[ref] === next) delete S.bedDraft[ref]; });
+    }
+  }
   if (t.matches("[data-note]")) saveNote(S.client, t.dataset.note, t.value);
   if (t.matches("[data-intnote]")) {
     const ref = t.dataset.intnote, c = getClient(ref); markEdited();
@@ -2721,6 +3035,7 @@ document.addEventListener("change", e => {
   const t = e.target, kind = t.dataset.change;
   if (t.matches("select[data-sheet], input[type=checkbox][data-sheet]")) sheetInput(t);
   if (kind === "pickclient") { S.client = t.value; const rooms = roomsFor(S.client); if (!rooms.some(r => r.id === S.room)) S.room = (rooms[0] || {}).id; render(); document.getElementById("cb-client")?.focus(); toast(`Results will be saved to ${S.client}`); }
+  if (kind === "pickbed") { S.room = t.value; S.mt.flash = null; S.mt.confirmNew = false; S.mt.viewRun = null; render(); document.getElementById("cb-bed")?.focus(); }
   if (kind === "pickroom") { S.room = t.value; S.cell = 0; render(); document.getElementById("cb-room")?.focus(); }
   if (t.id === "m-meth") { const axes = t.value === "three-axis"; document.getElementById("m-axes").hidden = !axes; document.getElementById("m-valwrap").hidden = axes; }
   if (t.id === "m-inst") { const eq = inst(t.value); if (eq) document.getElementById("m-result").value = eq.result; }
