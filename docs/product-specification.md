@@ -95,6 +95,22 @@ A2 replaces typing into small table cells with guided entry, built for a tablet.
 
 **Results on the mattress.** The mattress is drawn to the proportions of the chosen size, with the nine points as a heatmap in the colours of Emerald Grey's evaluation chart: green (no anomaly), olive green (slight), orange (severe) and red (extreme). Each point shows the 3D resultant and its rating in words, and a key gives the bands for the test's unit. Selecting a point opens its X, Y and Z readings for review or amendment. Earlier tests are still shown as tables of Mattress position, X, Y, Z and 3D resultant.
 
+### A3. Low-frequency fields: guided mapping
+
+A3 records AC electric-field strength in V/m with the ME3951A, as two guided tests that use the same large number field, dial pad, confirmation button and automatic saving as A2.
+
+Before the first reading the assessor records the start time and the frequency or filter setting (5 Hz to 400 kHz, 16 Hz, 50 Hz to 400 kHz, or 2 kHz to 400 kHz). Entry stays closed until both are set, with the reminder to keep the method, meter orientation, height, distance from the wall and room conditions consistent throughout.
+
+**Test A, wall mapping.** Walls are taken clockwise from north. On each wall the assessor stands inside the room facing it and measures at about 25%, 50% and 75% of its length, from their own left to right: twelve positions, each read as X, Y and Z (36 readings). No room dimensions are needed. The room outline is a plain square used only for orientation and progress, and its markers follow the assessor's viewpoint, so 25% sits at the left of the north wall, the top of the east wall, the right of the south wall and the bottom of the west wall. Marker colours describe data entry, not exposure: grey not started, orange in progress, green complete, red requires attention, each with its own symbol so colour is never the only cue. When West 75% is complete the page pauses with a summary and three choices; the room-centre test never starts on its own.
+
+**Test B, room centre.** Standing at the centre, the assessor records X, Y and Z facing north, east, south and west (12 readings), shown as four arrows that turn green as each direction is completed.
+
+**Calculation and summaries.** Each 3D resultant is √(X² + Y² + Z²), calculated only when all three axes hold a number, saved at full precision and shown to one decimal place. The axes are never averaged. Wall mapping reports the highest resultant with its wall and position, the lowest, the average of completed positions and the number complete and incomplete; the room-centre test reports the highest with its direction, the lowest and the average.
+
+**Validation and flags.** Zero, whole numbers and decimals are accepted; negatives, letters and a second decimal point are not, and a blank is never treated as zero. Not measured (with an optional reason), Below detection limit and Instrument overload are recorded as flags, and a position holding a flag shows as requiring attention with no resultant.
+
+**Saving.** Each confirmed reading is saved at once against the client, property, visit, room, test, method, wall or centre, position or direction, axis, raw value, unit, meter, filter, time and assessor, with any later amendment kept in the reading's history. A confirmed result changes only through Amend measurement. Reopening A3 returns to the first incomplete reading, and starting a new test keeps earlier ones. "Save and continue to the next assessment section" records completion and moves to A4.
+
 ### Client profile: bedrooms
 
 The client profile lists Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4, each with who sleeps there, the bed or mattress and the mattress size. All fields may be left blank. The mattress size can be set here or on the A2 page; both show the same value.

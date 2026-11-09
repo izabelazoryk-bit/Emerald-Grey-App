@@ -210,6 +210,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pad-secondary .btn { min-height: 46px; }
 .pad-secondary [aria-pressed="true"] { background: var(--muted-bg); border-color: var(--ink-3); }
 .pad-confirm { flex: 1 1 200px; min-height: 98px; font-size: 1.1rem; }
+/* A3 low-frequency field mapping. Progress colours describe data entry only, never exposure. */
+:root { --prog-none: #9A9A93; --prog-active: #D9822B; --prog-done: #3E8E5A; --prog-attn: #C4473D; }
+.lf-setup { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr) minmax(0, 180px); gap: 16px; align-items: start; }
+.lf-filters { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.lf-filters legend { margin-bottom: 6px; }
+.lf-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lf-diagram { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.lf-svg { width: 100%; max-width: 360px; height: auto; align-self: center; }
+.lf-svg .lf-dir { font-size: 12px; letter-spacing: .14em; fill: var(--ink-2); font-weight: 600; }
+.lf-svg .lf-pct { font-size: 10.5px; fill: var(--ink-3); }
+.lf-svg .lf-mark { cursor: pointer; }
+.lf-svg .lf-mark:focus-visible { outline: 3px solid var(--gold); }
+.lf-key { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .8rem; color: var(--ink-2); }
+.lf-key li { display: flex; align-items: center; gap: 6px; }
+.lf-key i { width: 18px; height: 18px; border-radius: 50%; color: #fff; font-style: normal; font-size: .72rem; display: inline-grid; place-items: center; }
+.lf-where { font-family: var(--font-display); font-size: 1.6rem; color: var(--forest); margin: 0; }
+.lf-stats { margin-top: 4px; }
+.lf-table { table-layout: fixed; min-width: 620px; }
+@container (max-width: 820px) { .lf-setup { grid-template-columns: minmax(0, 1fr); } }
+@container (max-width: 560px) { .lf-filters { grid-template-columns: minmax(0, 1fr); } }
 @container (max-width: 820px) { .mt-guided { grid-template-columns: minmax(0, 1fr); } }
 @container (max-width: 560px) { .mt-tabs { grid-template-columns: minmax(0, 1fr); } .mt-axes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mt-field { font-size: 2.4rem; } }
 
@@ -715,7 +735,8 @@ const EVAL = {
   part:    { label: "Part of the combined total", client: "Part of the total", cls: "c-outline" },
   rmsnc:   { label: "Not classified: guidance uses peak", client: "Not classified", cls: "c-outline" },
   incomplete: { label: "Not classified: one band missing", client: "Not classified", cls: "c-outline" },
-  na:      { label: "Not accessible", client: "Not accessible", cls: "c-outline" }
+  na:      { label: "Not accessible", client: "Not accessible", cls: "c-outline" },
+  mapping: { label: "Not classified: room mapping reading", client: "Room mapping", cls: "c-outline" }
 };
 /* Screening results and professional observations are never classified automatically. */
 function readingEval(r) {
@@ -1017,6 +1038,7 @@ S.alloc = { "EG-001": S.scope, "EG-002": allocFrom(PACKAGES["Home Health Analysi
 S.exRooms = { "EG-002": ROOM_TEMPLATES.t2.rooms, "EG-003": ROOM_TEMPLATES.t3.rooms, "EG-004": ROOM_TEMPLATES.t1.rooms };
 Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, navParts: {}, bedDraft: {},
   mt: { ds: "pf", idx: {}, pad: null, flash: null, reviewing: false, confirmNew: false, viewRun: null },
+  lf: { test: null, idx: {}, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   exBedrooms: { "EG-001": { bed1: { who: "Tom (left) and Harriet (right)", bed: "Upholstered divan, pocket-sprung mattress", size: "king" }, bed2: { who: "Their son, aged 6", bed: "Single pine bed, foam mattress", size: "single" } } } });
 const findingById = id => FINDINGS.find(f => f.id === id);
 
@@ -1027,17 +1049,17 @@ const findingById = id => FINDINGS.find(f => f.id === id);
    built into the page and never written to storage.
    ========================================================================= */
 const LOCAL_KEY = "emerald-grey-studio-v1";
-const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress"];
+const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress", "lf"];
 const Store = {
   mode: "starting", note: "", readOnly: false, db: null, queue: {},
-  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {},
+  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {}, lf: {},
   loadLocal() {
     try { const d = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); COLLECTIONS.forEach(k => { this[k] = d[k] || {}; }); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   persistLocal() {
     if (this.mode !== "local") return;
-    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress })); }
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress, lf: this.lf })); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   async init() {
@@ -1122,7 +1144,7 @@ function roomsFor(ref) {
   return c.rooms && c.rooms.length ? c.rooms : DEFAULT_ROOMS;
 }
 const byTime = (a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || ""));
-function readingsFor(ref) { return (isFixture(ref) ? READINGS : []).concat(Object.values(Store.readings).filter(r => r.client === ref).sort(byTime), sheetReadings(ref), mattressReadings(ref)); }
+function readingsFor(ref) { return (isFixture(ref) ? READINGS : []).concat(Object.values(Store.readings).filter(r => r.client === ref).sort(byTime), sheetReadings(ref), mattressReadings(ref), lfReadings(ref)); }
 function samplesFor(ref) { return (isFixture(ref) ? SAMPLES : []).concat(Object.values(Store.samples).filter(s => s.client === ref).sort(byTime)); }
 function testStatus(ref, code) {
   if (!alloc(ref)[code]) return "excluded";
@@ -1537,6 +1559,10 @@ function sectionState(ref, room, sec) {
     const done = Object.keys(MT_TESTS).filter(ds => mtDone(mtDoc(ref, room.id, ds)) === MT_TOTAL).length;
     const any = Object.keys(MT_TESTS).reduce((t, ds) => t + mtDone(mtDoc(ref, room.id, ds)), 0);
     return done === 3 ? { st: "measured", note: "All three tests complete" } : { st: "incomplete", note: any ? `${done} of 3 tests complete` : "Not started" };
+  }
+  if (sec.id === "a3") {
+    const doc = lfDoc(ref, room.id), w = lfDone(doc, "walls"), c = lfDone(doc, "centre");
+    return w === 36 && c === 12 ? { st: "measured", note: "Both tests complete" } : { st: "incomplete", note: w + c ? `${w + c} of 48 readings` : "Not started" };
   }
   const n = sheetFilled(sheetGet(ref, sec.scope === "property" ? "property" : room.id, sec.id));
   return n ? { st: "measured", note: `${n} entr${n === 1 ? "y" : "ies"}${sec.scope === "property" ? " · whole property" : ""}` } : { st: "incomplete", note: sec.scope === "property" ? "Not started · whole property" : "Not started" };
@@ -2102,11 +2128,7 @@ const SECTIONS = [
   { id: "a1", part: "A", code: "A1", title: "Screening", scope: "room", points: ["A1", "A2", "A3"],
     checks: ["Socket earth configuration checked", "AM radio screening done", "Compass screening done", "Electric blanket, heated pad or electric bed present", "Phone, charger, clock or baby monitor near the head", "Router, extender or smart device in or beside the room", "Sockets, wiring or consumer unit behind the bed head wall", "Metal bed frame or springs"] },
   { id: "a2", part: "A", code: "A2", title: "Nine-point mattress test", scope: "room", points: ["A1", "A2"], custom: true, texts: [{ k: "second", label: "Notes, including the second sleeper's side if different" }] },
-  { id: "a3", part: "A", code: "A3", title: "Low-frequency fields", scope: "room", points: ["A1", "A2"],
-    intro: "Take three positions along each wall, holding the meter, then four directions at the room centre.",
-    fields: [{ k: "from", label: "Time from", type: "time" }, { k: "to", label: "Time to", type: "time" }],
-    tables: [{ k: "walls", head: "Position", rows: [...wallPositions, "Centre, facing north", "Centre, facing east", "Centre, facing south", "Centre, facing west"],
-      cols: [n("vm", "Electric field", "V/m"), n("x", "Flat (X)", "nT"), n("y", "Rotate (Y)", "nT"), n("z", "Up (Z)", "nT")] }] },
+  { id: "a3", part: "A", code: "A3", title: "Low-frequency fields", scope: "room", points: ["A1"], custom: true, fields: [], tables: [] },
   { id: "a4", part: "A", code: "A4", title: "Dirty electricity", scope: "room", points: ["A1"],
     intro: "Start at the sockets nearest the head of the bed, then switch off or unplug one suspect at a time.",
     fields: [sel("units", "Units", UNIT_OPTS.de)],
@@ -2252,10 +2274,6 @@ function deriveSheet(sh) {
   const f = sh.f || {};
   const each = (k, fn) => { const tb = sec.tables.find(t => t.k === k); rowsOf(tb).forEach((label, i) => fn(label || `Row ${i + 1}`, i)); };
   switch (sh.section) {
-    case "a3": each("walls", (row, i) => {
-      const vm = parseNum(cell("walls", i, "vm")); if (vm != null) add(`vm${i}`, { point: "A1", label: `Electric field, ${row}`, value: vm, unit: "V/m", method: "earthed", inst: "me3951", loc: row });
-      const m = xyz("walls", i, ["x", "y", "z"]); if (m) add(`m${i}`, { point: "A2", label: `Magnetic field, ${row}`, value: res3(m), axes: m, unit: "nT", method: "three-axis", inst: "me3951", loc: row });
-    }); break;
     case "a4": each("de", (row, i) => { const v = parseNum(cell("de", i, "reading")); if (v != null) add(`r${i}`, { point: "A1", label: `Dirty electricity, ${row}`, value: v, unit: f.units || "mV p-p", inst: "em100", time: cell("de", i, "time"), note: cell("de", i, "notes"), loc: row }); }); break;
     case "a5": {
       const u = f.units || "µW/m²", peaks = [];
@@ -2404,9 +2422,9 @@ function screenAssessOverview() {
     ${PARTS.map(p => `<section class="card stack" aria-labelledby="part-${p.k}"><h3 id="part-${p.k}">${p.title}</h3>
       <div class="list">${SECTIONS.filter(s => s.part === p.k).map(s => {
         const key = s.scope === "property" ? "property" : s.id === "a2" ? mtRoom() : room && room.id; const sh = key ? sheetGet(c.ref, key, s.id) : null;
-        const filled = s.id === "a2" ? Object.keys(MT_TESTS).reduce((t, ds) => t + mtDone(mtDoc(c.ref, key, ds)), 0) : sh ? sheetFilled(sh) : 0;
+        const filled = s.id === "a2" ? Object.keys(MT_TESTS).reduce((t, ds) => t + mtDone(mtDoc(c.ref, key, ds)), 0) : s.id === "a3" && key ? lfDone(lfDoc(c.ref, key), "walls") + lfDone(lfDoc(c.ref, key), "centre") : sh ? sheetFilled(sh) : 0;
         return `<div class="list-item" style="grid-template-columns:minmax(0,1fr) auto auto"><div><b class="small">${sectionName(s)}</b><div class="xsmall muted">${s.scope === "property" ? "Whole property" : s.id === "a2" ? `${bedName(key)} · three tests of ${MT_TOTAL} readings` : esc(room ? room.name : "")}${sh && sh.updatedAt ? ` · saved ${dateOnly(sh.updatedAt)}${sh.updatedBy ? " by " + sh.updatedBy : ""}` : ""}</div></div>
-          <span class="chip ${filled ? "c-emerald" : "c-outline"}">${filled ? (s.id === "a2" ? `${filled} of ${MT_TOTAL * 3} readings` : `${filled} entr${filled === 1 ? "y" : "ies"}`) : "Not started"}</span>
+          <span class="chip ${filled ? "c-emerald" : "c-outline"}">${filled ? (s.id === "a2" ? `${filled} of ${MT_TOTAL * 3} readings` : s.id === "a3" ? `${filled} of 48 readings` : `${filled} entr${filled === 1 ? "y" : "ies"}`) : "Not started"}</span>
           <button class="btn btn-s" data-action="go" data-screen="${s.id}">Open</button></div>`; }).join("")}</div></section>`).join("")}`);
 }
 
@@ -2515,7 +2533,7 @@ async function mtSave(doc) {
   return ok;
 }
 async function mtConfirm(nm) {
-  const pad = S.mt.pad; if (!pad) return;
+  const pad = S.pad; if (!pad) return;
   const value = nm ? null : parseFloat(pad.buf);
   if (!nm && !NUM_OK.test(pad.buf)) return;
   const base = mtDoc(S.client, mtRoom(), S.mt.ds);
@@ -2528,7 +2546,7 @@ async function mtConfirm(nm) {
   const ok = await mtSave(doc);
   if (!ok) { toast("That reading could not be saved. Please try again."); return; }
   const id = mtId(doc.ref, doc.room, doc.ds, doc.run), p = Math.floor(pad.k / 3);
-  S.modal = null; S.mt.pad = null;
+  S.modal = null; S.pad = null;
   if (amend) {
     const k = mtFirstIncomplete(doc); S.mt.idx[id] = k < 0 ? pad.k : k;
     toast(`${MT_POS[p]}, ${AXES[pad.k % 3]} changed and saved`);
@@ -2659,38 +2677,340 @@ function mtHeat(doc) {
   </section>`;
 }
 
-/* ---------- Dial pad ---------- */
+/* ---------- Dial pad ----------
+   One pad for every guided test. Each test supplies an adapter: what is being measured,
+   the current entry, which special results it allows, and how to save. */
+const FLAG_LABEL = { nm: "Not measured", bdl: "Below detection limit", ovl: "Instrument overload" };
+const PADS = {
+  mt: {
+    flags: ["nm"],
+    unit: () => MT_TESTS[S.mt.ds].unit,
+    entry: k => (mtDoc(S.client, mtRoom(), S.mt.ds).cells || {})[mtKey(k)],
+    heading: k => [`${MT_POS[Math.floor(k / 3)]} · position ${Math.floor(k / 3) + 1} of 9`, `${AXES[k % 3]}-axis`],
+    filled: e => mtFilled(e),
+    text: e => e.nm ? "Not measured" : fmtVal(e.v, MT_TESTS[S.mt.ds].unit),
+    confirm: pad => mtConfirm(pad.flag === "nm"),
+    back: k => { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = k - 1; }
+  }
+};
 function padHTML() {
-  const pad = S.mt.pad, t = MT_TESTS[S.mt.ds], doc = mtDoc(S.client, mtRoom(), S.mt.ds), e = (doc.cells || {})[mtKey(pad.k)];
-  const p = Math.floor(pad.k / 3), a = pad.k % 3, amend = mtFilled(e);
+  const pad = S.pad, A = PADS[pad.kind], e = A.entry(pad.k), amend = A.filled(e), [eyebrow, title] = A.heading(pad.k);
   const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "del"];
   return `<div class="modal pad" role="dialog" aria-modal="true" aria-labelledby="pad-title">
-    <div class="spread"><div><span class="eyebrow">${MT_POS[p]} · position ${p + 1} of 9</span><h2 id="pad-title">${AXES[a]}-axis</h2></div><span class="ref-badge">${S.client}</span></div>
-    ${amend ? `<p class="small">Current value: <b>${e.nm ? "Not measured" : fmtVal(e.v, t.unit)}</b>. Enter a new value and select Confirm change, or Cancel to keep it.</p>` : ""}
-    <div class="pad-display" aria-live="polite"><span id="pad-value">${padDisplay()}</span><span class="mt-unit">${t.unit}</span></div>
+    <div class="spread"><div><span class="eyebrow">${eyebrow}</span><h2 id="pad-title">${title}</h2></div><span class="ref-badge">${S.client}</span></div>
+    ${amend ? `<p class="small">Current value: <b>${A.text(e)}</b>. Enter a new value and select Confirm change, or Cancel to keep it.</p>` : ""}
+    <div class="pad-display" aria-live="polite"><span id="pad-value">${padDisplay()}</span><span class="mt-unit">${A.unit()}</span></div>
     <p class="xsmall pad-msg" id="pad-msg">${padMessage()}</p>
+    ${A.flags.includes("nm") && A.reason ? `<div class="field" id="pad-reason-wrap" ${pad.flag === "nm" ? "" : "hidden"}><label for="pad-reason">Reason not measured (optional)</label><input id="pad-reason" class="input" value="${esc(pad.reason || "")}" placeholder="For example, furniture against the wall"></div>` : ""}
     <div class="pad-keys">${keys.map(k => `<button class="pad-key" data-action="padkey" data-key="${k}" aria-label="${k === "del" ? "Delete last digit" : k === "." ? "Decimal point" : k}">${k === "del" ? "Delete" : k}</button>`).join("")}</div>
     <div class="pad-foot">
-      <div class="pad-secondary"><button class="btn" data-action="padback" ${pad.k === 0 ? "disabled" : ""}>Back</button><button class="btn" data-action="close">Cancel</button><button class="btn" data-action="padkey" data-key="clear">Clear</button><button class="btn" data-action="padnm" aria-pressed="${!!pad.nm}">Not measured</button></div>
+      <div class="pad-secondary"><button class="btn" data-action="padback" ${pad.k === 0 ? "disabled" : ""}>Back</button><button class="btn" data-action="close">Cancel</button><button class="btn" data-action="padkey" data-key="clear">Clear</button>
+        ${A.flags.map(f => `<button class="btn" data-action="padflag" data-flag="${f}" aria-pressed="${pad.flag === f}">${FLAG_LABEL[f]}</button>`).join("")}</div>
       <button class="btn btn-primary pad-confirm" id="pad-confirm" data-action="padconfirm" ${padValid() ? "" : "disabled"}>${amend ? "Confirm change" : "Confirm and continue"}</button>
     </div></div>`;
 }
-const padValid = () => { const pad = S.mt.pad; return !!pad && (pad.nm || NUM_OK.test(pad.buf)); };
-const padDisplay = () => { const pad = S.mt.pad; return pad.nm ? "Not measured" : pad.buf || `<span class="muted" style="font-size:1.1rem">Enter a value</span>`; };
-const padMessage = () => { const pad = S.mt.pad; return pad.nm ? "This reading will be recorded as not measured." : pad.buf === "" ? "Enter a number. An empty field is not treated as zero." : NUM_OK.test(pad.buf) ? "" : "Add a digit after the decimal point."; };
+const padValid = () => { const pad = S.pad; return !!pad && (!!pad.flag || NUM_OK.test(pad.buf)); };
+const padDisplay = () => { const pad = S.pad; return pad.flag ? FLAG_LABEL[pad.flag] : pad.buf || `<span class="muted" style="font-size:1.1rem">Enter a value</span>`; };
+const padMessage = () => { const pad = S.pad; return pad.flag ? `This reading will be recorded as ${FLAG_LABEL[pad.flag].toLowerCase()}.` : pad.buf === "" ? "Enter a number. An empty field is not treated as zero." : NUM_OK.test(pad.buf) ? "" : "Add a digit after the decimal point."; };
 function padRefresh() {
-  const v = document.getElementById("pad-value"), m = document.getElementById("pad-msg"), b = document.getElementById("pad-confirm"), nm = document.querySelector("[data-action=padnm]");
-  if (v) v.innerHTML = padDisplay(); if (m) m.textContent = padMessage(); if (b) b.disabled = !padValid(); if (nm) nm.setAttribute("aria-pressed", String(!!S.mt.pad.nm));
+  const v = document.getElementById("pad-value"), m = document.getElementById("pad-msg"), b = document.getElementById("pad-confirm"), r = document.getElementById("pad-reason-wrap");
+  if (v) v.innerHTML = padDisplay(); if (m) m.textContent = padMessage(); if (b) b.disabled = !padValid(); if (r) r.hidden = S.pad.flag !== "nm";
+  document.querySelectorAll("[data-action=padflag]").forEach(x => x.setAttribute("aria-pressed", String(S.pad.flag === x.dataset.flag)));
 }
 function padKey(key) {
-  const pad = S.mt.pad; if (!pad) return;
-  if (key === "clear") { pad.buf = ""; pad.nm = false; }
+  const pad = S.pad; if (!pad) return;
+  if (key === "clear") { pad.buf = ""; pad.flag = null; }
   else if (key === "del") pad.buf = pad.buf.slice(0, -1);
-  else if (key === ".") { if (!pad.buf.includes(".")) pad.buf = (pad.buf || "0") + "."; pad.nm = false; }
-  else if (/^\d$/.test(key)) { if (pad.buf.replace(".", "").length < 8) pad.buf = pad.buf === "0" ? key : pad.buf + key; pad.nm = false; }
+  else if (key === ".") { if (!pad.buf.includes(".")) pad.buf = (pad.buf || "0") + "."; pad.flag = null; }
+  else if (/^\d$/.test(key)) { if (pad.buf.replace(".", "").length < 8) pad.buf = pad.buf === "0" ? key : pad.buf + key; pad.flag = null; }
   padRefresh();
 }
-function openPad(k) { S.mt.pad = { k, buf: "", nm: false }; S.modal = "pad"; S.modalCtx = {}; render(); document.getElementById("pad-confirm")?.closest(".modal").querySelector(".pad-key")?.focus(); }
+function openPad(k, kind = "mt", extra = {}) { S.pad = { kind, k, buf: "", flag: null, reason: "", ...extra }; S.modal = "pad"; S.modalCtx = {}; render(); document.querySelector(".modal.pad .pad-key")?.focus(); }
+function padConfirm() { if (!padValid()) return; const r = document.getElementById("pad-reason"); if (r) S.pad.reason = r.value.trim(); PADS[S.pad.kind].confirm(S.pad); }
+
+/* =========================================================================
+   A3. Low-frequency fields: guided AC electric-field mapping, in V/m
+   Test A, wall mapping: four walls clockwise, three positions each (25%, 50% and
+   75% from the assessor's left when facing the wall). Test B, room centre: facing
+   north, east, south and west. Every position is read as X, Y and Z and the 3D
+   resultant is calculated, never typed. One record per client, visit, room and run.
+   ========================================================================= */
+const LF_FILTERS = ["5 Hz to 400 kHz", "16 Hz", "50 Hz to 400 kHz", "2 kHz to 400 kHz"];
+const LF_WALLS = ["North", "East", "South", "West"];
+const LF_SPOTS = ["25% from left", "50% from left", "75% from left"];
+const LF_FRAC = [0.25, 0.5, 0.75];
+const LF_UNIT = "V/m", LF_METER = "me3951";
+const LF_TESTS = {
+  walls: { label: "Wall mapping", pos: LF_WALLS.flatMap(w => LF_SPOTS.map((s, i) => ({ wall: w, spot: s, i }))), name: q => `${q.wall} wall, ${q.spot}` },
+  centre: { label: "Room-centre directions", pos: LF_WALLS.map(d => ({ dir: d })), name: q => `Facing ${q.dir.toLowerCase()}` }
+};
+const LF_STATUS = { notstarted: ["○", "Not started"], progress: ["◐", "In progress"], complete: ["✓", "Complete"], attention: ["!", "Requires attention"] };
+
+const lfId = (ref, room, run) => `${ref}__${VISIT.id}__${room}__a3__r${run}`;
+const lfBlank = (ref, room, run) => ({ ref, visit: VISIT.id, room, run, setup: {}, walls: { cells: {}, notes: {} }, centre: { cells: {}, notes: {} }, centreStarted: false, notes: "", startedAt: null });
+function lfRuns(ref, room) {
+  const prefix = `${ref}__${VISIT.id}__${room}__a3__r`;
+  return Object.entries(Store.lf).filter(([id]) => id.startsWith(prefix)).map(([, d]) => d).sort((a, b) => a.run - b.run);
+}
+function lfDoc(ref, room) { const runs = lfRuns(ref, room); return runs[runs.length - 1] || lfBlank(ref, room, 1); }
+const lfFilled = e => !!e && (typeof e.v === "number" || !!e.flag);
+const lfCell = (doc, test, k) => ((doc[test] || {}).cells || {})[`${Math.floor(k / 3)}|${k % 3}`];
+const lfTotal = test => LF_TESTS[test].pos.length * 3;
+const lfDone = (doc, test) => Object.values((doc[test] || {}).cells || {}).filter(lfFilled).length;
+const lfText = e => !lfFilled(e) ? "" : e.flag ? FLAG_LABEL[e.flag] : fmt(e.v, e.v % 1 ? 1 : 0);
+function lfPosStatus(doc, test, p) {
+  const e = [0, 1, 2].map(a => lfCell(doc, test, p * 3 + a)), n = e.filter(lfFilled).length;
+  if (!n) return "notstarted";
+  if (n < 3) return "progress";
+  return e.every(x => typeof x.v === "number") ? "complete" : "attention";
+}
+/* Full precision is kept; results are shown to one decimal place */
+function lfResultant(doc, test, p) {
+  const v = [0, 1, 2].map(a => (lfCell(doc, test, p * 3 + a) || {}).v);
+  if (!v.every(x => typeof x === "number")) return null;
+  return Math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));
+}
+function lfFirstIncomplete(doc, test, from = 0) {
+  const total = lfTotal(test);
+  for (let i = 0; i < total; i++) { const k = (from + i) % total; if (!lfFilled(lfCell(doc, test, k))) return k; }
+  return -1;
+}
+const lfKeyOf = (doc, test) => lfId(doc.ref, doc.room, doc.run) + ":" + test;
+function lfCurrent(doc, test) {
+  const key = lfKeyOf(doc, test);
+  if (S.lf.idx[key] != null) return S.lf.idx[key];
+  const k = lfFirstIncomplete(doc, test); return k < 0 ? lfTotal(test) - 1 : k;
+}
+const lfSetupDone = doc => !!(doc.setup && doc.setup.start && doc.setup.filter);
+function lfActiveTest(doc) {
+  if (S.lf.test && (S.lf.test === "walls" || doc.centreStarted)) return S.lf.test;
+  return doc.centreStarted ? "centre" : "walls";
+}
+function lfStats(doc, test) {
+  const rows = LF_TESTS[test].pos.map((q, p) => ({ q, p, r: lfResultant(doc, test, p) })).filter(x => x.r != null);
+  if (!rows.length) return null;
+  const hi = rows.reduce((a, b) => b.r > a.r ? b : a), lo = rows.reduce((a, b) => b.r < a.r ? b : a);
+  return { hi, lo, avg: rows.reduce((t, x) => t + x.r, 0) / rows.length, complete: rows.length, incomplete: LF_TESTS[test].pos.length - rows.length };
+}
+
+/* ---------- Saving ---------- */
+async function lfSave(doc) {
+  const c = getClient(doc.ref), body = { ...doc, customer: c.name, property: [c.propertyName, addrLine(c)].filter(Boolean).join(", "), visitLabel: VISIT.label,
+    roomName: roomName(doc.ref, doc.room), test: "A3 Low-frequency fields", method: "Hand-held meter, X, Y and Z with the 3D resultant calculated",
+    meter: inst(LF_METER).name, unit: LF_UNIT, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR };
+  const ok = await Store.put("lf", lfId(doc.ref, doc.room, doc.run), body);
+  if (ok) { const a = alloc(doc.ref); if (!a.A1) await setAlloc(doc.ref, { ...a, A1: true }); }
+  return ok;
+}
+const lfClone = (ref = S.client, room = currentRoom().id) => JSON.parse(JSON.stringify(lfDoc(ref, room)));
+async function lfSetup(k, v) {
+  const doc = lfClone(); doc.setup = { ...(doc.setup || {}), [k]: v };
+  if (!(await lfSave(doc))) { toast("The set-up could not be saved. Please try again."); return; }
+  render(); if (k === "filter") document.querySelector(`[data-lffilter="${CSS.escape(v || "")}"]`)?.focus();
+}
+async function lfConfirm(pad) {
+  const doc = lfClone(), test = pad.test, p = Math.floor(pad.k / 3), a = pad.k % 3, key = `${p}|${a}`;
+  const old = doc[test].cells[key], now = new Date().toISOString(), amend = lfFilled(old);
+  const value = pad.flag ? null : parseFloat(pad.buf);
+  const describe = e => e.flag ? FLAG_LABEL[e.flag] : e.v;
+  const cell = { v: value, flag: pad.flag || null, reason: pad.flag === "nm" ? (pad.reason || "") : "", by: ASSESSOR, at: now, hist: [] };
+  if (amend) cell.hist = [...(old.hist || []), { at: now, by: ASSESSOR, old: describe(old), new: describe(cell) }];
+  doc[test].cells[key] = cell;
+  doc.startedAt = doc.startedAt || now;
+  if (!(await lfSave(doc))) { toast("That reading could not be saved. Please try again."); return; }
+  S.modal = null; S.pad = null;
+  const lk = lfKeyOf(doc, test), name = LF_TESTS[test].name(LF_TESTS[test].pos[p]);
+  if (amend) { const k = lfFirstIncomplete(doc, test); S.lf.idx[lk] = k < 0 ? pad.k : k; toast(`${name}, ${AXES[a]} changed and saved`); }
+  else {
+    const next = lfFirstIncomplete(doc, test, pad.k + 1); S.lf.idx[lk] = next < 0 ? pad.k : next;
+    if (a === 2 && lfPosStatus(doc, test, p) !== "progress") {
+      S.lf.flash = { test, p, key: lk }; clearTimeout(S.lf.flashTimer);
+      S.lf.flashTimer = setTimeout(() => { if (S.lf.flash && S.lf.flash.key === lk) { S.lf.flash = null; if (!S.modal && S.screen === "a3") render(); } }, 2400);
+    }
+  }
+  render();
+}
+PADS.lf = {
+  flags: ["nm", "bdl", "ovl"], reason: true,
+  unit: () => LF_UNIT,
+  entry: k => lfCell(lfDoc(S.client, currentRoom().id), S.pad.test, k),
+  heading: k => { const t = LF_TESTS[S.pad.test], q = t.pos[Math.floor(k / 3)]; return [`${t.label} · ${t.name(q)}`, `${AXES[k % 3]}-axis`]; },
+  filled: lfFilled,
+  text: e => e.flag ? FLAG_LABEL[e.flag] + (e.reason ? ` (${e.reason})` : "") : fmtVal(e.v, LF_UNIT),
+  confirm: pad => lfConfirm(pad),
+  back: k => { const doc = lfDoc(S.client, currentRoom().id); S.lf.idx[lfKeyOf(doc, S.pad.test)] = k - 1; }
+};
+
+/* ---------- Diagrams: orientation and progress only, never the room's real shape ---------- */
+const PROG = { notstarted: "var(--prog-none)", progress: "var(--prog-active)", complete: "var(--prog-done)", attention: "var(--prog-attn)" };
+function lfMarker(x, y, st, current, label, p, test) {
+  const col = PROG[st], r = 11;
+  const shape = st === "notstarted" ? `<circle cx="${x}" cy="${y}" r="${r}" fill="var(--surface)" stroke="${col}" stroke-width="2"/>`
+    : st === "progress" ? `<circle cx="${x}" cy="${y}" r="${r}" fill="var(--surface)" stroke="${col}" stroke-width="2"/><path d="M ${x} ${y - r} A ${r} ${r} 0 0 0 ${x} ${y + r} Z" fill="${col}"/>`
+    : `<circle cx="${x}" cy="${y}" r="${r}" fill="${col}"/><text x="${x}" y="${y + 4.5}" font-size="13" font-weight="700" text-anchor="middle" fill="#fff">${st === "complete" ? "✓" : "!"}</text>`;
+  return `<g class="lf-mark" data-action="lfpos" data-test="${test}" data-p="${p}" role="button" tabindex="0" aria-label="${label}: ${LF_STATUS[st][1]}">${current ? `<circle cx="${x}" cy="${y}" r="17" fill="none" stroke="var(--forest)" stroke-width="2.5"/>` : ""}${shape}</g>`;
+}
+function lfWallState(doc, w) {
+  const sts = [0, 1, 2].map(i => lfPosStatus(doc, "walls", w * 3 + i));
+  return sts.every(s => s === "complete") ? "complete" : sts.some(s => s === "attention") ? "attention" : sts.some(s => s !== "notstarted") ? "progress" : "notstarted";
+}
+function lfWallsSVG(doc, cur, showCur) {
+  const A = 70, B = 250, L = B - A;
+  const pos = (w, f) => w === 0 ? [A + f * L, A] : w === 1 ? [B, A + f * L] : w === 2 ? [B - f * L, B] : [A, B - f * L];
+  const edges = [[A, A, B, A], [B, A, B, B], [B, B, A, B], [A, B, A, A]];
+  const curWall = Math.floor(cur / 3);
+  const labelOff = (w, x, y) => w === 0 ? [x, y + 28] : w === 1 ? [x - 30, y + 4] : w === 2 ? [x, y - 20] : [x + 30, y + 4];
+  return `<svg class="lf-svg" viewBox="0 0 320 320" role="img" aria-label="Room outline for orientation only. Walls clockwise from north, positions measured from your left as you face each wall.">
+    <text x="160" y="30" text-anchor="middle" class="lf-dir">NORTH</text><text x="160" y="300" text-anchor="middle" class="lf-dir">SOUTH</text>
+    <text x="300" y="164" text-anchor="middle" class="lf-dir">EAST</text><text x="22" y="164" text-anchor="middle" class="lf-dir">WEST</text>
+    ${edges.map((e, w) => `<line x1="${e[0]}" y1="${e[1]}" x2="${e[2]}" y2="${e[3]}" stroke="${PROG[lfWallState(doc, w)]}" stroke-width="${showCur && w === curWall ? 7 : 4}" stroke-linecap="round"/>`).join("")}
+    <text x="160" y="166" text-anchor="middle" font-size="18" fill="var(--ink-3)" aria-hidden="true">+</text>
+    ${LF_WALLS.map((w, wi) => LF_FRAC.map((f, i) => { const [x, y] = pos(wi, f), [lx, ly] = labelOff(wi, x, y), p = wi * 3 + i;
+      return `<text x="${lx}" y="${ly}" text-anchor="middle" class="lf-pct">${Math.round(f * 100)}%</text>${lfMarker(x, y, lfPosStatus(doc, "walls", p), showCur && p === cur, `${w} wall, ${LF_SPOTS[i]}`, p, "walls")}`; }).join("")).join("")}
+  </svg>`;
+}
+function lfCentreSVG(doc, cur, showCur) {
+  const C0 = 160, R = 70;
+  const vec = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  return `<svg class="lf-svg" viewBox="0 0 320 320" role="img" aria-label="Room outline for orientation only, with the four directions faced from the centre.">
+    <text x="160" y="30" text-anchor="middle" class="lf-dir">NORTH</text><text x="160" y="300" text-anchor="middle" class="lf-dir">SOUTH</text>
+    <text x="300" y="164" text-anchor="middle" class="lf-dir">EAST</text><text x="22" y="164" text-anchor="middle" class="lf-dir">WEST</text>
+    <rect x="70" y="70" width="180" height="180" fill="none" stroke="var(--line)" stroke-width="3"/>
+    ${vec.map(([dx, dy], d) => { const st = lfPosStatus(doc, "centre", d), col = PROG[st], ex = C0 + dx * R, ey = C0 + dy * R, w = showCur && d === cur ? 6 : 3.5;
+      const head = `${ex + dx * 12},${ey + dy * 12} ${ex - dy * 8},${ey + dx * 8} ${ex + dy * 8},${ey - dx * 8}`;
+      return `<g data-action="lfpos" data-test="centre" data-p="${d}" role="button" tabindex="0" class="lf-mark" aria-label="Facing ${LF_WALLS[d].toLowerCase()}: ${LF_STATUS[st][1]}">
+        <line x1="${C0 + dx * 14}" y1="${C0 + dy * 14}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><polygon points="${head}" fill="${col}"/>
+        <text x="${C0 + dx * 44 + (dy ? 16 : 0)}" y="${C0 + dy * 44 + (dx ? -10 : 4)}" text-anchor="middle" class="lf-pct">${LF_STATUS[st][0]}</text></g>`; }).join("")}
+    <circle cx="${C0}" cy="${C0}" r="9" fill="var(--forest)"/>
+  </svg>`;
+}
+
+/* ---------- Page ---------- */
+function lfTable(doc, test, opts = {}) {
+  const t = LF_TESTS[test], ro = opts.readOnly;
+  const cellHTML = (p, a) => { const k = p * 3 + a, e = lfCell(doc, test, k), txt = lfText(e);
+    return ro ? `<td class="num">${txt || "–"}</td>` : `<td><button class="mt-cell" data-action="lfcell" data-test="${test}" data-k="${k}" aria-label="${t.name(t.pos[p])}, ${AXES[a]}-axis, ${txt || "not entered"}">${txt || "<span class=muted>Enter</span>"}</button></td>`; };
+  return `<div class="table-wrap"><table class="mt-table lf-table"><colgroup>${test === "walls" ? `<col style="width:11%"><col style="width:17%">` : `<col style="width:20%">`}<col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:15%"><col></colgroup><thead><tr>${test === "walls" ? "<th>Wall</th><th>Position</th>" : "<th>Direction faced</th>"}${AXES.map(a => `<th class="num">${a} <span class="unit">V/m</span></th>`).join("")}<th class="num">3D resultant <span class="unit">V/m</span></th><th>Notes</th></tr></thead><tbody>
+    ${t.pos.map((q, p) => { const r = lfResultant(doc, test, p), st = lfPosStatus(doc, test, p), note = ((doc[test] || {}).notes || {})[p] || "";
+      const reasons = [0, 1, 2].map(a => lfCell(doc, test, p * 3 + a)).filter(e => e && e.flag === "nm" && e.reason).map(e => e.reason);
+      return `<tr>${test === "walls" ? `<td><b class="small">${q.wall}</b></td><td class="small">${q.spot}</td>` : `<td><b class="small">${q.dir}</b></td>`}${[0, 1, 2].map(a => cellHTML(p, a)).join("")}
+        <td class="num resultant" aria-readonly="true">${r == null ? `<span class="muted">${st === "attention" ? "Not calculated" : "–"}</span>` : `<b>${fmt(r, 1)}</b>`}</td>
+        <td class="xsmall">${esc([note, ...reasons].filter(Boolean).join("; "))}</td></tr>`; }).join("")}
+  </tbody></table></div>`;
+}
+function lfStatsHTML(doc, test) {
+  const s = lfStats(doc, test); if (!s) return "";
+  const where = x => test === "walls" ? `${x.q.wall} wall, ${x.q.spot}` : `Facing ${x.q.dir.toLowerCase()}`;
+  return `<dl class="kv lf-stats">${test === "walls"
+    ? `<dt>Highest wall resultant</dt><dd><b>${fmt(s.hi.r, 1)} V/m</b></dd><dt>Wall</dt><dd>${s.hi.q.wall}</dd><dt>Position</dt><dd>${s.hi.q.spot}</dd><dt>Lowest completed resultant</dt><dd>${fmt(s.lo.r, 1)} V/m (${where(s.lo)})</dd>
+       <dt>Average of completed resultants</dt><dd>${fmt(s.avg, 1)} V/m</dd><dt>Complete positions</dt><dd>${s.complete} of 12</dd><dt>Incomplete positions</dt><dd>${s.incomplete}</dd>`
+    : `<dt>Highest directional resultant</dt><dd><b>${fmt(s.hi.r, 1)} V/m</b></dd><dt>Direction</dt><dd>Facing ${s.hi.q.dir.toLowerCase()}</dd><dt>Lowest directional resultant</dt><dd>${fmt(s.lo.r, 1)} V/m (${where(s.lo)})</dd>
+       <dt>Average of completed directions</dt><dd>${fmt(s.avg, 1)} V/m${s.complete < 4 ? ` (${s.complete} of 4)` : ""}</dd>`}</dl>
+    <p class="xsmall muted">Averages use completed positions only. Each resultant is √(X² + Y² + Z²), never an average of the three axes.</p>`;
+}
+function screenLF() {
+  const c = C(), room = currentRoom(), doc = lfDoc(c.ref, room.id), locked = Store.readOnly && !c.example;
+  const test = lfActiveTest(doc), T = LF_TESTS[test], total = lfTotal(test), done = lfDone(doc, test);
+  const testDone = done === total, wallsDone = lfDone(doc, "walls") === 36, centreDone = lfDone(doc, "centre") === 12;
+  const allDone = wallsDone && centreDone, setupDone = lfSetupDone(doc);
+  const k = lfCurrent(doc, test), p = Math.floor(k / 3), a = k % 3, q = T.pos[p], e = lfCell(doc, test, k);
+  const lk = lfKeyOf(doc, test), flash = S.lf.flash && S.lf.flash.key === lk ? S.lf.flash : null;
+  const reviewing = S.lf.reviewing;
+  const showEntry = !flash && (reviewing || !testDone);
+  const curWall = Math.floor(p / 3);
+  const wallDoneN = w => [0, 1, 2].filter(i => lfPosStatus(doc, "walls", w * 3 + i) === "complete").length;
+  const posComplete = tt => LF_TESTS[tt].pos.filter((_, i) => lfPosStatus(doc, tt, i) === "complete").length;
+  const progressText = test === "walls"
+    ? `<p class="small"><b>${LF_WALLS[curWall]} wall:</b> ${wallDoneN(curWall)} of 3 positions complete</p><p class="small"><b>Overall:</b> ${posComplete("walls")} of 12 positions complete</p>`
+    : `<p class="small"><b>Overall:</b> ${posComplete("centre")} of 4 directions complete</p>`;
+  const diagram = `<div class="lf-diagram">${test === "walls" ? lfWallsSVG(doc, k / 3 | 0, !testDone || reviewing) : lfCentreSVG(doc, p, !testDone || reviewing)}
+      <ul class="lf-key" aria-label="Key">${Object.entries(LF_STATUS).map(([st, [sym, l]]) => `<li><i style="background:${PROG[st]}">${sym}</i>${l}</li>`).join("")}</ul>
+      <p class="xsmall muted">Orientation and progress only. Red means data entry needs attention, not a high reading.</p>${progressText}</div>`;
+  const vals = pp => [0, 1, 2].map(x => lfCell(doc, test, pp * 3 + x));
+  let panel;
+  if (!setupDone) panel = `<div class="notice notice-muted">${icon("info")}<span class="small">Record the start time and the frequency or filter setting above to begin.</span></div>`;
+  else if (flash) { const fp = flash.p, v = vals(fp), r = lfResultant(doc, test, fp), nq = T.pos[Math.floor(lfCurrent(doc, test) / 3)];
+    panel = `<div class="mt-flash" role="status"><h3>${T.name(T.pos[fp])} complete</h3>
+      <dl class="kv">${v.map((x, i) => `<dt>${AXES[i]}</dt><dd class="num">${x.flag ? FLAG_LABEL[x.flag] : fmtVal(x.v, LF_UNIT)}</dd>`).join("")}<dt>3D resultant</dt><dd class="num"><b>${r == null ? "Not calculated" : fmtVal(r, LF_UNIT)}</b></dd></dl>
+      ${testDone ? "" : `<p class="small muted">Continuing to ${T.name(nq)}, X-axis…</p><button class="btn btn-s" data-action="lfflashnext">Continue now</button>`}</div>`; }
+  else if (!showEntry && test === "walls" && !doc.centreStarted) panel = `<div class="mt-complete" role="status"><h3>Wall mapping complete. Review the 12 measurement positions before continuing to the room-centre test.</h3>
+      <div class="mt-actions"><button class="btn" data-action="lfreview" data-target="lf-walls-table">Review wall measurements</button><button class="btn" data-action="lfamend">Amend a measurement</button>
+        <button class="btn btn-primary btn-lg" data-action="lfcentre" ${locked ? "disabled" : ""}>Continue to room-centre test</button></div></div>`;
+  else if (!showEntry && allDone) panel = `<div class="mt-complete" role="status"><h3>Low-frequency electric-field mapping complete.</h3>
+      <div class="mt-actions"><button class="btn" data-action="lfreview" data-target="lf-tables">Review all measurements</button><button class="btn" data-action="lfamend">Amend a measurement</button><button class="btn" data-action="lfnotes">Add notes</button>
+        <button class="btn btn-primary btn-lg" data-action="lffinish" ${locked ? "disabled" : ""}>Save and continue to the next assessment section</button></div></div>`;
+  else if (!showEntry) panel = `<div class="mt-complete" role="status"><h3>${T.label} complete.</h3><div class="mt-actions"><button class="btn" data-action="lfamend">Amend a measurement</button><button class="btn btn-primary" data-action="lftest" data-test="${test === "walls" ? "centre" : "walls"}">Go to ${test === "walls" ? "room-centre directions" : "wall mapping"}</button></div></div>`;
+  else {
+    const hist = lfFilled(e) && (e.hist || []).length ? `<div class="xsmall muted">${e.hist.map(h => `Changed ${nowStampFrom(h.at)} by ${esc(h.by)}: ${h.old} to ${h.new}`).join("<br>")}</div>` : "";
+    const r = lfResultant(doc, test, p);
+    panel = `<div class="mt-entry">
+      <span class="eyebrow">${T.label}</span>
+      ${test === "walls" ? `<div><h3 class="lf-where">${q.wall} wall</h3><p class="small">${q.spot}</p></div>` : `<div><h3 class="lf-where">Facing ${q.dir.toLowerCase()}</h3><p class="small">Direction ${p + 1} of 4 · Reading ${k + 1} of 12</p></div>`}
+      <label class="mt-label" for="lf-field"><b>${AXES[a]}-axis</b></label>
+      <div class="mt-field-row">${lfFilled(e)
+        ? `<div id="lf-field" class="mt-field has-value" role="status">${lfText(e)}</div>`
+        : `<button id="lf-field" class="mt-field" data-action="lffield" ${locked ? "disabled" : ""}><span>Tap to enter</span></button>`}<span class="mt-unit">${LF_UNIT}</span></div>
+      ${lfFilled(e) ? `<div class="row"><button class="btn" data-action="lfamendfield" ${locked ? "disabled" : ""}>Amend measurement</button><span class="xsmall muted">Entered ${nowStampFrom(e.at)} by ${esc(e.by)}${e.reason ? ` · reason: ${esc(e.reason)}` : ""}</span></div>` : ""}
+      ${hist}
+      <p class="small muted">${test === "walls" ? `${q.wall} wall position ${q.i + 1} of 3 · Overall position ${p + 1} of 12` : `Overall direction ${p + 1} of 4`}</p>
+      <div class="progress" aria-hidden="true"><i style="width:${Math.round(done / total * 100)}%"></i></div>
+      <div class="mt-axes">${[0, 1, 2].map(x => { const ee = lfCell(doc, test, p * 3 + x); return `<button class="mt-axis ${x === a ? "is-current" : ""}" data-action="lfcell" data-test="${test}" data-k="${p * 3 + x}"><span>${AXES[x]}</span><b>${lfText(ee) || "–"}</b></button>`; }).join("")}
+        <div class="mt-axis is-calc" aria-label="3D resultant, calculated"><span>3D resultant</span><b>${r == null ? "–" : fmt(r, 1)}</b></div></div>
+      <div class="field"><label for="lf-note">Notes for this ${test === "walls" ? "position" : "direction"} (optional)</label><input id="lf-note" class="input" value="${esc(((doc[test] || {}).notes || {})[p] || "")}" data-lfnote="${test}|${p}" ${locked ? "disabled" : ""}></div>
+      <div class="row"><button class="btn" data-action="lfback" ${k === 0 ? "disabled" : ""}>${icon("back")}Back</button>${testDone && reviewing ? `<button class="btn btn-primary" data-action="lfdonereview">Finish reviewing</button>` : ""}</div>
+    </div>`;
+  }
+  const runs = lfRuns(c.ref, room.id), earlier = runs.slice(0, -1);
+  return assessorShell("", `
+    <div class="topline"><div class="stack" style="gap:6px"><span class="eyebrow">Part A: EMF</span><h1>A3. Low-frequency fields</h1><p class="muted">AC electric-field strength in volts per metre (V/m).</p></div>
+      <span class="chip c-muted" role="status">${doc.startedAt ? `Test ${doc.run} · saved ${nowStampFrom(doc.updatedAt)}` : "Not started"}</span></div>
+    ${storeNotice()}
+    ${clientBar()}
+    <section class="card stack" aria-labelledby="h-lf-setup"><h3 id="h-lf-setup">Test set-up</h3>
+      <div class="lf-setup">
+        <div class="field"><label for="lf-start">Start time</label><div class="row" style="flex-wrap:nowrap"><input id="lf-start" class="input" type="time" value="${esc(doc.setup.start || "")}" data-lfsetup="start" ${locked ? "disabled" : ""}><button class="btn btn-s" data-action="lfnow" ${locked ? "disabled" : ""}>Now</button></div></div>
+        <fieldset class="field lf-filters"><legend class="label">Frequency or filter setting</legend>${LF_FILTERS.map(f => `<label class="tickrow"><input type="checkbox" ${doc.setup.filter === f ? "checked" : ""} data-lffilter="${esc(f)}" ${locked ? "disabled" : ""}><span>${f}</span></label>`).join("")}</fieldset>
+        <div class="field"><span class="label">Meter</span><span class="small">${inst(LF_METER).name}</span></div>
+      </div>
+      <div class="notice notice-calm">${icon("info")}<span class="small">Keep the measurement method, meter orientation, height, distance from the wall, and room conditions consistent throughout the test.</span></div>
+    </section>
+    <div class="mt-tabs lf-tabs" role="tablist" aria-label="Test">
+      ${["walls", "centre"].map(tt => { const n = lfDone(doc, tt), avail = tt === "walls" || doc.centreStarted || n;
+        return `<button role="tab" class="mt-ds" aria-selected="${test === tt}" data-action="lftest" data-test="${tt}" ${avail ? "" : "disabled"}><b>${tt === "walls" ? "A. " : "B. "}${LF_TESTS[tt].label}</b><span>${n === lfTotal(tt) ? "Complete" : n ? `${n} of ${lfTotal(tt)} readings` : avail ? "Not started" : "After wall mapping"}</span></button>`; }).join("")}
+    </div>
+    ${test === "walls" ? `<div class="notice notice-muted">${icon("info")}<span class="small">Stand inside the room facing the selected wall. Measure at approximately 25%, 50%, and 75% of the wall's length, working from your left to your right.</span></div>`
+      : `<div class="notice notice-muted">${icon("info")}<span class="small">Stand at approximately the centre of the room. Record while facing north, then east, south and west.</span></div>`}
+    <section class="card mt-guided" aria-label="${T.label}">${diagram}<div class="mt-panel">${panel}</div></section>
+    <div id="lf-tables" class="stack-l">
+      <section class="card stack" id="lf-walls-table" aria-labelledby="h-lf-walls"><h3 id="h-lf-walls">Wall mapping results</h3>${lfTable(doc, "walls")}${wallsDone ? lfStatsHTML(doc, "walls") : ""}</section>
+      ${doc.centreStarted || lfDone(doc, "centre") ? `<section class="card stack" aria-labelledby="h-lf-centre"><h3 id="h-lf-centre">Room-centre results</h3>${lfTable(doc, "centre")}${centreDone ? lfStatsHTML(doc, "centre") : ""}</section>` : ""}
+    </div>
+    <section class="card stack" aria-labelledby="h-lf-notes"><h3 id="h-lf-notes">Notes</h3>
+      <div class="field"><label for="lf-notes">Notes on this A3 test</label><textarea id="lf-notes" class="input" rows="3" data-lfnotes="1" ${locked ? "disabled" : ""}>${esc(doc.notes || "")}</textarea></div></section>
+    <section class="card stack" aria-labelledby="h-lf-runs"><div class="spread"><h3 id="h-lf-runs">Earlier A3 tests in ${esc(room.name)}</h3>
+      ${S.lf.confirmNew ? `<div class="row"><span class="small">Start test ${doc.run + 1}? Test ${doc.run} is kept.</span><button class="btn btn-s btn-primary" data-action="lfnewgo">Start new test</button><button class="btn btn-s" data-action="lfnewno">Keep current test</button></div>`
+        : `<button class="btn btn-s" data-action="lfnew" ${!doc.startedAt || locked ? "disabled" : ""}>${icon("plus")}Start a new test</button>`}</div>
+      ${earlier.length ? earlier.slice().reverse().map(r => `<div class="stack" style="gap:6px"><div class="spread"><span class="small">Test ${r.run} · ${lfDone(r, "walls") + lfDone(r, "centre")} of 48 readings${r.completedAt ? ` · completed ${nowStampFrom(r.completedAt)}` : ""}</span><button class="btn btn-quiet btn-s" data-action="lfview" data-run="${r.run}">${S.lf.viewRun === r.run ? "Hide" : "View"}</button></div>${S.lf.viewRun === r.run ? lfTable(r, "walls", { readOnly: true }) + lfTable(r, "centre", { readOnly: true }) : ""}</div>`).join("")
+        : `<p class="small muted">No earlier A3 tests in this room. Starting a new test keeps this one.</p>`}
+    </section>`);
+}
+
+/* Results for the client record and report: completed positions of the latest test in each room */
+function lfReadings(ref) {
+  const latest = {};
+  Object.values(Store.lf).filter(d => d.ref === ref).forEach(d => { if (!latest[d.room] || d.run > latest[d.room].run) latest[d.room] = d; });
+  const out = [];
+  Object.values(latest).forEach(doc => ["walls", "centre"].forEach(test => LF_TESTS[test].pos.forEach((q, p) => {
+    const r = lfResultant(doc, test, p); if (r == null) return;
+    const last = lfCell(doc, test, p * 3 + 2);
+    out.push({ id: `${lfId(doc.ref, doc.room, doc.run)}:${test}:${p}`, client: ref, room: doc.room, roomType: roomTypeOf(ref, doc.room), test: "a3", point: "A1",
+      label: `Electric field, ${LF_TESTS[test].name(q)}, 3D resultant`, value: r, axes: [0, 1, 2].map(a => lfCell(doc, test, p * 3 + a).v), unit: LF_UNIT,
+      method: "any", methodLabel: `A3 ${LF_TESTS[test].label.toLowerCase()}, X, Y and Z with the resultant calculated${doc.setup.filter ? `, filter ${doc.setup.filter}` : ""}`,
+      ref: null, evalKey: "mapping", inst: LF_METER, timing: "spot", result: "reading", when: nowStampFrom(last.at), by: last.by, phase: null, grid: null,
+      loc: LF_TESTS[test].name(q), cond: {}, note: ((doc[test] || {}).notes || {})[p] || "", createdAt: last.at });
+  })));
+  return out;
+}
 
 /* =========================================================================
    Menu: left-hand on desktop, behind the menu button on tablet and phone
@@ -2785,7 +3105,7 @@ function screenClientExp() {
 function screenData() {
   const n = k => Object.keys(Store[k]).length;
   return assessorShell("", `${settingsHead("Data and storage", "Where saved records live in this prototype.")}
-    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets") + n("mattress")}</b><span>Assessment sections and tests saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
+    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets") + n("mattress") + n("lf")}</b><span>Assessment sections and tests saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
     <section class="card stack"><h3>Storage</h3><p class="small">${Store.mode === "shared" ? "Records are saved to shared storage for this page, so Iza and Alfie see the same clients and results." : Store.mode === "local" ? "Records are saved in this browser only. Open the published page to share them." : "Connecting to storage…"}</p>
       <p class="small muted">Please use test details only while this is a prototype. Example records EG-001 to EG-004 are built into the page and are not stored.</p>
       <div class="row"><button class="btn" data-action="copydata">${icon("copy")}Copy all saved data</button></div>
@@ -2806,7 +3126,8 @@ const RENDER = {
   templates: screenTemplates, equipment: screenEquipment, references: screenReferences, services: screenServices, access: screenAccess, clientexp: screenClientExp, data: screenData,
   assess: screenAssessOverview,
   ...Object.fromEntries(SECTIONS.map(x => [x.id, () => screenSection(x)])),
-  a2: screenMattress
+  a2: screenMattress,
+  a3: screenLF
 };
 const LEGACY = { profile: "client", home: "dashboard", ...LEGACY_SECTIONS };
 let pendingRender = false;
@@ -2845,13 +3166,15 @@ function markEdited() {
   saveTimer = setTimeout(() => { S.saving = false; S.savedAt = nowHM(); const e2 = document.getElementById("sync"); if (e2) e2.outerHTML = syncBadge(); }, 700);
 }
 function go(screen) {
-  S.screen = LEGACY[screen] || screen; S.modal = null;
+  const next = LEGACY[screen] || screen;
+  if (next !== S.screen) { S.mt.idx = {}; S.lf.idx = {}; S.lf.reviewing = false; S.lf.flash = null; S.lf.test = null; S.mt.reviewing = false; }
+  S.screen = next; S.modal = null; S.pad = null;
   closeNav(false);
   try { history.replaceState(null, "", "#" + S.screen); } catch (e) { /* hash is optional */ }
   render(); window.scrollTo({ top: 0 });
 }
 function openModal(kind, ctx) { S.modal = kind; S.modalCtx = ctx || {}; render(); const f = document.querySelector(".modal input:not([type=radio]), .modal select"); if (f) f.focus(); }
-function closeModal() { S.modal = null; S.modalCtx = null; S.mt.pad = null; render(); }
+function closeModal() { S.modal = null; S.modalCtx = null; S.pad = null; render(); }
 function applySearch() {
   const box = document.getElementById("client-search"); if (!box) return;
   const q = S.search.trim().toLowerCase(); let shown = 0;
@@ -2913,10 +3236,36 @@ const ACT = {
     const ok = await mtSave(doc); S.mt.confirmNew = false; render(); toast(ok ? `Test ${doc.run} started. Test ${cur.run} is kept.` : "The new test could not be started.");
   },
   mtview: d => { S.mt.viewRun = S.mt.viewRun === +d.run ? null : +d.run; render(); },
+  lftest: d => { S.lf.test = d.test; S.lf.flash = null; S.lf.reviewing = false; render(); },
+  lfcell: d => { const doc = lfDoc(S.client, currentRoom().id), k = +d.k; S.lf.test = d.test; S.lf.idx[lfKeyOf(doc, d.test)] = k; S.lf.flash = null; S.lf.reviewing = true; render(); if (lfSetupDone(doc)) openPad(k, "lf", { test: d.test }); },
+  lfpos: d => { const doc = lfDoc(S.client, currentRoom().id), p = +d.p, t = d.test; if (t === "centre" && !doc.centreStarted && !lfDone(doc, "centre")) return; const free = [0, 1, 2].find(a => !lfFilled(lfCell(doc, t, p * 3 + a)));
+    S.lf.test = t; S.lf.idx[lfKeyOf(doc, t)] = p * 3 + (free == null ? 0 : free); S.lf.flash = null; S.lf.reviewing = lfDone(doc, t) === lfTotal(t) || free == null; render(); document.getElementById("lf-field")?.focus(); },
+  lffield: () => { const doc = lfDoc(S.client, currentRoom().id), t = lfActiveTest(doc); openPad(lfCurrent(doc, t), "lf", { test: t }); },
+  lfamendfield: () => { const doc = lfDoc(S.client, currentRoom().id), t = lfActiveTest(doc); openPad(lfCurrent(doc, t), "lf", { test: t }); },
+  lfback: () => { const doc = lfDoc(S.client, currentRoom().id), t = lfActiveTest(doc), k = lfCurrent(doc, t); if (k > 0) { S.lf.idx[lfKeyOf(doc, t)] = k - 1; render(); document.getElementById("lf-field")?.focus(); } },
+  lfflashnext: () => { S.lf.flash = null; render(); document.getElementById("lf-field")?.focus(); },
+  lfreview: d => { S.lf.reviewing = false; document.getElementById(d.target)?.scrollIntoView({ behavior: "smooth", block: "start" }); },
+  lfamend: () => { const doc = lfDoc(S.client, currentRoom().id), t = lfActiveTest(doc); S.lf.reviewing = true; S.lf.flash = null; S.lf.idx[lfKeyOf(doc, t)] = 0; render(); document.getElementById("lf-field")?.focus(); },
+  lfdonereview: () => { S.lf.reviewing = false; render(); },
+  lfnotes: () => { const el = document.getElementById("lf-notes"); el?.scrollIntoView({ behavior: "smooth", block: "center" }); el?.focus(); },
+  async lfcentre() { const doc = lfClone(); doc.centreStarted = true; if (!(await lfSave(doc))) { toast("The room-centre test could not be started. Please try again."); return; } S.lf.test = "centre"; S.lf.reviewing = false; render(); document.getElementById("lf-field")?.focus(); },
+  lfnow: () => { const d = new Date(), v = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; lfSetup("start", v); },
+  async lffinish() {
+    const doc = lfClone(), now = new Date().toISOString(); doc.completedAt = now; doc.completedBy = ASSESSOR;
+    if (!(await lfSave(doc))) { toast("The test could not be saved. Please try again."); return; }
+    S.lf.reviewing = false; toast(`Low-frequency field mapping saved to ${doc.ref}`); go("a4");
+  },
+  lfnew: () => { S.lf.confirmNew = true; render(); },
+  lfnewno: () => { S.lf.confirmNew = false; render(); },
+  async lfnewgo() {
+    const cur = lfDoc(S.client, currentRoom().id), doc = { ...lfBlank(S.client, cur.room, cur.run + 1), startedAt: new Date().toISOString() };
+    const ok = await lfSave(doc); S.lf.confirmNew = false; S.lf.test = null; S.lf.idx = {}; render(); toast(ok ? `Test ${doc.run} started. Test ${cur.run} is kept.` : "The new test could not be started.");
+  },
+  lfview: d => { S.lf.viewRun = S.lf.viewRun === +d.run ? null : +d.run; render(); },
   padkey: d => padKey(d.key),
-  padnm: () => { S.mt.pad.nm = !S.mt.pad.nm; if (S.mt.pad.nm) S.mt.pad.buf = ""; padRefresh(); },
-  padconfirm: () => { if (padValid()) mtConfirm(S.mt.pad.nm); },
-  padback: () => { const k = S.mt.pad.k; if (k > 0) { const doc = mtDoc(S.client, mtRoom(), S.mt.ds); S.mt.idx[mtId(doc.ref, doc.room, doc.ds, doc.run)] = k - 1; openPad(k - 1); } },
+  padflag: d => { S.pad.flag = S.pad.flag === d.flag ? null : d.flag; if (S.pad.flag) S.pad.buf = ""; padRefresh(); if (S.pad.flag === "nm") document.getElementById("pad-reason")?.focus(); },
+  padconfirm: () => padConfirm(),
+  padback: () => { const { k, kind } = S.pad; if (k > 0) { PADS[kind].back(k); openPad(k - 1, kind, kind === "lf" ? { test: S.pad.test } : {}); } },
   togglepart: d => { const el = document.getElementById("navp-" + d.p), open = el.hidden; el.hidden = !open; S.navParts[d.p] = open; document.querySelector(`[data-action=togglepart][data-p="${d.p}"]`).setAttribute("aria-expanded", String(open)); },
   addsheetrow: d => {
     const sec = sectionById(S.screen), tb = sec.tables.find(t => t.k === d.table), room = sheetRoomKey(sec), sh = sheetGet(S.client, room, sec.id);
@@ -2933,7 +3282,7 @@ const ACT = {
     toast(`${t.name} applied${keep.length ? `. ${keep.length} room${keep.length === 1 ? "" : "s"} with saved results kept` : ""}`);
   },
   copydata: () => {
-    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress }, null, 2);
+    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress, lf: Store.lf }, null, 2);
     const box = document.getElementById("data-copy");
     const fallback = () => { box.value = text; box.hidden = false; box.focus(); box.select(); toast("Select all and copy the text below"); };
     try { navigator.clipboard.writeText(text).then(() => toast("All saved data copied"), fallback); } catch (e) { fallback(); }
@@ -3112,10 +3461,11 @@ document.addEventListener("click", e => {
 document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches("g[data-action], tr[data-action], div[data-action][tabindex]")) { e.preventDefault(); ACT[e.target.dataset.action](e.target.dataset, e.target, e); }
   if (S.modal === "pad") {
-    if (/^\d$/.test(e.key)) { e.preventDefault(); padKey(e.key); return; }
-    if (e.key === "." || e.key === ",") { e.preventDefault(); padKey("."); return; }
-    if (e.key === "Backspace") { e.preventDefault(); padKey("del"); return; }
-    if (e.key === "Enter" && !e.target.matches("button")) { e.preventDefault(); if (padValid()) mtConfirm(S.mt.pad.nm); return; }
+    const typing = e.target.matches("input, textarea");
+    if (!typing && /^\d$/.test(e.key)) { e.preventDefault(); padKey(e.key); return; }
+    if (!typing && (e.key === "." || e.key === ",")) { e.preventDefault(); padKey("."); return; }
+    if (!typing && e.key === "Backspace") { e.preventDefault(); padKey("del"); return; }
+    if (e.key === "Enter" && !e.target.matches("button")) { e.preventDefault(); padConfirm(); return; }
   }
   if (e.key === "Escape" && S.modal) closeModal();
   else if (e.key === "Escape") closeNav(true);
@@ -3128,6 +3478,8 @@ document.addEventListener("input", e => {
   if (t.matches("[data-sheet]")) sheetInput(t);
   if (t.matches("input[data-bedroom]")) { const [ref, id, f] = t.dataset.bedroom.split("|"); setBedroom(ref, id, f, t.value, 800); }
   if (t.matches("[data-note]")) saveNote(S.client, t.dataset.note, t.value);
+  if (t.matches("[data-lfnote]")) { const [test, p] = t.dataset.lfnote.split("|"), ref = S.client, room = currentRoom().id; markEdited(); debounce(`lfnote:${ref}:${room}:${test}:${p}`, () => { const doc = lfClone(ref, room); doc[test].notes = { ...(doc[test].notes || {}), [p]: t.value }; lfSave(doc); }); }
+  if (t.matches("[data-lfnotes]")) { const ref = S.client, room = currentRoom().id; markEdited(); debounce(`lfnotes:${ref}:${room}`, () => { const doc = lfClone(ref, room); doc.notes = t.value; lfSave(doc); }); }
   if (t.matches("[data-intnote]")) {
     const ref = t.dataset.intnote, c = getClient(ref); markEdited();
     if (c.example) S.notes["int-" + ref] = t.value; else debounce("int:" + ref, () => updateClient(ref, { internalNote: t.value }));
@@ -3145,7 +3497,9 @@ document.addEventListener("change", e => {
   if (kind === "picksize") { setBedroom(S.client, mtRoom(), "size", t.value, 0); render(); document.getElementById("cb-size")?.focus(); toast(t.value ? `Mattress size saved for ${bedName(mtRoom())}` : "Mattress size cleared"); }
   if (t.matches("select[data-bedroom]")) { const [ref, id, f] = t.dataset.bedroom.split("|"); setBedroom(ref, id, f, t.value, 0); }
   if (kind === "pickbed") { S.room = t.value; S.mt.flash = null; S.mt.reviewing = false; S.mt.confirmNew = false; S.mt.viewRun = null; render(); document.getElementById("cb-bed")?.focus(); }
-  if (kind === "pickroom") { S.room = t.value; S.cell = 0; render(); document.getElementById("cb-room")?.focus(); }
+  if (t.matches("[data-lfsetup]")) lfSetup(t.dataset.lfsetup, t.value);
+  if (t.matches("[data-lffilter]")) lfSetup("filter", t.checked ? t.dataset.lffilter : "");
+  if (kind === "pickroom") { S.room = t.value; S.cell = 0; S.lf.idx = {}; S.lf.test = null; S.lf.flash = null; S.lf.reviewing = false; render(); document.getElementById("cb-room")?.focus(); }
   if (t.id === "m-meth") { const axes = t.value === "three-axis"; document.getElementById("m-axes").hidden = !axes; document.getElementById("m-valwrap").hidden = axes; }
   if (t.id === "m-inst") { const eq = inst(t.value); if (eq) document.getElementById("m-result").value = eq.result; }
   if (t.id === "s-type") {
