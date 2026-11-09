@@ -238,6 +238,15 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .heat-legend i { width: 18px; height: 18px; border-radius: 4px; flex: none; }
 @container (max-width: 640px) { .heat-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
+/* On-site capture: every assessment for the chosen room, two columns */
+.room-tests { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.room-test { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 56px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); color: var(--ink); text-decoration: none; }
+a.room-test:hover { border-color: var(--fern); background: var(--cream); }
+.room-test.is-na { opacity: .6; }
+.rt-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rt-name b { font-weight: 500; font-size: .9rem; }
+@container (max-width: 560px) { .room-tests { grid-template-columns: minmax(0, 1fr); } }
+
 /* Client and room chooser */
 .client-bar { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; }
 .client-bar-meta { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -1501,21 +1510,46 @@ function visitTop(title, sub) {
       <button class="btn btn-s" data-action="online" aria-pressed="${!S.online}">${S.online ? icon("cloudoff") + "Simulate offline" : icon("wifi") + "Reconnect"}</button>
     </div></div>`;
 }
+/* The rooms used on site and on every assessment page. Rooms a client already has
+   results in, outside this list, are kept underneath so nothing saved is hidden. */
+const SITE_ROOMS = [
+  { id: "bed1", name: "Master bedroom", type: "bedroom" }, { id: "bed2", name: "Bedroom 2", type: "bedroom" }, { id: "bed3", name: "Bedroom 3", type: "bedroom" },
+  { id: "kitchen", name: "Kitchen", type: "kitchen" }, { id: "living", name: "Living room", type: "living" }, { id: "dining", name: "Dining room", type: "living" },
+  { id: "bath", name: "Bathroom", type: "bathroom" }, { id: "cloak", name: "Cloakroom", type: "bathroom" }, { id: "loft", name: "Loft", type: "loft" }, { id: "garage", name: "Garage", type: "other" }
+];
+function roomHasData(ref, id) {
+  return readingsFor(ref).some(r => r.room === id) || samplesFor(ref).some(s => s.room === id) || allSheets().some(s => s.ref === ref && s.room === id && sheetFilled(s));
+}
+function siteRooms(ref) {
+  const own = roomsFor(ref);
+  const std = SITE_ROOMS.map(sr => ({ ...(own.find(r => r.id === sr.id) || {}), ...sr }));
+  const extra = own.filter(r => !SITE_ROOMS.some(sr => sr.id === r.id) && roomHasData(ref, r.id));
+  return [...std, ...extra];
+}
 function currentRoom() {
-  const rooms = roomsFor(S.client);
+  const rooms = siteRooms(S.client);
   return rooms.find(r => r.id === S.room) || rooms[0];
 }
+/* Each assessment's state for one room: measured, incomplete, or not used in this room */
+function sectionState(ref, room, sec) {
+  if (sec.id === "a2") {
+    if (!BEDROOMS.some(b => b.id === room.id)) return { st: "na", note: "Bedrooms only" };
+    const done = Object.keys(MT_TESTS).filter(ds => mtDone(mtDoc(ref, room.id, ds)) === MT_TOTAL).length;
+    const any = Object.keys(MT_TESTS).reduce((t, ds) => t + mtDone(mtDoc(ref, room.id, ds)), 0);
+    return done === 3 ? { st: "measured", note: "All three tests complete" } : { st: "incomplete", note: any ? `${done} of 3 tests complete` : "Not started" };
+  }
+  const n = sheetFilled(sheetGet(ref, sec.scope === "property" ? "property" : room.id, sec.id));
+  return n ? { st: "measured", note: `${n} entr${n === 1 ? "y" : "ies"}${sec.scope === "property" ? " · whole property" : ""}` } : { st: "incomplete", note: sec.scope === "property" ? "Not started · whole property" : "Not started" };
+}
 function roomRail() {
+  const roomSecs = SECTIONS.filter(s => s.scope !== "property");
   return `<nav class="rooms" aria-label="Rooms">
-    ${roomsFor(S.client).map(r => {
-      const sts = Object.values(roomPoints(S.client, r));
-      const done = sts.filter(s => s === "measured" || s === "inspected" || s === "referred").length;
-      return `<button class="room-btn" data-action="room" data-room="${r.id}" aria-current="${currentRoom().id === r.id}"><b>${esc(r.name)}</b><small>${r.inaccessible ? "Not accessible" : `${done} of ${sts.length} tests with data`}${r.by ? " · " + r.by : ""}</small></button>`;
+    ${siteRooms(S.client).map(r => {
+      const usable = roomSecs.filter(s => sectionState(S.client, r, s).st !== "na");
+      const done = usable.filter(s => sectionState(S.client, r, s).st === "measured").length;
+      return `<button class="room-btn" data-action="room" data-room="${r.id}" aria-current="${currentRoom().id === r.id}"><b>${esc(r.name)}</b><small>${r.inaccessible ? "Not accessible" : `${done} of ${usable.length} measured`}</small></button>`;
     }).join("")}
-    <div class="rooms-actions stack" style="margin-top:10px;gap:6px">
-      <button class="btn btn-s" data-action="tabgo" data-tab="visits">${icon("plus")}Add room</button>
-      <button class="btn btn-s" data-action="duplicate">${icon("copy")}Duplicate structure</button>
-    </div></nav>`;
+    </nav>`;
 }
 function readingCard(r) {
   const k = readingEval(r);
@@ -1547,9 +1581,8 @@ function screenRoom() {
   const prompt = PROMPTS[room.type];
   const readings = readingsFor(c.ref).filter(r => r.room === room.id);
   const samples = samplesFor(c.ref).filter(s => s.room === room.id);
-  const recs = fixture ? FINDINGS.filter(f => f.room === room.name) : [];
+  const recs = fixture ? FINDINGS.filter(f => f.room === (ROOMS.find(r => r.id === room.id) || {}).name) : [];
   const photos = fixture ? ({ bed1: [["", "Headboard wall, extension lead"], ["thermal", "Thermal: NE ceiling corner"], ["wall", "Staining above wardrobe"]], bath: [["wall", "Window reveal"], ["thermal", "Thermal: cold bridge at reveal"], ["", "Extractor grille"]], kitchen: [["", "Cold tap, sample point"], ["", "Cooker hood filter"]], living: [["", "Air sample set-up"]], bed2: [["", "Bed position"]], loft: [] }[room.id] || []) : [];
-  const pts = roomPoints(c.ref, room);
   const locked = Store.readOnly && !c.example;
   return `${visitTop(fixture ? "Visit 1 · 9 October 2026" : "Visit 1", fixture ? "Alfie and Iza · Home Health Analysis" : `${esc(c.service || "Tests chosen individually")} · readings save to ${Store.mode === "shared" ? "shared storage" : "this browser"}`)}
   <div class="visit">${roomRail()}
@@ -1564,8 +1597,13 @@ function screenRoom() {
       </div>
       ${room.inaccessible ? `<div class="notice notice-warn">${icon("info")}<span><b>Not accessible.</b> ${room.inaccessible}. The tests below will be reported as not accessible, never as satisfactory.</span></div>` : ""}
       <section class="stack" aria-labelledby="h-pts"><h4 id="h-pts">Tests in this room</h4>
-        ${Object.keys(pts).length ? `<div class="point-strip">${Object.entries(pts).map(([code, s]) => `<button class="point" style="text-align:left;cursor:pointer" data-action="record" data-point="${code}" data-room="${room.id}" ${locked ? "disabled" : ""}><span class="scope-code">${code}</span><span class="small"><b>${POINT_NAME[code]}</b></span>${covChip(s)}</button>`).join("")}</div>`
-          : `<p class="small muted">None of this client's allocated tests usually apply to this kind of room. Readings for any test can still be added.</p>`}
+        <div class="room-tests">${SECTIONS.map(sec => {
+          const s = sectionState(c.ref, room, sec);
+          const chip = s.st === "measured" ? `<span class="chip c-emerald"><span class="glyph" aria-hidden="true">●</span>Measured</span>` : s.st === "na" ? `<span class="chip c-muted">Not used here</span>` : `<span class="chip c-outline"><span class="glyph" aria-hidden="true">○</span>Incomplete</span>`;
+          const inner = `<span class="rt-name"><b>${sectionName(sec)}</b><span class="xsmall muted">${s.note}</span></span>${chip}`;
+          return s.st === "na" ? `<div class="room-test is-na" aria-disabled="true">${inner}</div>`
+            : `<a class="room-test" href="#${sec.id}" data-action="roomtest" data-sec="${sec.id}" data-room="${room.id}">${inner}</a>`;
+        }).join("")}</div>
       </section>
       ${prompt ? `<div class="prompt"><b class="small">${prompt.title}</b><ul>${prompt.items.map(i => `<li>${i}</li>`).join("")}</ul>${prompt.cta ? `<button class="btn btn-s" style="align-self:flex-start" data-action="go" data-screen="a2">${prompt.cta}</button>` : ""}</div>` : ""}
       <section class="stack" aria-labelledby="h-notes"><h4 id="h-notes">Quick notes</h4>
@@ -1925,7 +1963,7 @@ function clientModal() {
     <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="saveclient">${editing ? "Save changes" : `Create client ${preview}`}</button></div></div>`;
 }
 function readingModal() {
-  const c = C(), ctx = S.modalCtx || {}, rooms = roomsFor(c.ref);
+  const c = C(), ctx = S.modalCtx || {}, rooms = siteRooms(c.ref);
   const roomId = ctx.room || currentRoom().id;
   const g = null; /* grid positions are now recorded on the A2 sheet */
   const point = ctx.point || (g && g.point) || "A1";
@@ -1963,7 +2001,7 @@ function readingModal() {
     <div class="row" style="justify-content:flex-end"><button class="btn" data-action="close">Cancel</button><button class="btn btn-primary" data-action="savereading">Save reading</button></div></div>`;
 }
 function sampleModal() {
-  const c = C(), ctx = S.modalCtx || {}, rooms = roomsFor(c.ref), roomId = ctx.room || currentRoom().id;
+  const c = C(), ctx = S.modalCtx || {}, rooms = siteRooms(c.ref), roomId = ctx.room || currentRoom().id;
   return `<div class="modal stack-l" role="dialog" aria-modal="true" aria-labelledby="m-title">
     <div class="spread"><div><span class="ref-badge">${c.ref}</span><h2 id="m-title" style="margin-top:6px">Add sample</h2></div><button class="btn btn-s" data-action="close">Close</button></div>
     <div class="grid-2">
@@ -2015,12 +2053,14 @@ function csvPreview(text, name) {
     <p class="xsmall muted">Equipment detected from the file: ${inst("aranet4").name}. Imported as overnight monitoring linked to Main bedroom. Context fields can be completed after import.</p></div>`;
 }
 
-const roomName = (ref, id) => id === "outdoor" || id === "property" ? "Whole property" : ((roomsFor(ref).find(r => r.id === id) || {}).name || (BEDROOMS.find(b => b.id === id) || {}).name || "");
+/* Direct lookups: these sit underneath the results calculation, so they never go through siteRooms() */
+const roomName = (ref, id) => id === "outdoor" || id === "property" ? "Whole property" : ((SITE_ROOMS.find(r => r.id === id) || roomsFor(ref).find(r => r.id === id) || BEDROOMS.find(b => b.id === id) || {}).name || "");
+const roomTypeOf = (ref, id) => (SITE_ROOMS.find(r => r.id === id) || roomsFor(ref).find(r => r.id === id) || {}).type || null;
 /* Client and room chooser shared by every assessment page */
 function clientBar(opts = {}) {
   const c = C();
   const list = allClients().slice().sort((a, b) => a.name.localeCompare(b.name, "en-GB"));
-  const rooms = roomsFor(c.ref);
+  const rooms = siteRooms(c.ref);
   const room = currentRoom();
   return `<section class="card client-bar" aria-label="Client and room">
     <div class="field"><label for="cb-client">Client</label><select id="cb-client" class="input" data-change="pickclient">${list.map(x => opt(x.ref, `${x.name}${x.propertyName ? " · " + x.propertyName : ""} · ${x.ref}`, x.ref === c.ref)).join("")}</select></div>
@@ -2193,7 +2233,7 @@ const parseNum = v => { if (v == null || String(v).trim() === "") return null; c
 function deriveSheet(sh) {
   const sec = sectionById(sh.section); if (!sec || !sec.tables) return [];
   const ref = sh.ref, roomId = sh.room === "property" ? "outdoor" : sh.room;
-  const roomType = sh.room === "property" ? "outdoor" : ((roomsFor(ref).find(r => r.id === sh.room) || {}).type || null);
+  const roomType = sh.room === "property" ? "outdoor" : roomTypeOf(ref, sh.room);
   const out = [];
   const T = k => (sh.t || {})[k] || {};
   const rowsOf = tb => (T(tb.k).rows || tb.rows.map(r => rowOf(r).label));
@@ -2968,7 +3008,7 @@ const ACT = {
       inst: val("m-inst") || null, timing: val("m-timing"), result, when: nowStamp(), dur: val("m-dur"), loc: val("m-loc"),
       cond: { occupancy: val("m-occ"), windows: val("m-win"), heating: val("m-heat"), appliances: val("m-app") },
       by: ASSESSOR, phase: phase === "single" ? null : phase, grid: ctx.grid || null, note: val("m-note"), createdAt: new Date().toISOString(),
-      roomType: (roomsFor(c.ref).find(r => r.id === val("m-room")) || {}).type || null, test: ctx.test || null
+      roomType: roomTypeOf(c.ref, val("m-room")), test: ctx.test || null
     };
     const ok = await Store.put("readings", id, reading);
     if (ok) await allocateIfNeeded(c.ref, point);
@@ -2988,7 +3028,8 @@ const ACT = {
     if (ok) await allocateIfNeeded(c.ref, point);
     closeModal(); toast(ok ? `Sample ${ref} saved` : "The sample could not be saved. Please try again.");
   },
-  capture: () => { const rooms = roomsFor(S.client); if (!rooms.some(r => r.id === S.room)) S.room = rooms[0].id; go("room"); },
+  capture: () => { const rooms = siteRooms(S.client); if (!rooms.some(r => r.id === S.room)) S.room = rooms[0].id; go("room"); },
+  roomtest: d => { S.room = d.room; S.mt.reviewing = false; S.mt.flash = null; go(d.sec); },
   openroom: d => { S.room = d.room; go("room"); },
   addroom: () => {
     const name = val("nr-name"); if (!name) { toast("Enter a room name first"); document.getElementById("nr-name")?.focus(); return; }
@@ -3100,7 +3141,7 @@ document.addEventListener("input", e => {
 document.addEventListener("change", e => {
   const t = e.target, kind = t.dataset.change;
   if (t.matches("select[data-sheet], input[type=checkbox][data-sheet]")) sheetInput(t);
-  if (kind === "pickclient") { S.client = t.value; const rooms = roomsFor(S.client); if (!rooms.some(r => r.id === S.room)) S.room = (rooms[0] || {}).id; render(); document.getElementById("cb-client")?.focus(); toast(`Results will be saved to ${S.client}`); }
+  if (kind === "pickclient") { S.client = t.value; const rooms = siteRooms(S.client); if (!rooms.some(r => r.id === S.room)) S.room = (rooms[0] || {}).id; render(); document.getElementById("cb-client")?.focus(); toast(`Results will be saved to ${S.client}`); }
   if (kind === "picksize") { setBedroom(S.client, mtRoom(), "size", t.value, 0); render(); document.getElementById("cb-size")?.focus(); toast(t.value ? `Mattress size saved for ${bedName(mtRoom())}` : "Mattress size cleared"); }
   if (t.matches("select[data-bedroom]")) { const [ref, id, f] = t.dataset.bedroom.split("|"); setBedroom(ref, id, f, t.value, 0); }
   if (kind === "pickbed") { S.room = t.value; S.mt.flash = null; S.mt.reviewing = false; S.mt.confirmNew = false; S.mt.viewRun = null; render(); document.getElementById("cb-bed")?.focus(); }

@@ -99,7 +99,15 @@ A2 replaces typing into small table cells with guided entry, built for a tablet.
 
 The client profile lists Master bedroom, Bedroom 2, Bedroom 3 and Bedroom 4, each with who sleeps there, the bed or mattress and the mattress size. All fields may be left blank. The mattress size can be set here or on the A2 page; both show the same value.
 
+### On-site capture
+
+On-site capture lists a fixed set of rooms: Master bedroom, Bedroom 2, Bedroom 3, Kitchen, Living room, Dining room, Bathroom, Cloakroom, Loft and Garage. The same list is used by the room picker on every assessment page and in the reading and sample forms, so a room chosen in one place is the room shown in the other. If a client already has results in a room outside this list, that room is listed underneath so nothing saved is hidden.
+
+Choosing a room shows **Tests in this room**: every assessment section in two columns, each marked Measured or Incomplete with a short note (number of entries, or how many of the three mattress tests are complete). A2 is marked "Not used here" outside bedrooms. A9 and Part C are marked "whole property". Selecting an assessment opens its page with the client and room already chosen.
+
 ### Room templates
+
+The room templates below describe the home on the client record. On-site capture and the assessment pages use the fixed room list above.
 
 - **Template 1:** living room, kitchen, ground floor bathroom, upstairs bathroom and one bedroom.
 - **Template 2:** the same rooms with two bedrooms.
