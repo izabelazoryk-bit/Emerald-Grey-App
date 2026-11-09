@@ -107,6 +107,8 @@ Before the first reading the assessor records the start time and the frequency o
 
 **Calculation and summaries.** Each 3D resultant is √(X² + Y² + Z²), calculated only when all three axes hold a number, saved at full precision and shown to one decimal place. The axes are never averaged. Wall mapping reports the highest resultant with its wall and position, the lowest, the average of completed positions and the number complete and incomplete; the room-centre test reports the highest with its direction, the lowest and the average.
 
+**Heatmap.** Beside the room outline, a small square heatmap colours each wall position where it was taken and the room centre by its highest direction, using the same green, olive, orange and red as A2 and the SBM potential-free bands. It shows no numbers and is indicative only; it fills in as each resultant is confirmed.
+
 **Validation and flags.** Zero, whole numbers and decimals are accepted; negatives, letters and a second decimal point are not, and a blank is never treated as zero. Not measured (with an optional reason), Below detection limit and Instrument overload are recorded as flags, and a position holding a flag shows as requiring attention with no resultant.
 
 **Saving.** Each confirmed reading is saved at once against the client, property, visit, room, test, method, wall or centre, position or direction, axis, raw value, unit, meter, filter, time and assessor, with any later amendment kept in the reading's history. A confirmed result changes only through Amend measurement. Reopening A3 returns to the first incomplete reading, and starting a new test keeps earlier ones. "Save and continue to the next assessment section" records completion and moves to A4.
