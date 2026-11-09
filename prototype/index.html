@@ -2797,7 +2797,12 @@ function lfStats(doc, test) {
 async function lfSave(doc) {
   const c = getClient(doc.ref), body = { ...doc, customer: c.name, property: [c.propertyName, addrLine(c)].filter(Boolean).join(", "), visitLabel: VISIT.label,
     roomName: roomName(doc.ref, doc.room), test: "A3 Low-frequency fields", method: "Hand-held meter, X, Y and Z with the 3D resultant calculated",
-    meter: inst(LF_METER).name, unit: LF_UNIT, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR };
+    meter: inst(LF_METER).name, unit: LF_UNIT, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR,
+    /* One row per position: raw X, Y and Z, any flags, and the resultant at full precision */
+    results: ["walls", "centre"].flatMap(test => LF_TESTS[test].pos.map((q, p) => { const e = [0, 1, 2].map(a => lfCell(doc, test, p * 3 + a) || {});
+      return { test: LF_TESTS[test].label, location: test === "walls" ? `${q.wall} wall` : "Room centre", position: test === "walls" ? q.spot : `Facing ${q.dir.toLowerCase()}`,
+        x: e[0].v ?? null, y: e[1].v ?? null, z: e[2].v ?? null, flags: e.map((c, a) => c.flag ? `${AXES[a]}: ${FLAG_LABEL[c.flag]}${c.reason ? ` (${c.reason})` : ""}` : "").filter(Boolean),
+        resultant: lfResultant(doc, test, p), status: lfPosStatus(doc, test, p), unit: LF_UNIT }; })) };
   const ok = await Store.put("lf", lfId(doc.ref, doc.room, doc.run), body);
   if (ok) { const a = alloc(doc.ref); if (!a.A1) await setAlloc(doc.ref, { ...a, A1: true }); }
   return ok;
@@ -2930,7 +2935,7 @@ function screenLF() {
   let panel;
   if (!setupDone) panel = `<div class="notice notice-muted">${icon("info")}<span class="small">Record the start time and the frequency or filter setting above to begin.</span></div>`;
   else if (flash) { const fp = flash.p, v = vals(fp), r = lfResultant(doc, test, fp), nq = T.pos[Math.floor(lfCurrent(doc, test) / 3)];
-    panel = `<div class="mt-flash" role="status"><h3>${T.name(T.pos[fp])} complete</h3>
+    panel = `<div class="mt-flash" role="status"><h3>${test === "walls" ? `${T.pos[fp].wall} wall, ${Math.round(LF_FRAC[T.pos[fp].i] * 100)}% complete` : `Facing ${T.pos[fp].dir.toLowerCase()} complete`}</h3>
       <dl class="kv">${v.map((x, i) => `<dt>${AXES[i]}</dt><dd class="num">${x.flag ? FLAG_LABEL[x.flag] : fmtVal(x.v, LF_UNIT)}</dd>`).join("")}<dt>3D resultant</dt><dd class="num"><b>${r == null ? "Not calculated" : fmtVal(r, LF_UNIT)}</b></dd></dl>
       ${testDone ? "" : `<p class="small muted">Continuing to ${T.name(nq)}, X-axis…</p><button class="btn btn-s" data-action="lfflashnext">Continue now</button>`}</div>`; }
   else if (!showEntry && test === "walls" && !doc.centreStarted) panel = `<div class="mt-complete" role="status"><h3>Wall mapping complete. Review the 12 measurement positions before continuing to the room-centre test.</h3>
