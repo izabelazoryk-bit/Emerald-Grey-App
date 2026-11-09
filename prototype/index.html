@@ -205,17 +205,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pad-key { min-height: 64px; font-size: 1.6rem; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); color: var(--ink); cursor: pointer; font-family: var(--font-body); }
 .pad-key:active { background: var(--emerald-tint); }
 .pad-key[data-key="del"] { font-size: 1rem; }
-.pad-foot { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
-.pad-secondary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; flex: 1 1 220px; }
+.pad-foot { display: flex; flex-direction: column; gap: 10px; }
+.pad-secondary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .pad-secondary .btn { min-height: 46px; }
 .pad-secondary [aria-pressed="true"] { background: var(--muted-bg); border-color: var(--ink-3); }
-.pad-confirm { flex: 1 1 200px; min-height: 98px; font-size: 1.1rem; }
+.pad-confirm { width: 100%; min-height: 72px; font-size: 1.15rem; }
 /* A3 low-frequency field mapping. Progress colours describe data entry only, never exposure. */
 :root { --prog-none: #9A9A93; --prog-active: #D9822B; --prog-done: #3E8E5A; --prog-attn: #C4473D; }
 .lf-setup { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr) minmax(0, 180px); gap: 16px; align-items: start; }
 .lf-filters { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .lf-filters legend { margin-bottom: 6px; }
 .lf-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lf-guided { grid-template-columns: minmax(0, 1fr); }
+.lf-guided .lf-diagram { border-top: 1px solid var(--line); padding-top: 16px; }
 .lf-diagram { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .lf-svg { width: 100%; max-width: 360px; height: auto; align-self: center; }
 .lf-svg .lf-dir { font-size: 12px; letter-spacing: .14em; fill: var(--ink-2); font-weight: 600; }
@@ -2704,9 +2706,9 @@ function padHTML() {
     ${A.flags.includes("nm") && A.reason ? `<div class="field" id="pad-reason-wrap" ${pad.flag === "nm" ? "" : "hidden"}><label for="pad-reason">Reason not measured (optional)</label><input id="pad-reason" class="input" value="${esc(pad.reason || "")}" placeholder="For example, furniture against the wall"></div>` : ""}
     <div class="pad-keys">${keys.map(k => `<button class="pad-key" data-action="padkey" data-key="${k}" aria-label="${k === "del" ? "Delete last digit" : k === "." ? "Decimal point" : k}">${k === "del" ? "Delete" : k}</button>`).join("")}</div>
     <div class="pad-foot">
+      <button class="btn btn-primary pad-confirm" id="pad-confirm" data-action="padconfirm" ${padValid() ? "" : "disabled"}>${amend ? "Confirm change" : "Confirm and continue"}</button>
       <div class="pad-secondary"><button class="btn" data-action="padback" ${pad.k === 0 ? "disabled" : ""}>Back</button><button class="btn" data-action="close">Cancel</button><button class="btn" data-action="padkey" data-key="clear">Clear</button>
         ${A.flags.map(f => `<button class="btn" data-action="padflag" data-flag="${f}" aria-pressed="${pad.flag === f}">${FLAG_LABEL[f]}</button>`).join("")}</div>
-      <button class="btn btn-primary pad-confirm" id="pad-confirm" data-action="padconfirm" ${padValid() ? "" : "disabled"}>${amend ? "Confirm change" : "Confirm and continue"}</button>
     </div></div>`;
 }
 const padValid = () => { const pad = S.pad; return !!pad && (!!pad.flag || NUM_OK.test(pad.buf)); };
@@ -2985,7 +2987,7 @@ function screenLF() {
     </div>
     ${test === "walls" ? `<div class="notice notice-muted">${icon("info")}<span class="small">Stand inside the room facing the selected wall. Measure at approximately 25%, 50%, and 75% of the wall's length, working from your left to your right.</span></div>`
       : `<div class="notice notice-muted">${icon("info")}<span class="small">Stand at approximately the centre of the room. Record while facing north, then east, south and west.</span></div>`}
-    <section class="card mt-guided" aria-label="${T.label}">${diagram}<div class="mt-panel">${panel}</div></section>
+    <section class="card mt-guided lf-guided" aria-label="${T.label}"><div class="mt-panel">${panel}</div>${diagram}</section>
     <div id="lf-tables" class="stack-l">
       <section class="card stack" id="lf-walls-table" aria-labelledby="h-lf-walls"><h3 id="h-lf-walls">Wall mapping results</h3>${lfTable(doc, "walls")}${wallsDone ? lfStatsHTML(doc, "walls") : ""}</section>
       ${doc.centreStarted || lfDone(doc, "centre") ? `<section class="card stack" aria-labelledby="h-lf-centre"><h3 id="h-lf-centre">Room-centre results</h3>${lfTable(doc, "centre")}${centreDone ? lfStatsHTML(doc, "centre") : ""}</section>` : ""}
