@@ -162,6 +162,21 @@ button, input, select, textarea { font: inherit; color: inherit; }
 table.entry tr.group-start td { border-top: 2px solid var(--line); }
 .tb-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; color: var(--forest); margin: 0; }
 table.entry td.resultant { vertical-align: middle; background: var(--sunk); }
+/* Card rows: below tablet width each row becomes a self-contained card, so nothing scrolls sideways */
+@container (max-width: 1100px) {
+  .wrap-cards { overflow: visible; border: 0; background: none; }
+  table.cards, table.cards tbody { display: block; width: 100%; }
+  table.cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.cards tr { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+  table.cards td { display: block; padding: 0; min-width: 0; border: 0; }
+  table.cards td.rowlabel { grid-column: 1 / -1; min-width: 0; }
+  table.cards td::before { content: attr(data-label); display: block; font-size: .78rem; font-weight: 500; color: var(--ink-2); margin-bottom: 4px; }
+  table.cards td:last-child { grid-column: span 2; }
+  table.cards td:has(.time-now) { min-width: 0; }
+  table.cards td.rowlabel .input { font-weight: 500; }
+  table.cards .mt-cell { min-height: 48px; font-size: 1.1rem; }
+}
+@container (max-width: 560px) { table.cards tr { grid-template-columns: repeat(2, minmax(0, 1fr)); } table.cards td:last-child, table.cards td:has(.time-now) { grid-column: 1 / -1; } }
 .time-now { display: flex; gap: 6px; align-items: center; }
 .now-btn { flex: none; border: 0; background: none; padding: 6px 4px; font: inherit; font-size: .8rem; color: var(--emerald); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; border-radius: var(--r-s); }
 .now-btn:hover { color: var(--forest); }
@@ -2190,7 +2205,7 @@ const SECTIONS = [
     quietFooter: true },
   { id: "a6", part: "A", code: "A6", title: "Plug loads and local sources", scope: "room", points: ["A1", "A2"],
     tables: [{ k: "plug", head: "Device", free: true, rows: ["", "", "", "", "", ""],
-      cols: [{ ...n("vm", "Electric field", "V/m"), pad: true }, { ...n("nt", "Magnetic field", "nT"), pad: true }, tx("pos", "Position to bed"), sel("state", "On, off or standby", ["", "On", "Off", "Standby"]), sel("dist", "Distance", ["", "<5 cm", "15 cm", "15 cm+"]), tm(), tx("notes", "Notes")] }], quietFooter: true },
+      cols: [{ ...n("vm", "Electric field", "V/m"), pad: true }, { ...n("nt", "Magnetic field", "nT"), pad: true }, tx("pos", "Position to bed"), sel("state", "On, off or standby", ["", "On", "Off", "Standby"]), sel("dist", "Distance", ["", "<5 cm", "15 cm", "15 cm+"]), tm(), tx("notes", "Notes")], cards: true }], quietFooter: true },
   { id: "a7", part: "A", code: "A7", title: "Body voltage", scope: "room", points: ["A1"],
     intro: "One column per person tested. Switching steps change the room, so test everyone at each step before moving on. Units: mV.",
     fields: [tx("other", "Other step, if used", { placeholder: "Describe the extra step" })],
@@ -2473,8 +2488,8 @@ function sheetTable(sec, tb, sh) {
   const labels = tb.free ? (tdata.rows || rows.map(r => r.label)) : rows.map(r => r.label);
   const unitNote = col => col.unit ? `<br><span class="unit">${col.unit}</span>` : "";
   return `<div class="stack" style="gap:8px">${tb.title ? (tb.plainTitle ? `<h3 class="tb-title">${tb.title}</h3>` : `<h4>${tb.title}</h4>`) : ""}
-    <div class="table-wrap"><table class="entry"><thead><tr><th>${tb.head}</th>${tb.cols.map(c => `<th>${c.label}${unitNote(c)}</th>`).join("")}</tr></thead><tbody>
-      ${labels.map((label, i) => { const row = rows[i] || { label }; return `<tr${row.room && i && rows[i - 1].room !== row.room ? ' class="group-start"' : ""}><td class="rowlabel">${tb.free ? `<input class="input" value="${esc(label)}" aria-label="${tb.head} ${i + 1}" placeholder="${tb.head}" data-sheet="t|${tb.k}|row|${i}">` : `<span class="small">${esc(label)}</span>`}</td>${tb.cols.map(col => sheetCell(sec, tb, sh, i, label, row, col)).join("")}</tr>`; }).join("")}
+    <div class="table-wrap${tb.cards ? " wrap-cards" : ""}"><table class="entry${tb.cards ? " cards" : ""}"><thead><tr><th>${tb.head}</th>${tb.cols.map(c => `<th>${c.label}${unitNote(c)}</th>`).join("")}</tr></thead><tbody>
+      ${labels.map((label, i) => { const row = rows[i] || { label }; return `<tr${row.room && i && rows[i - 1].room !== row.room ? ' class="group-start"' : ""}><td class="rowlabel"${tb.cards ? ` data-label="${esc(tb.head)}"` : ""}>${tb.free ? `<input class="input" value="${esc(label)}" aria-label="${tb.head} ${i + 1}" placeholder="${tb.head}" data-sheet="t|${tb.k}|row|${i}">` : `<span class="small">${esc(label)}</span>`}</td>${tb.cols.map(col => { const td = sheetCell(sec, tb, sh, i, label, row, col); return tb.cards ? td.replace(/^<td/, `<td data-label="${esc(col.label + (col.unit ? ` (${col.unit})` : ""))}"`) : td; }).join("")}</tr>`; }).join("")}
     </tbody></table></div>
     ${tb.free ? `<button class="btn btn-s" style="align-self:flex-start" data-action="addsheetrow" data-table="${tb.k}">${icon("plus")}Add a row</button>` : ""}</div>`;
 }

@@ -84,7 +84,7 @@ Units are µW/m² or mW/m² (V/m is not offered on A5). There are two tables, 70
 
 ### A6. Plug loads and local sources
 
-One row per device, in the order Device, Electric field (V/m), Magnetic field (nT), Position to bed, On, off or standby, Distance (<5 cm, 15 cm or 15 cm+), Time and Notes. Selecting an electric- or magnetic-field cell opens the same large number pad as A2 and A3; after the electric field it moves straight to the magnetic field for that device if it is still empty.
+One row per device, in the order Device, Electric field (V/m), Magnetic field (nT), Position to bed, On, off or standby, Distance (<5 cm, 15 cm or 15 cm+), Time and Notes. Selecting an electric- or magnetic-field cell opens the same large number pad as A2 and A3; after the electric field it moves straight to the magnetic field for that device if it is still empty. Each device is shown as a card rather than a wide table row, with every field labelled inside the card, so nothing scrolls sideways on a phone or tablet; on a phone the card uses two columns, with time and notes full width.
 
 ### A2. Nine-point mattress test: guided entry
 
