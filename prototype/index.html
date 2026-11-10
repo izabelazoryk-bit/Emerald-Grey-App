@@ -3341,11 +3341,10 @@ function bvBreakerPanel(doc, locked) {
   const nav = `<div class="bv-nav"><button class="btn btn-lg" data-action="bvstep" data-dir="-1" ${idx === 0 ? "disabled" : ""}>${icon("back")}Previous breaker</button>
     ${cur ? `<button class="btn btn-primary btn-lg" data-action="bvstep" data-dir="1">${idx === n - 1 ? "Finish circuits" : "Next breaker"}${icon("arrow")}</button>` : ""}</div>`;
   if (!cur) return `<div class="notice notice-calm">${icon("check")}<span class="small">${doc.breakers.filter(b => bvBreakerDone(doc, b)).length} of ${n} circuits measured. Review the results in step 6, or go back to any circuit.</span></div>${nav}`;
-  const measured = bvBreakerDone(doc, cur);
   return `<div class="bv-current" role="region" aria-label="Circuit being tested">
     <div class="spread"><span class="eyebrow">Circuit ${idx + 1} of ${n}</span><span class="xsmall muted">${doc.breakers.filter(b => bvBreakerDone(doc, b)).length} of ${n} measured</span></div>
     <h3 class="bv-bk">${esc(bvBkName(cur))}</h3>
-    <div class="notice ${measured ? "notice-muted" : "notice-warn"}" role="status">${icon("info")}<span>${measured ? `<b>Switch breaker ${esc(cur.num || "?")} OFF again before continuing.</b>` : `<b>Switch ON breaker ${esc(cur.num || "?")}: ${esc(cur.name || "unnamed circuit")}.</b><br>Keep all other tested breakers OFF.`}</span></div>
+    <div class="notice notice-warn" role="status">${icon("info")}<span><b>Switch ON breaker ${esc(cur.num || "?")}: ${esc(cur.name || "unnamed circuit")}.</b><br>Keep all other tested breakers OFF.</span></div>
     <div class="bv-people">${doc.people.map(p => { const d = bvChange(doc, cur, p.id);
       return `<div class="bv-person"><span class="small"><b>${esc(bvPName(doc, p.id))}</b></span>${bvCell(doc, `b|${cur.id}|${p.id}`, { disabled: locked })}<span class="xsmall muted">Measured change from BBI baseline: <b>${bvSigned(d)}${d == null ? "" : " mV"}</b></span></div>`; }).join("")}</div>
     ${nav}
@@ -3379,7 +3378,6 @@ function screenBV() {
   const finalDone = allIn("final");
   const bbiDone = allIn("start") && allIn("brk") && tested && finalDone;
   const suppUsed = doc.supp.enabled && (Object.values(doc.supp.base).some(bvHas) || doc.supp.breakers.some(b => Object.values(b.off).some(bvHas)));
-  const restoreOk = BV_RESTORE.every(([k]) => doc.restore[k]);
   const pid = ppl.some(p => p.id === S.bv.person) ? S.bv.person : ppl[0].id;
   const offList = doc.breakers.filter(b => b.overnightOff), onList = doc.breakers.filter(b => !b.overnightOff);
   const essentialOn = [];
@@ -3463,13 +3461,8 @@ function screenBV() {
       <div class="field"><label for="bv-notes">Notes on this investigation</label><textarea id="bv-notes" class="input" rows="3" data-bvtext="notes" ${locked ? "disabled" : ""}>${esc(doc.notes || "")}</textarea></div>
     </section>
 
-    <section class="card stack" aria-labelledby="h-bv-rest"><h3 id="h-bv-rest">Restoration check</h3>
-      ${bbiDone || suppUsed ? `<div class="mt-complete" role="status"><h3>BBI circuit investigation complete. Review the measurements and confirm that all circuits and equipment have been restored.</h3></div>` : `<p class="small muted">Confirm each item at the end of either protocol. The test cannot be marked complete until every item is confirmed or marked not applicable.</p>`}
-      <div class="bv-restore">${BV_RESTORE.map(([k, l]) => `<div class="bv-restore-row"><label for="bv-r-${k}" class="small">${l}</label><select id="bv-r-${k}" class="input" data-bvsel="restore.${k}" ${locked ? "disabled" : ""}>${["", "Confirmed", "Not applicable"].map(o => opt(o, o || "Not yet confirmed", o === (doc.restore[k] || ""))).join("")}</select></div>`).join("")}</div>
-      <div class="mt-actions">${doc.completedAt ? `<span class="small">Marked complete ${nowStampFrom(doc.completedAt)} by ${esc(doc.completedBy || "")}.</span>` : ""}
-        <button class="btn btn-primary btn-lg" data-action="bvfinish" ${!restoreOk || !(bbiDone || suppUsed) || locked ? "disabled" : ""}>${doc.completedAt ? "Save and continue to the next assessment section" : "Mark complete and continue"}</button></div>
-      ${!restoreOk ? `<p class="xsmall muted">${BV_RESTORE.filter(([k]) => !doc.restore[k]).length} restoration item${BV_RESTORE.filter(([k]) => !doc.restore[k]).length === 1 ? "" : "s"} still to confirm.</p>` : ""}
-    </section>
+    <div class="mt-actions">${doc.completedAt ? `<span class="small">Marked complete ${nowStampFrom(doc.completedAt)} by ${esc(doc.completedBy || "")}.</span>` : ""}
+      <button class="btn btn-primary btn-lg" data-action="bvfinish" ${!(bbiDone || suppUsed) || locked ? "disabled" : ""}>Save and continue to the next assessment section</button></div>
     ${sectionNav("a7")}`);
 }
 function bvSuppHTML(doc, locked) {
