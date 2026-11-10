@@ -70,6 +70,8 @@ The same evaluation rules apply as everywhere else:
 - Radio frequency is classified on the combined peak. Each band on its own, and RMS values, are not classified.
 - Screening instruments (the VOC screener and the sound app) are never classified automatically.
 
+Every assessment page from A1 to C3 ends with the same bar: Back to the previous section and Next to the following one, each named, in the order of the paper form, with Overview between them. C3 finishes with a button back to the overview.
+
 ### A2. Nine-point mattress test: guided entry
 
 A2 replaces typing into small table cells with guided entry, built for a tablet. The page has these parts:

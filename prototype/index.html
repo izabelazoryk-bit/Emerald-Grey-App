@@ -157,7 +157,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tickrow { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--cream); cursor: pointer; font-size: .9rem; line-height: 1.4; }
 .tickrow input { margin-top: 1px; flex: none; }
 .tickrow span { min-width: 0; }
-.sheet-nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.sheet-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--line); }
+.sheet-nav-btn { min-height: 56px; text-align: left; }
+.sheet-nav-btn span { display: flex; flex-direction: column; line-height: 1.25; }
+.sheet-nav-btn small { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+@container (max-width: 560px) { .sheet-nav { display: grid; grid-template-columns: minmax(0, 1fr); } .sheet-nav .btn { width: 100%; justify-content: center; } .sheet-nav > span { display: none; } .sheet-nav .btn-quiet { order: 3; } }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @container (max-width: 640px) { .checks { grid-template-columns: minmax(0, 1fr); } }
 
@@ -2420,11 +2424,17 @@ function screenSection(sec) {
       ${(sec.texts || []).map(t => `<div class="field"><label for="sx-${sec.id}-${t.k}">${t.label}</label><textarea id="sx-${sec.id}-${t.k}" class="input" rows="${t.rows || 5}" data-sheet="x|${t.k}">${esc((sh.x || {})[t.k] || "")}</textarea></div>`).join("")}
       <p class="xsmall muted">Saves as you type, against ${c.ref}${sec.scope === "property" ? " (whole property)" : ` · ${esc(roomName(c.ref, roomKey))}`}.${derived.length ? ` ${derived.length} result${derived.length === 1 ? "" : "s"} from this section feed the client record and report.` : ""}</p>
     </fieldset>
-    <nav class="sheet-nav" aria-label="Sections">
-      ${prev ? `<button class="btn" data-action="go" data-screen="${prev.id}">${icon("back")}${sectionName(prev)}</button>` : "<span></span>"}
+    ${sectionNav(sec.id)}`);
+}
+/* Back and Next at the foot of every assessment page, in the order of the form */
+function sectionNav(id) {
+  const i = SECTIONS.findIndex(x => x.id === id), prev = SECTIONS[i - 1], next = SECTIONS[i + 1];
+  const btn = (x, dir) => `<button class="btn ${dir === "next" ? "btn-primary" : ""} sheet-nav-btn" data-action="go" data-screen="${x.id}">${dir === "back" ? icon("back") : ""}<span><small>${dir === "back" ? "Back" : "Next"}</small>${sectionName(x)}</span>${dir === "next" ? icon("arrow") : ""}</button>`;
+  return `<nav class="sheet-nav" aria-label="Previous and next assessment">
+      ${prev ? btn(prev, "back") : "<span></span>"}
       <button class="btn btn-quiet" data-action="go" data-screen="assess">Overview</button>
-      ${next ? `<button class="btn btn-primary" data-action="go" data-screen="${next.id}">${sectionName(next)}${icon("arrow")}</button>` : "<span></span>"}
-    </nav>`);
+      ${next ? btn(next, "next") : `<button class="btn btn-primary sheet-nav-btn" data-action="go" data-screen="assess"><span><small>Finished</small>Back to overview</span>${icon("arrow")}</button>`}
+    </nav>`;
 }
 function screenAssessOverview() {
   const c = C(), room = currentRoom();
@@ -2648,7 +2658,8 @@ function screenMattress() {
         : `<button class="btn btn-s" data-action="mtnew" ${!done || locked ? "disabled" : ""}>${icon("plus")}Start a new test</button>`}</div>
       ${earlier.length ? earlier.slice().reverse().map(r => `<div class="stack" style="gap:6px"><div class="spread"><span class="small">Test ${r.run} · ${mtDone(r)} of ${MT_TOTAL} readings${r.completedAt ? ` · completed ${nowStampFrom(r.completedAt)}${r.completedBy ? " by " + esc(r.completedBy) : ""}` : ""}</span><button class="btn btn-quiet btn-s" data-action="mtview" data-run="${r.run}">${S.mt.viewRun === r.run ? "Hide" : "View"}</button></div>${S.mt.viewRun === r.run ? mtTable(r, { readOnly: true }) : ""}</div>`).join("")
         : `<p class="small muted">No earlier ${t.short.toLowerCase()} tests in ${bedName(room)}. Starting a new test keeps this one.</p>`}
-    </section>`);
+    </section>
+    ${sectionNav("a2")}`);
 }
 
 /* ---------- Results on the mattress: drawn to the chosen size, nine points as a heatmap ---------- */
@@ -3031,7 +3042,8 @@ function screenLF() {
         : `<button class="btn btn-s" data-action="lfnew" ${!doc.startedAt || locked ? "disabled" : ""}>${icon("plus")}Start a new test</button>`}</div>
       ${earlier.length ? earlier.slice().reverse().map(r => `<div class="stack" style="gap:6px"><div class="spread"><span class="small">Test ${r.run} · ${lfDone(r, "walls") + lfDone(r, "centre")} of 48 readings${r.completedAt ? ` · completed ${nowStampFrom(r.completedAt)}` : ""}</span><button class="btn btn-quiet btn-s" data-action="lfview" data-run="${r.run}">${S.lf.viewRun === r.run ? "Hide" : "View"}</button></div>${S.lf.viewRun === r.run ? lfTable(r, "walls", { readOnly: true }) + lfTable(r, "centre", { readOnly: true }) : ""}</div>`).join("")
         : `<p class="small muted">No earlier A3 tests in this room. Starting a new test keeps this one.</p>`}
-    </section>`);
+    </section>
+    ${sectionNav("a3")}`);
 }
 
 /* Results for the client record and report: completed positions of the latest test in each room */
