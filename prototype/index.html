@@ -160,6 +160,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .sheet-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--line); }
 .sheet-nav-btn { min-height: 56px; text-align: left; }
 table.entry tr.group-start td { border-top: 2px solid var(--line); }
+.tb-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; color: var(--forest); margin: 0; }
+table.entry td.resultant { vertical-align: middle; background: var(--sunk); }
 .time-now { display: flex; gap: 6px; align-items: center; }
 .now-btn { flex: none; border: 0; background: none; padding: 6px 4px; font: inherit; font-size: .8rem; color: var(--emerald); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; border-radius: var(--r-s); }
 .now-btn:hover { color: var(--forest); }
@@ -2145,13 +2147,18 @@ function clientBar(opts = {}) {
    typed. Numbers on the sheets are turned into results for the client record and report.
    ========================================================================= */
 const YESNO = ["", "Yes", "No"];
-const UNIT_OPTS = { de: ["mV p-p", "mV", "Other"], rf: ["µW/m²", "mW/m²", "V/m"], voc: ["mg/m³", "µg/m³", "ppm", "ppb"], wet: ["WME %", "Relative (non-invasive)", "% moisture content"] };
+const UNIT_OPTS = { de: ["mV p-p", "mV", "Other"], rf: ["µW/m²", "mW/m²", "V/m"], rf5: ["µW/m²", "mW/m²"], voc: ["mg/m³", "µg/m³", "ppm", "ppb"], wet: ["WME %", "Relative (non-invasive)", "% moisture content"] };
 const MATTRESS_ROWS = ["Top left", "Top centre", "Top right", "Mid left", "Mid centre", "Mid right", "Bottom left", "Bottom centre", "Bottom right"];
 const WALLS = ["North", "East", "South", "West"];
 const wallPositions = WALLS.flatMap(w => [1, 2, 3].map(n => `${w}, position ${n}`));
 const n = (k, label, unit) => ({ k, label, unit, type: "num" });
 const tx = (k, label, extra = {}) => ({ k, label, type: "text", ...extra });
 const tm = (k = "time", label = "Time") => ({ k, label, type: "time" });
+/* A5 band table: one row per rest area; the resultant is √(N² + E² + S² + W²), calculated, never typed */
+const RF_DIRS = [["rn", "North"], ["re", "East"], ["rs", "South"], ["rw", "West"]];
+const rfResultant = get => { const v = RF_DIRS.map(([c]) => parseNum(get(c))); return v.every(x => x != null) ? Math.sqrt(v.reduce((t, x) => t + x * x, 0)) : null; };
+const rfBandTable = (k, title) => ({ k, title, plainTitle: true, head: "Rest area", free: true, rows: ["Bed", ""],
+  cols: [n("peak", "Peak"), ...RF_DIRS.map(([c, l]) => n(c, l)), { k: "res", label: "3D resultant", type: "calc", calc: rfResultant }] });
 const sel = (k, label, options) => ({ k, label, type: "select", options });
 const PARTS = [
   { k: "V", title: "Visit" },
@@ -2176,9 +2183,9 @@ const SECTIONS = [
       { k: "de", title: "Suspected devices and other locations", head: "Suspect or location", free: true, rows: ["Suspect:", "Suspect:", "Suspect:", "Suspect:", ""],
       cols: [tm(), n("reading", "Reading"), tx("notes", "Notes")] }] },
   { id: "a5", part: "A", code: "A5", title: "Radio frequency", scope: "room", points: ["A3"],
-    intro: "Scan the sleep area for the peak, then take a four-point RMS set from the room centre.",
-    fields: [sel("units", "Units", UNIT_OPTS.rf)],
-    tables: [{ k: "bands", head: "Band", rows: ["700 MHz to 2 GHz", "2 GHz to 6 GHz"], cols: [tm(), n("peak", "Peak"), tx("src", "Source or direction"), n("rn", "RMS north"), n("re", "RMS east"), n("rs", "RMS south"), n("rw", "RMS west")] },
+    intro: "For each rest area, scan for the peak, then take a reading facing north, east, south and west. The 3D resultant is calculated from the four directions.",
+    fields: [sel("units", "Units", UNIT_OPTS.rf5)],
+    tables: [rfBandTable("b1", "700 MHz to 2.6 GHz"), rfBandTable("b2", "2.4 GHz to 6 GHz"),
       { k: "onoff", head: "Source", free: true, rows: ["Router or extender", "Cordless phone base", "Smart device", "Phone (airplane mode check)", ""], cols: [n("on", "Reading on"), n("off", "Reading off")] }],
     coverage: true },
   { id: "a6", part: "A", code: "A6", title: "Plug loads and local sources", scope: "room", points: ["A1", "A2"],
@@ -2328,11 +2335,16 @@ function deriveSheet(sh) {
       deSavedRows(ref, T("rooms").cell).forEach(r => { const v = parseNum(cell("rooms", r.k, "reading")); if (v != null) add(`room-${r.k}`, { point: "A1", label: `Dirty electricity, ${r.label}`, value: v, unit: "mV p-p", inst: "em100", time: cell("rooms", r.k, "time"), note: cell("rooms", r.k, "notes"), loc: r.label, room: r.room }); });
       each("de", (row, i) => { const v = parseNum(cell("de", i, "reading")); if (v != null) add(`r${i}`, { point: "A1", label: `Dirty electricity, ${row}`, value: v, unit: "mV p-p", inst: "em100", time: cell("de", i, "time"), note: cell("de", i, "notes"), loc: row }); }); break;
     case "a5": {
-      const u = f.units || "µW/m²", peaks = [];
-      each("bands", (row, i) => {
-        const pk = parseNum(cell("bands", i, "peak")); const meter = i === 0 ? "hf38" : "hfw35";
-        if (pk != null) { peaks.push(pk); add(`pk${i}`, { point: "A3", label: `RF peak, ${row}`, value: pk, unit: u, method: "peak", inst: meter, evalKey: "part", time: cell("bands", i, "time"), note: cell("bands", i, "src") }); }
-        [["rn", "north"], ["re", "east"], ["rs", "south"], ["rw", "west"]].forEach(([c, d]) => { const v = parseNum(cell("bands", i, c)); if (v != null) add(`${c}${i}`, { point: "A3", label: `RF RMS, ${row}, room centre facing ${d}`, value: v, unit: u, method: "rms", inst: meter, evalKey: "rmsnc" }); });
+      const u = f.units === "mW/m²" ? "mW/m²" : "µW/m²", peaks = [];
+      [["b1", "700 MHz to 2.6 GHz", "hf38"], ["b2", "2.4 GHz to 6 GHz", "hfw35"]].forEach(([k, band, meter]) => {
+        let top = null;
+        each(k, (row, i) => {
+          const where = `${band}, ${row}`, pk = parseNum(cell(k, i, "peak"));
+          if (pk != null) { top = Math.max(top ?? pk, pk); add(`${k}pk${i}`, { point: "A3", label: `RF peak, ${where}`, value: pk, unit: u, method: "peak", inst: meter, evalKey: "part", loc: row }); }
+          RF_DIRS.forEach(([c, d]) => { const v = parseNum(cell(k, i, c)); if (v != null) add(`${k}${c}${i}`, { point: "A3", label: `RF, ${where}, facing ${d.toLowerCase()}`, value: v, unit: u, method: "rms", inst: meter, evalKey: "rmsnc", loc: row }); });
+          const r = rfResultant(c => cell(k, i, c)); if (r != null) add(`${k}res${i}`, { point: "A3", label: `RF 3D resultant, ${where}`, value: r, unit: u, method: "rms", inst: meter, evalKey: "rmsnc", loc: row });
+        });
+        if (top != null) peaks.push(top);
       });
       if (peaks.length) add("total", { point: "A3", label: "RF combined peak, both bands", value: Math.round(peaks.reduce((a, b) => a + b, 0) * 100) / 100, unit: u, method: "peak", inst: "hf38", inst2: "hfw35", evalKey: peaks.length === 2 ? null : "incomplete" });
       each("onoff", (row, i) => [["on", "before"], ["off", "after"]].forEach(([c, ph]) => { const v = parseNum(cell("onoff", i, c)); if (v != null) add(`${c}${i}`, { point: "A3", label: `RF with ${row} ${c}`, value: v, unit: u, method: "peak", inst: "hf38", phase: ph, change: `${row} ${c}` }); }));
@@ -2419,6 +2431,8 @@ function sheetField(sec, sh, fd) {
 }
 function sheetCell(sec, tb, sh, i, rowLabel, row, col) {
   const type = row.type || col.type, key = row.k != null ? row.k : i;
+  if (type === "calc") { const cells = ((sh.t || {})[tb.k] || {}).cell || {}, r = col.calc(c => cells[key + "|" + c]);
+    return `<td class="num resultant" id="sc-${sec.id}-${tb.k}-${key}-${col.k}" aria-label="${esc((rowLabel || "Row " + (i + 1)) + ", " + col.label)}: ${r == null ? "not calculated" : fmt(r, 1)}">${r == null ? '<span class="muted">–</span>' : `<b>${fmt(r, 1)}</b>`}</td>`; }
   const v = (((sh.t || {})[tb.k] || {}).cell || {})[key + "|" + col.k] ?? "";
   const id = `sc-${sec.id}-${tb.k}-${key}-${col.k}`, data = `data-sheet="t|${tb.k}|cell|${key}|${col.k}"`, aria = `aria-label="${esc((row.label || col.label) + ", " + (row.k != null ? col.label : rowLabel || "row " + (i + 1)))}"`;
   if (type === "select") return `<td><select id="${id}" class="input" ${data} ${aria}>${col.options.map(o => opt(o, o, o === v)).join("")}</select></td>`;
@@ -2456,7 +2470,7 @@ function sheetTable(sec, tb, sh) {
   const rows = (tb.rowsFn ? tb.rowsFn(sh.ref) : tb.rows).map(rowOf);
   const labels = tb.free ? (tdata.rows || rows.map(r => r.label)) : rows.map(r => r.label);
   const unitNote = col => col.unit ? `<br><span class="unit">${col.unit}</span>` : "";
-  return `<div class="stack" style="gap:8px">${tb.title ? `<h4>${tb.title}</h4>` : ""}
+  return `<div class="stack" style="gap:8px">${tb.title ? (tb.plainTitle ? `<h3 class="tb-title">${tb.title}</h3>` : `<h4>${tb.title}</h4>`) : ""}
     <div class="table-wrap"><table class="entry"><thead><tr><th>${tb.head}</th>${tb.cols.map(c => `<th>${c.label}${unitNote(c)}</th>`).join("")}</tr></thead><tbody>
       ${labels.map((label, i) => { const row = rows[i] || { label }; return `<tr${row.room && i && rows[i - 1].room !== row.room ? ' class="group-start"' : ""}><td class="rowlabel">${tb.free ? `<input class="input" value="${esc(label)}" aria-label="${tb.head} ${i + 1}" placeholder="${tb.head}" data-sheet="t|${tb.k}|row|${i}">` : `<span class="small">${esc(label)}</span>`}</td>${tb.cols.map(col => sheetCell(sec, tb, sh, i, label, row, col)).join("")}</tr>`; }).join("")}
     </tbody></table></div>
@@ -3550,6 +3564,14 @@ function sheetInput(t) {
   const value = t.type === "checkbox" ? t.checked : t.value;
   if (t.matches("[data-num]")) { if (value !== "" && parseNum(value) == null) t.setAttribute("aria-invalid", "true"); else t.removeAttribute("aria-invalid"); }
   setSheet(S.client, room, sec.id, t.dataset.sheet, value);
+  /* Calculated cells in the same row update as the assessor types */
+  const [kind, tk, part, key] = t.dataset.sheet.split("|"), tb = (sec.tables || []).find(x => x.k === tk);
+  if (kind === "t" && part === "cell" && tb) tb.cols.filter(c => c.type === "calc").forEach(col => {
+    const td = document.getElementById(`sc-${sec.id}-${tk}-${key}-${col.k}`); if (!td) return;
+    const r = col.calc(c => { const el = document.getElementById(`sc-${sec.id}-${tk}-${key}-${c}`); return el ? el.value : ""; });
+    td.innerHTML = r == null ? '<span class="muted">–</span>' : `<b>${fmt(r, 1)}</b>`;
+    const rowName = td.getAttribute("aria-label").split(":")[0]; td.setAttribute("aria-label", `${rowName}: ${r == null ? "not calculated" : fmt(r, 1)}`);
+  });
 }
 /* Bedroom details live on the client profile: who sleeps there, the bed and the mattress size */
 function setBedroom(ref, id, field, value, wait) {
