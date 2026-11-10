@@ -174,6 +174,13 @@ table.entry td.resultant { vertical-align: middle; background: var(--sunk); }
 .bv-step-n.is-done { background: var(--prog-done); border-color: var(--prog-done); color: #fff; }
 .bv-step-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--forest); margin: 0; }
 @container (max-width: 1100px) { .bv-rank .bv-hide-card { display: none; } table.bv-rank td { white-space: normal; } table.bv-rank td.num { text-align: left; } table.entry.bv-rank td.resultant { background: none; } table.bv-rank td.rowlabel::before { display: none; } table.bv-rank td.rowlabel b { font-family: var(--font-display); font-weight: 400; font-size: 1.15rem; color: var(--forest); } table.bv-rank td[data-label="Classification"] { grid-column: span 2; } }
+.bv-nav { display: flex; justify-content: space-between; gap: 10px; }
+.bv-nav .btn { flex: 1 1 0; justify-content: center; max-width: 260px; }
+.bv-nav .btn-primary { margin-left: auto; }
+table.bv-results { table-layout: fixed; width: 100%; }
+table.bv-results th, table.bv-results td { white-space: normal; overflow-wrap: anywhere; }
+table.bv-results thead th:first-child { width: 34%; }
+@container (max-width: 560px) { table.bv-results th, table.bv-results td { padding: 8px 6px; font-size: .82rem; } table.bv-results thead th { font-size: .62rem; letter-spacing: .06em; } .bv-nav .btn { padding-inline: 10px; } }
 .bv-label { font-weight: 500; color: var(--forest); margin: 0; font-size: .92rem; }
 .mt-table tbody th[scope=row] { text-transform: none; letter-spacing: 0; font-size: .9rem; font-weight: 400; color: var(--ink); background: transparent; vertical-align: middle; }
 .mt-table th .unit, table.entry th .unit { text-transform: none; letter-spacing: 0; }
@@ -1130,7 +1137,7 @@ S.alloc = { "EG-001": S.scope, "EG-002": allocFrom(PACKAGES["Home Health Analysi
 S.exRooms = { "EG-002": ROOM_TEMPLATES.t2.rooms, "EG-003": ROOM_TEMPLATES.t3.rooms, "EG-004": ROOM_TEMPLATES.t1.rooms };
 Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, navParts: {}, bedDraft: {},
   mt: { ds: "pf", idx: {}, pad: null, flash: null, reviewing: false, confirmNew: false, viewRun: null },
-  bv: { person: null },
+  bv: { person: null, idx: {} },
   lf: { test: null, idx: {}, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   exBedrooms: { "EG-001": { bed1: { who: "Tom (left) and Harriet (right)", bed: "Upholstered divan, pocket-sprung mattress", size: "king" }, bed2: { who: "Their son, aged 6", bed: "Single pine bed, foam mattress", size: "single" } } } });
 const findingById = id => FINDINGS.find(f => f.id === id);
@@ -3318,45 +3325,49 @@ function bvStageRows(doc, keys, locked) {
   </tbody></table></div>`;
 }
 function bvStepHead(n, title, done) { return `<div class="bv-step-head"><span class="bv-step-n ${done ? "is-done" : ""}" aria-hidden="true">${done ? "✓" : n}</span><h4 class="bv-step-title">Step ${n}: ${title}</h4></div>`; }
+function bvCurIndex(doc) {
+  const n = doc.breakers.length, saved = S.bv.idx[bvId(doc.ref, doc.room)];
+  if (saved != null && saved <= n) return saved;
+  /* Fixed on first view so the page only moves when Previous or Next breaker is pressed */
+  const k = doc.breakers.findIndex(b => !bvBreakerDone(doc, b)), at = k < 0 ? n : k;
+  if (doc.people.every(p => bvHas((doc.stage[p.id] || {}).brk))) S.bv.idx[bvId(doc.ref, doc.room)] = at;
+  return at;
+}
 function bvBreakerPanel(doc, locked) {
-  const cur = doc.breakers.find(b => !b.offConfirmed);
   const baseOk = doc.people.every(p => bvHas((doc.stage[p.id] || {}).brk));
   if (!doc.breakers.length) return `<p class="small muted">Add the circuits recorded at the property below to begin.</p>`;
   if (!baseOk) return `<div class="notice notice-muted">${icon("info")}<span class="small">Record the BBI baseline for every person in step 3 before testing circuits.</span></div>`;
-  if (!cur) return `<div class="notice notice-calm">${icon("check")}<span class="small">Every listed circuit has been tested and returned to OFF. Review the ranking in step 6.</span></div>`;
-  const idx = doc.breakers.indexOf(cur), measured = bvBreakerDone(doc, cur), started = doc.people.some(p => bvHas(cur.on[p.id]));
+  const idx = bvCurIndex(doc), n = doc.breakers.length, cur = doc.breakers[idx];
+  const nav = `<div class="bv-nav"><button class="btn btn-lg" data-action="bvstep" data-dir="-1" ${idx === 0 ? "disabled" : ""}>${icon("back")}Previous breaker</button>
+    ${cur ? `<button class="btn btn-primary btn-lg" data-action="bvstep" data-dir="1">${idx === n - 1 ? "Finish circuits" : "Next breaker"}${icon("arrow")}</button>` : ""}</div>`;
+  if (!cur) return `<div class="notice notice-calm">${icon("check")}<span class="small">${doc.breakers.filter(b => bvBreakerDone(doc, b)).length} of ${n} circuits measured. Review the results in step 6, or go back to any circuit.</span></div>${nav}`;
+  const measured = bvBreakerDone(doc, cur);
   return `<div class="bv-current" role="region" aria-label="Circuit being tested">
-    <div class="spread"><span class="eyebrow">Circuit ${idx + 1} of ${doc.breakers.length}</span><span class="xsmall muted">${doc.breakers.filter(b => b.offConfirmed).length} returned to OFF</span></div>
+    <div class="spread"><span class="eyebrow">Circuit ${idx + 1} of ${n}</span><span class="xsmall muted">${doc.breakers.filter(b => bvBreakerDone(doc, b)).length} of ${n} measured</span></div>
     <h3 class="bv-bk">${esc(bvBkName(cur))}</h3>
-    <label class="tickrow"><input type="checkbox" data-bvcheck="others|${cur.id}" ${cur.othersOff ? "checked" : ""} ${locked || started ? "disabled" : ""}><span>The other tested circuits are OFF</span></label>
-    <div class="notice ${cur.othersOff ? "notice-warn" : "notice-muted"}" role="status">${icon("info")}<span><b>Switch ON breaker ${esc(cur.num || "?")}: ${esc(cur.name || "unnamed circuit")}.</b><br>Keep all other tested breakers OFF.</span></div>
+    <div class="notice ${measured ? "notice-muted" : "notice-warn"}" role="status">${icon("info")}<span>${measured ? `<b>Switch breaker ${esc(cur.num || "?")} OFF again before continuing.</b>` : `<b>Switch ON breaker ${esc(cur.num || "?")}: ${esc(cur.name || "unnamed circuit")}.</b><br>Keep all other tested breakers OFF.`}</span></div>
     <div class="bv-people">${doc.people.map(p => { const d = bvChange(doc, cur, p.id);
-      return `<div class="bv-person"><span class="small"><b>${esc(bvPName(doc, p.id))}</b></span>${bvCell(doc, `b|${cur.id}|${p.id}`, { disabled: locked || !cur.othersOff })}<span class="xsmall muted">Measured change from BBI baseline: <b>${bvSigned(d)}${d == null ? "" : " mV"}</b></span></div>`; }).join("")}</div>
-    ${measured ? `<div class="notice notice-warn" role="alert">${icon("info")}<span><b>Switch breaker ${esc(cur.num || "?")} OFF again before continuing.</b></span></div>
-      <div class="mt-actions"><button class="btn btn-primary btn-lg" data-action="bvoff" data-id="${cur.id}" ${locked ? "disabled" : ""}>Breaker returned to OFF</button></div>`
-      : `<p class="xsmall muted">${cur.othersOff ? "Measure every person with this circuit on." : "Confirm the other tested circuits are off to unlock the readings."} The next circuit opens only after this breaker is confirmed OFF again.</p>`}
+      return `<div class="bv-person"><span class="small"><b>${esc(bvPName(doc, p.id))}</b></span>${bvCell(doc, `b|${cur.id}|${p.id}`, { disabled: locked })}<span class="xsmall muted">Measured change from BBI baseline: <b>${bvSigned(d)}${d == null ? "" : " mV"}</b></span></div>`; }).join("")}</div>
+    ${nav}
   </div>`;
 }
 function bvBreakerList(doc, locked) {
-  const cur = doc.breakers.find(b => !b.offConfirmed);
+  const cur = doc.breakers[bvCurIndex(doc)];
   return `<details class="bv-list" ${doc.breakers.some(b => doc.people.some(p => bvHas(b.on[p.id]))) ? "" : "open"}><summary class="small"><b>Circuits at this property</b> · ${doc.breakers.length} listed. Edit numbers and names to match the consumer unit labels.</summary>
     <div class="stack" style="gap:6px;margin-top:10px">
     ${doc.breakers.map((b, i) => { const used = doc.people.some(p => bvHas(b.on[p.id]));
       return `<div class="bv-bk-row"><span class="xsmall muted">${i + 1}</span>
         <input class="input" value="${esc(b.num)}" aria-label="Breaker number, circuit ${i + 1}" data-bvtext="breakers.${i}.num" ${locked ? "disabled" : ""}>
         <input class="input" value="${esc(b.name)}" aria-label="Circuit name, circuit ${i + 1}" data-bvtext="breakers.${i}.name" ${locked ? "disabled" : ""}>
-        <span class="xsmall ${b.offConfirmed ? "" : "muted"}">${b.offConfirmed ? "Tested, OFF" : b === cur ? "Current" : used ? "In progress" : "To test"}</span>
+        <span class="xsmall ${bvBreakerDone(doc, b) ? "" : "muted"}">${b === cur ? "Current" : bvBreakerDone(doc, b) ? "Measured" : used ? "In progress" : "To test"}</span>
         <button class="btn btn-quiet btn-s" data-action="bvdelbk" data-id="${b.id}" ${used || locked ? "disabled" : ""} aria-label="Remove ${esc(bvBkName(b))}">Remove</button></div>`; }).join("")}
     <div class="row"><button class="btn btn-s" data-action="bvaddbk" ${locked ? "disabled" : ""}>${icon("plus")}Add a circuit</button><span class="xsmall muted">There is no fixed number of breakers.</span></div></div></details>`;
 }
 function bvRankTable(doc, pid) {
   const rows = doc.breakers.map(b => ({ b, on: bvVal(b.on[pid]), d: bvChange(doc, b, pid) })).sort((x, y) => (y.d ?? -Infinity) - (x.d ?? -Infinity));
-  const base = bvVal((doc.stage[pid] || {}).brk);
-  return `<div class="table-wrap wrap-cards"><table class="mt-table entry cards bv-rank"><thead><tr><th>Breaker</th><th>Circuit name</th><th class="num">BBI all-off baseline <span class="unit">mV</span></th><th class="num">Circuit-on <span class="unit">mV</span></th><th class="num">Change from baseline <span class="unit">mV</span></th><th>Classification</th><th>Notes</th></tr></thead><tbody>
-    ${rows.map(({ b, on, d }) => { const i = doc.breakers.indexOf(b);
-      return `<tr><td class="rowlabel" data-label="Breaker"><b>${esc(bvBkName(b))}</b></td><td data-label="Circuit name" class="bv-hide-card">${esc(b.name)}</td><td class="num" data-label="BBI all-off baseline (mV)">${base == null ? "–" : fmt(base, base % 1 ? 1 : 0)}</td><td class="num" data-label="Circuit-on (mV)">${on == null ? (b.on[pid] && b.on[pid].nm ? "Not measured" : "–") : fmt(on, on % 1 ? 1 : 0)}</td><td class="num resultant" data-label="Change from baseline (mV)"><b>${bvSigned(d)}</b></td>
-        <td data-label="Classification"><select class="input" data-bvsel="breakers.${i}.cls" aria-label="Classification, ${esc(bvBkName(b))}">${BV_CLASS.map(o => opt(o, o || "Assessor to select", o === b.cls)).join("")}</select></td>
-        <td data-label="Notes"><input class="input" value="${esc(b.notes)}" data-bvtext="breakers.${i}.notes" aria-label="Notes, ${esc(bvBkName(b))}"></td></tr>`; }).join("")}
+  const base = bvVal((doc.stage[pid] || {}).brk), num = v => v == null ? "–" : fmt(v, v % 1 ? 1 : 0);
+  return `<div class="table-wrap"><table class="mt-table bv-results"><thead><tr><th>Circuit</th><th class="num">BBI all-off baseline <span class="unit">mV</span></th><th class="num">Circuit on <span class="unit">mV</span></th><th class="num">Change from baseline <span class="unit">mV</span></th></tr></thead><tbody>
+    ${rows.map(({ b, on, d }) => `<tr><th scope="row">${esc(bvBkName(b))}</th><td class="num">${num(base)}</td><td class="num">${on == null ? (b.on[pid] && b.on[pid].nm ? "Not measured" : "–") : num(on)}</td><td class="num resultant"><b>${bvSigned(d)}</b></td></tr>`).join("")}
   </tbody></table></div>`;
 }
 function screenBV() {
@@ -3364,24 +3375,18 @@ function screenBV() {
   if (!room) return assessorShell("", `<div class="topline"><div><span class="eyebrow">Part A: EMF</span><h1>A7–A8. Body voltage and circuit investigation</h1></div></div>${clientBar()}`);
   const doc = bvDoc(c.ref, room.id), locked = Store.readOnly && !c.example, ppl = doc.people;
   const allIn = k => ppl.every(p => bvHas((doc.stage[p.id] || {})[k]));
-  const tested = doc.breakers.length && doc.breakers.every(b => b.offConfirmed);
+  const tested = doc.breakers.length && doc.breakers.every(b => bvBreakerDone(doc, b));
   const finalDone = allIn("final");
   const bbiDone = allIn("start") && allIn("brk") && tested && finalDone;
   const suppUsed = doc.supp.enabled && (Object.values(doc.supp.base).some(bvHas) || doc.supp.breakers.some(b => Object.values(b.off).some(bvHas)));
   const restoreOk = BV_RESTORE.every(([k]) => doc.restore[k]);
   const pid = ppl.some(p => p.id === S.bv.person) ? S.bv.person : ppl[0].id;
   const offList = doc.breakers.filter(b => b.overnightOff), onList = doc.breakers.filter(b => !b.overnightOff);
-  const essentialOn = onList.filter(b => b.cls === "Essential overnight");
+  const essentialOn = [];
   const delta = (a, b) => a == null || b == null ? null : a - b;
   return assessorShell("", `
     <div class="topline"><div class="stack" style="gap:6px"><span class="eyebrow">Part A: EMF</span><h1>A7–A8. Body voltage and circuit investigation</h1><p class="muted">Body voltage in millivolts (mV), measured with the person in bed.</p></div>
       <span class="chip ${doc.completedAt ? "c-emerald" : "c-muted"}" role="status">${doc.completedAt ? `Complete · ${nowStampFrom(doc.completedAt)}` : doc.startedAt ? `Saved ${nowStampFrom(doc.updatedAt)}` : "Not started"}</span></div>
-    <section class="bv-protocol" aria-labelledby="h-bv-proto">
-      <span class="eyebrow">Protocol being followed</span>
-      <h2 id="h-bv-proto">Body Voltage Protocol: one circuit on at a time</h2>
-      <p>The BBI protocol begins with all relevant breakers switched off. This establishes the circuit baseline. Each circuit is then switched on individually, measured, and switched off again before the next circuit is tested.</p>
-      <p class="xsmall">Saved with every measurement. The optional breaker-off comparison further down is a separate, supplementary method and is never shown as the BBI protocol.</p>
-    </section>
     ${storeNotice()}
     ${clientBar()}
     <section class="card stack" aria-labelledby="h-bv-people"><div class="spread"><h3 id="h-bv-people">People tested in ${esc(room.name)}</h3><button class="btn btn-s" data-action="bvaddperson" ${locked ? "disabled" : ""}>${icon("plus")}Add a person</button></div>
@@ -3389,7 +3394,6 @@ function screenBV() {
         <input class="input" value="${esc(p.name)}" placeholder="Name" aria-label="Person ${i + 1} name" data-bvtext="people.${i}.name" ${locked ? "disabled" : ""}>
         <input class="input" value="${esc(p.side)}" placeholder="Side of the bed" aria-label="Person ${i + 1} side of the bed" data-bvtext="people.${i}.side" ${locked ? "disabled" : ""}>
         <button class="btn btn-quiet btn-s" data-action="bvdelperson" data-id="${p.id}" ${ppl.length === 1 || locked || Object.keys(doc.stage[p.id] || {}).length ? "disabled" : ""} aria-label="Remove person ${i + 1}">Remove</button></div>`).join("")}
-      <div class="notice notice-muted">${icon("info")}<span class="small">Throughout the comparison each person stays ${BV_KEEP.join(", ")}.${ppl.length > 1 ? " Measure every person under the same electrical condition before changing that condition; the number pad moves to the next person for you." : ""}</span></div>
     </section>
 
     <section class="card stack-l" aria-labelledby="h-bv-bbi">
@@ -3417,8 +3421,8 @@ function screenBV() {
         ${bvBreakerPanel(doc, locked)}
         ${bvBreakerList(doc, locked)}</div>
 
-      <div class="bv-step">${bvStepHead(6, "Identify contributing circuits", tested && doc.breakers.every(b => b.cls))}
-        <p class="small muted">Ranked by the measured change from the BBI baseline for the person selected. Classifications are the assessor's professional judgement: the app does not assign a wiring fault or recommend isolation from the size of a change.</p>
+      <div class="bv-step">${bvStepHead(6, "Identify contributing circuits", tested)}
+        <p class="small muted">Ranked by the measured change from the BBI baseline for the person selected. A change is a measurement, not a fault.</p>
         <p class="bv-label">Results collected using the BBI one-circuit-on-at-a-time protocol</p>
         ${ppl.length > 1 ? `<div class="field" style="max-width:320px"><label for="bv-person">Person</label><select id="bv-person" class="input" data-change="bvperson">${ppl.map(p => opt(p.id, bvPName(doc, p.id), p.id === pid)).join("")}</select></div>` : ""}
         ${bvRankTable(doc, pid)}</div>
@@ -3427,7 +3431,7 @@ function screenBV() {
         <p class="bv-label">Final overnight configuration</p>
         <p class="small muted">The practical overnight arrangement, with essential circuits retained and selected contributing circuits isolated. Restore essential circuits, keep only the selected non-essential contributing circuits off, then measure every person again.</p>
         <fieldset class="bv-overnight"><legend class="label">Circuits switched off overnight</legend>
-          ${doc.breakers.map((b, i) => `<label class="tickrow"><input type="checkbox" data-bvcheck="overnight|${b.id}" ${b.overnightOff ? "checked" : ""} ${locked ? "disabled" : ""}><span>${esc(bvBkName(b))}${b.cls ? ` <span class="xsmall muted">· ${esc(b.cls)}</span>` : ""}</span></label>`).join("")}</fieldset>
+          ${doc.breakers.map((b, i) => `<label class="tickrow"><input type="checkbox" data-bvcheck="overnight|${b.id}" ${b.overnightOff ? "checked" : ""} ${locked ? "disabled" : ""}><span>${esc(bvBkName(b))}</span></label>`).join("")}</fieldset>
         ${bvStageRows(doc, ["final"], locked)}
         <dl class="kv bv-final">
           <dt>Circuits remaining on</dt><dd>${onList.map(b => esc(bvBkName(b))).join("; ") || "–"}</dd>
@@ -3756,7 +3760,10 @@ const ACT = {
   timenow: d => { const el = document.getElementById(d.for); if (!el) return; const t = new Date(); el.value = `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`; el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); toast(`Time set to ${el.value}`); },
   sheetpad: (d, el) => { const row = el.closest("tr"), inp = row && row.querySelector(".rowlabel input"), label = (inp ? inp.value.trim() : "") || d.label; openPad(0, "sheet", { path: d.path, label, col: d.col, unit: d.unit }); },
   bvpad: d => openPad(0, "bv", { path: d.path }),
-  async bvoff(d) { await bvUpdate(doc => { const b = doc.breakers.find(x => x.id === d.id); b.offConfirmed = true; b.offAt = new Date().toISOString(); b.offBy = ASSESSOR; }, "Breaker confirmed OFF"); document.querySelector(".bv-current input[type=checkbox]")?.focus(); },
+  bvstep: d => { const doc = bvDoc(S.client, currentRoom().id), k = bvCurIndex(doc), n = doc.breakers.length, next = Math.max(0, Math.min(n, k + +d.dir));
+    const b = doc.breakers[k];
+    const go2 = () => { S.bv.idx[bvId(doc.ref, doc.room)] = next; render(); document.querySelector(".bv-current .bv-cell, .bv-nav .btn")?.focus(); };
+    if (b && +d.dir > 0 && !b.offConfirmed) bvUpdate(x => { const y = x.breakers.find(z => z.id === b.id); y.offConfirmed = true; y.offAt = new Date().toISOString(); y.offBy = ASSESSOR; }).then(go2); else go2(); },
   bvaddbk: () => bvUpdate(doc => { const n = doc.breakers.length + 1; doc.breakers.push({ id: bvNewKey("c"), num: String(n), name: "", on: {}, othersOff: false, offConfirmed: false, cls: "", notes: "", overnightOff: false }); }),
   bvdelbk: d => bvUpdate(doc => { doc.breakers = doc.breakers.filter(b => b.id !== d.id); }),
   bvaddperson: () => bvUpdate(doc => { doc.people.push({ id: bvNewKey("p"), name: "", side: "" }); }),
