@@ -161,8 +161,28 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .sheet-nav-btn { min-height: 56px; text-align: left; }
 table.entry tr.group-start td { border-top: 2px solid var(--line); }
 .time-now { display: flex; gap: 6px; align-items: center; }
+.now-btn { flex: none; border: 0; background: none; padding: 6px 4px; font: inherit; font-size: .8rem; color: var(--emerald); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; border-radius: var(--r-s); }
+.now-btn:hover { color: var(--forest); }
+.now-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.room-points { display: flex; flex-direction: column; gap: 28px; }
+.rp-room { display: flex; flex-direction: column; gap: 6px; }
+.rp-title { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--forest); margin: 0 0 2px; }
+.rp-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 6px 0; }
+.rp-row + .rp-row:not(.rp-head) { border-top: 1px solid var(--line); }
+.rp-head { padding: 0 0 4px; font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-3); }
+.rp-point { font-size: .92rem; }
+.rp-mini { display: none; }
+.rp-reading { display: flex; align-items: center; gap: 8px; }
+.rp-reading .input { min-width: 0; flex: 1; }
+@container (max-width: 560px) {
+  .rp-head { display: none; }
+  .rp-row { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 6px 10px; padding: 10px 0; }
+  .rp-reading .unit { display: none; }
+  .rp-unit { text-transform: none; letter-spacing: 0; }
+  .rp-point { grid-column: 1 / -1; font-weight: 500; }
+  .rp-mini { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin-bottom: 2px; }
+}
 .time-now .input { min-width: 0; flex: 1; }
-.time-now .btn { flex: none; }
 .sheet-nav-btn span { display: flex; flex-direction: column; line-height: 1.25; }
 .sheet-nav-btn small { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
 @container (max-width: 560px) { .sheet-nav { display: grid; grid-template-columns: minmax(0, 1fr); } .sheet-nav .btn { width: 100%; justify-content: center; } .sheet-nav > span { display: none; } .sheet-nav .btn-quiet { order: 3; } }
@@ -2152,8 +2172,7 @@ const SECTIONS = [
   { id: "a3", part: "A", code: "A3", title: "Low-frequency fields", scope: "room", points: ["A1"], custom: true, fields: [], tables: [] },
   { id: "a4", part: "A", code: "A4", title: "Dirty electricity", scope: "property", covers: "Every room, listed in the table below", points: ["A1"],
     intro: "Start at the sockets nearest the head of each bed, then switch off or unplug one suspect at a time.",
-    fields: [sel("units", "Units", UNIT_OPTS.de)],
-    tables: [{ k: "rooms", head: "Room and location", rowsFn: ref => deRoomRows(ref), cols: [tm(), n("reading", "Reading"), tx("notes", "Notes")] },
+    tables: [{ k: "rooms", head: "Measurement point", rowsFn: ref => deRoomRows(ref), byRoom: true, cols: [tm(), n("reading", "Reading", "mV p-p")] },
       { k: "de", title: "Suspected devices and other locations", head: "Suspect or location", free: true, rows: ["Suspect:", "Suspect:", "Suspect:", "Suspect:", ""],
       cols: [tm(), n("reading", "Reading"), tx("notes", "Notes")] }] },
   { id: "a5", part: "A", code: "A5", title: "Radio frequency", scope: "room", points: ["A3"],
@@ -2228,8 +2247,8 @@ const sectionName = s => (s.code ? s.code + ". " : "") + s.title;
 const rowOf = r => typeof r === "string" ? { label: r } : r;
 /* A4 rows: every room on the client's site list; bedrooms get both sides of the bed and the room */
 const deRoomRows = ref => siteRooms(ref).flatMap(r => r.id.startsWith("bed")
-  ? [{ k: `${r.id}-l`, room: r.id, label: `${r.name}, bed head left` }, { k: `${r.id}-r`, room: r.id, label: `${r.name}, bed head right` }, { k: r.id, room: r.id, label: r.name }]
-  : [{ k: r.id, room: r.id, label: r.name }]);
+  ? [{ k: `${r.id}-l`, room: r.id, roomName: r.name, short: "Bed head, left", label: `${r.name}, bed head left` }, { k: `${r.id}-r`, room: r.id, roomName: r.name, short: "Bed head, right", label: `${r.name}, bed head right` }, { k: r.id, room: r.id, roomName: r.name, short: "General", label: `${r.name}, general` }]
+  : [{ k: r.id, room: r.id, roomName: r.name, short: "General", label: r.name }]);
 /* Rows that hold saved data, read from the keys alone so results never depend on the room list */
 const deSavedRows = (ref, cells) => [...new Set(Object.keys(cells || {}).map(k => k.split("|")[0]))].map(k => {
   const side = /-(l|r)$/.exec(k), room = side ? k.slice(0, -2) : k, name = roomName(ref, room);
@@ -2306,8 +2325,8 @@ function deriveSheet(sh) {
   const each = (k, fn) => { const tb = sec.tables.find(t => t.k === k); rowsOf(tb).forEach((label, i) => fn(label || `Row ${i + 1}`, i)); };
   switch (sh.section) {
     case "a4":
-      deSavedRows(ref, T("rooms").cell).forEach(r => { const v = parseNum(cell("rooms", r.k, "reading")); if (v != null) add(`room-${r.k}`, { point: "A1", label: `Dirty electricity, ${r.label}`, value: v, unit: f.units || "mV p-p", inst: "em100", time: cell("rooms", r.k, "time"), note: cell("rooms", r.k, "notes"), loc: r.label, room: r.room }); });
-      each("de", (row, i) => { const v = parseNum(cell("de", i, "reading")); if (v != null) add(`r${i}`, { point: "A1", label: `Dirty electricity, ${row}`, value: v, unit: f.units || "mV p-p", inst: "em100", time: cell("de", i, "time"), note: cell("de", i, "notes"), loc: row }); }); break;
+      deSavedRows(ref, T("rooms").cell).forEach(r => { const v = parseNum(cell("rooms", r.k, "reading")); if (v != null) add(`room-${r.k}`, { point: "A1", label: `Dirty electricity, ${r.label}`, value: v, unit: "mV p-p", inst: "em100", time: cell("rooms", r.k, "time"), note: cell("rooms", r.k, "notes"), loc: r.label, room: r.room }); });
+      each("de", (row, i) => { const v = parseNum(cell("de", i, "reading")); if (v != null) add(`r${i}`, { point: "A1", label: `Dirty electricity, ${row}`, value: v, unit: "mV p-p", inst: "em100", time: cell("de", i, "time"), note: cell("de", i, "notes"), loc: row }); }); break;
     case "a5": {
       const u = f.units || "µW/m²", peaks = [];
       each("bands", (row, i) => {
@@ -2395,7 +2414,7 @@ function sheetField(sec, sh, fd) {
   const input = fd.type === "select" ? `<select id="${id}" class="input" ${data}>${fd.options.map(o => opt(o, o || "Choose", o === v)).join("")}</select>`
     : fd.type === "textarea" ? `<textarea id="${id}" class="input" rows="2" ${data}>${esc(v)}</textarea>`
     : `<input id="${id}" class="input" type="${fd.type === "date" ? "date" : fd.type === "time" ? "time" : "text"}" value="${esc(v)}" placeholder="${esc(fd.placeholder || "")}" ${data}>`;
-  const body = fd.type === "time" ? `<div class="time-now">${input}<button type="button" class="btn btn-s" data-action="timenow" data-for="${id}" aria-label="Set ${esc(fd.label)} to now">Now</button></div>` : input;
+  const body = fd.type === "time" ? `<div class="time-now">${input}<button type="button" class="now-btn" data-action="timenow" data-for="${id}" aria-label="Set ${esc(fd.label)} to now">Now</button></div>` : input;
   return `<div class="field ${fd.type === "textarea" ? "span-all" : ""}"><label for="${id}">${fd.label}</label>${body}</div>`;
 }
 function sheetCell(sec, tb, sh, i, rowLabel, row, col) {
@@ -2405,10 +2424,34 @@ function sheetCell(sec, tb, sh, i, rowLabel, row, col) {
   if (type === "select") return `<td><select id="${id}" class="input" ${data} ${aria}>${col.options.map(o => opt(o, o, o === v)).join("")}</select></td>`;
   if (type === "check") return `<td class="center"><input id="${id}" type="checkbox" ${v ? "checked" : ""} ${data} ${aria}></td>`;
   const bad = type === "num" && v !== "" && parseNum(v) == null;
-  if (type === "time") return `<td><div class="time-now"><input id="${id}" class="input" type="time" value="${esc(v)}" ${data} ${aria}><button type="button" class="btn btn-s" data-action="timenow" data-for="${id}" aria-label="Set to now, ${esc(row.label || rowLabel || "")}">Now</button></div></td>`;
+  if (type === "time") return `<td><div class="time-now"><input id="${id}" class="input" type="time" value="${esc(v)}" ${data} ${aria}><button type="button" class="now-btn" data-action="timenow" data-for="${id}" aria-label="Set to now, ${esc(row.label || rowLabel || "")}">Now</button></div></td>`;
   return `<td><input id="${id}" class="input" ${type === "time" ? 'type="time"' : type === "num" ? 'inputmode="decimal" data-num' : 'type="text"'} value="${esc(v)}" ${bad ? 'aria-invalid="true"' : ""} ${data} ${aria}></td>`;
 }
+/* One section per room: the room name is the heading, rows carry short labels, and every
+   control is labelled in full ("Master bedroom, bed head left, reading") for screen readers.
+   Rooms with a single point are listed together as compact rows. Storage keys are unchanged. */
+function roomSectionsHTML(sec, tb, sh) {
+  const cells = ((sh.t || {})[tb.k] || {}).cell || {};
+  const ctl = (row, col) => {
+    const key = row.k, v = cells[key + "|" + col.k] ?? "", id = `sc-${sec.id}-${tb.k}-${key}-${col.k}`, data = `data-sheet="t|${tb.k}|cell|${key}|${col.k}"`;
+    const aria = `aria-label="${esc(row.label)}, ${col.label.toLowerCase()}${col.unit ? " in " + col.unit : ""}"`;
+    const field = col.type === "time"
+      ? `<div class="time-now"><input id="${id}" class="input" type="time" value="${esc(v)}" ${data} ${aria}><button type="button" class="now-btn" data-action="timenow" data-for="${id}" aria-label="Set ${esc(row.label)} time to now">Now</button></div>`
+      : `<div class="rp-reading"><input id="${id}" class="input" inputmode="decimal" data-num value="${esc(v)}" ${v !== "" && parseNum(v) == null ? 'aria-invalid="true"' : ""} ${data} ${aria}><span class="unit" aria-hidden="true">${col.unit || ""}</span></div>`;
+    return `<div class="rp-cell"><span class="rp-mini" aria-hidden="true">${col.label}${col.unit ? ` <span class="rp-unit">(${col.unit})</span>` : ""}</span>${field}</div>`;
+  };
+  const head = first => `<div class="rp-row rp-head" aria-hidden="true"><span>${first}</span>${tb.cols.map(c => `<span>${c.label}</span>`).join("")}</div>`;
+  const rowHTML = (row, text) => `<div class="rp-row" role="group" aria-label="${esc(row.label)}"><span class="rp-point">${esc(text)}</span>${tb.cols.map(c => ctl(row, c)).join("")}</div>`;
+  const rows = tb.rowsFn(sh.ref), groups = [];
+  rows.forEach(r => { const g = groups[groups.length - 1]; if (g && g.room === r.room) g.rows.push(r); else groups.push({ room: r.room, name: r.roomName, rows: [r] }); });
+  const multi = groups.filter(g => g.rows.length > 1), single = groups.filter(g => g.rows.length === 1);
+  return `<div class="room-points">
+    ${multi.map(g => `<section class="rp-room" aria-labelledby="rp-${g.room}"><h3 id="rp-${g.room}" class="rp-title">${esc(g.name)}</h3>${head(tb.head)}${g.rows.map(r => rowHTML(r, r.short)).join("")}</section>`).join("")}
+    ${single.length ? `<section class="rp-room" aria-labelledby="rp-other"><h3 id="rp-other" class="rp-title">Other rooms</h3>${head("Room")}${single.map(g => rowHTML(g.rows[0], g.name)).join("")}</section>` : ""}
+  </div>`;
+}
 function sheetTable(sec, tb, sh) {
+  if (tb.byRoom) return roomSectionsHTML(sec, tb, sh);
   const tdata = (sh.t || {})[tb.k] || {};
   const rows = (tb.rowsFn ? tb.rowsFn(sh.ref) : tb.rows).map(rowOf);
   const labels = tb.free ? (tdata.rows || rows.map(r => r.label)) : rows.map(r => r.label);

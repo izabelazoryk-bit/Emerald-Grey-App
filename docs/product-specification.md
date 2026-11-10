@@ -72,11 +72,11 @@ The same evaluation rules apply as everywhere else:
 
 Every assessment page from A1 to C3 ends with the same bar: Back to the previous section and Next to the following one, each named, in the order of the paper form, with Overview between them. C3 finishes with a button back to the overview.
 
-### A4. Dirty electricity: every room in one table
+### A4. Dirty electricity: room by room
 
-A4 has no room selector. Its table lists every room on the client's site list: each bedroom has three rows (bed head left, bed head right, and the room), and every other room has one. Suspected devices and other locations follow in their own rows, with Add a row for more. Each reading is saved against the room it belongs to, so it appears under that room in the client record and report.
+A4 has no room selector and no units choice: readings are always in mV p-p. The page works through one room at a time. Each bedroom has its own section, headed with the room name, with three measurement points: Bed head, left; Bed head, right; and General. Rooms with a single point (kitchen, living room and so on) are listed together under Other rooms as one compact row each. Every row has a time field with a Now action and a reading field; on a phone each row stacks, with the measurement point above its time and reading. Every control carries its full name for screen readers, for example "Master bedroom, bed head left, reading in mV p-p". Suspected devices and other locations follow in their own table, with Add a row. Each reading is saved against the room it belongs to, so it appears under that room in the client record and report.
 
-Every time field on the assessment sheets has a Now button that fills in the current time for immediate logging.
+Every time field on the assessment sheets has a Now action that fills in the current time for immediate logging.
 
 ### A2. Nine-point mattress test: guided entry
 
