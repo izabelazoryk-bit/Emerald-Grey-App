@@ -82,6 +82,10 @@ Every time field on the assessment sheets has a Now action that fills in the cur
 
 Units are µW/m² or mW/m² (V/m is not offered on A5). There are two tables, 700 MHz to 2.6 GHz and 2.4 GHz to 6 GHz, each with one row per rest area (Bed by default, with Add a row) and the columns Rest area, Peak, North, East, South, West and 3D resultant. The resultant is √(N² + E² + S² + W²), calculated as the four directions are entered and never typed. The source on and off table follows unchanged. A5 shows no equipment-coverage panel; the meters and their ranges are kept in the equipment register.
 
+### A6. Plug loads and local sources
+
+One row per device, in the order Device, Electric field (V/m), Magnetic field (nT), Position to bed, On, off or standby, Distance (<5 cm, 15 cm or 15 cm+), Time and Notes. Selecting an electric- or magnetic-field cell opens the same large number pad as A2 and A3; after the electric field it moves straight to the magnetic field for that device if it is still empty.
+
 ### A2. Nine-point mattress test: guided entry
 
 A2 replaces typing into small table cells with guided entry, built for a tablet. The page has these parts:

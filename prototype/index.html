@@ -2190,7 +2190,7 @@ const SECTIONS = [
     quietFooter: true },
   { id: "a6", part: "A", code: "A6", title: "Plug loads and local sources", scope: "room", points: ["A1", "A2"],
     tables: [{ k: "plug", head: "Device", free: true, rows: ["", "", "", "", "", ""],
-      cols: [tx("pos", "Position to bed"), sel("state", "On, off or standby", ["", "On", "Off", "Standby"]), n("dist", "Distance", "cm"), n("vm", "Electric field", "V/m"), n("nt", "Magnetic field", "nT"), tm(), tx("notes", "Notes")] }] },
+      cols: [{ ...n("vm", "Electric field", "V/m"), pad: true }, { ...n("nt", "Magnetic field", "nT"), pad: true }, tx("pos", "Position to bed"), sel("state", "On, off or standby", ["", "On", "Off", "Standby"]), sel("dist", "Distance", ["", "<5 cm", "15 cm", "15 cm+"]), tm(), tx("notes", "Notes")] }], quietFooter: true },
   { id: "a7", part: "A", code: "A7", title: "Body voltage", scope: "room", points: ["A1"],
     intro: "One column per person tested. Switching steps change the room, so test everyone at each step before moving on. Units: mV.",
     fields: [tx("other", "Other step, if used", { placeholder: "Describe the extra step" })],
@@ -2351,7 +2351,7 @@ function deriveSheet(sh) {
       break;
     }
     case "a6": each("plug", (row, i) => {
-      const loc = [cell("plug", i, "pos"), cell("plug", i, "dist") ? cell("plug", i, "dist") + " cm" : "", cell("plug", i, "state")].filter(Boolean).join(", ");
+      const loc = [cell("plug", i, "pos"), cell("plug", i, "dist") ? (/cm/.test(cell("plug", i, "dist")) ? cell("plug", i, "dist") : cell("plug", i, "dist") + " cm") : "", cell("plug", i, "state")].filter(Boolean).join(", ");
       const vm = parseNum(cell("plug", i, "vm")), nt = parseNum(cell("plug", i, "nt"));
       if (vm != null) add(`vm${i}`, { point: "A1", label: `Electric field, ${row}`, value: vm, unit: "V/m", method: "earthed", inst: "me3951", loc, time: cell("plug", i, "time"), note: cell("plug", i, "notes") });
       if (nt != null) add(`nt${i}`, { point: "A2", label: `Magnetic field, ${row}`, value: nt, unit: "nT", inst: "me3951", loc, time: cell("plug", i, "time"), note: cell("plug", i, "notes") });
@@ -2438,6 +2438,8 @@ function sheetCell(sec, tb, sh, i, rowLabel, row, col) {
   if (type === "select") return `<td><select id="${id}" class="input" ${data} ${aria}>${col.options.map(o => opt(o, o, o === v)).join("")}</select></td>`;
   if (type === "check") return `<td class="center"><input id="${id}" type="checkbox" ${v ? "checked" : ""} ${data} ${aria}></td>`;
   const bad = type === "num" && v !== "" && parseNum(v) == null;
+  if (col.pad) { const label = rowLabel || `Row ${i + 1}`;
+    return `<td><button type="button" id="${id}" class="mt-cell" data-action="sheetpad" data-path="t|${tb.k}|cell|${key}|${col.k}" data-label="${esc(label)}" data-col="${esc(col.label)}" data-unit="${esc(col.unit || "")}" aria-label="${esc(label)}, ${esc(col.label.toLowerCase())}${col.unit ? " in " + esc(col.unit) : ""}: ${v === "" ? "not entered" : esc(v)}. Opens the number pad">${v === "" ? '<span class="muted">Enter</span>' : esc(v)}</button></td>`; }
   if (type === "time") return `<td><div class="time-now"><input id="${id}" class="input" type="time" value="${esc(v)}" ${data} ${aria}><button type="button" class="now-btn" data-action="timenow" data-for="${id}" aria-label="Set to now, ${esc(row.label || rowLabel || "")}">Now</button></div></td>`;
   return `<td><input id="${id}" class="input" ${type === "time" ? 'type="time"' : type === "num" ? 'inputmode="decimal" data-num' : 'type="text"'} value="${esc(v)}" ${bad ? 'aria-invalid="true"' : ""} ${data} ${aria}></td>`;
 }
@@ -2824,6 +2826,25 @@ function padKey(key) {
   else if (/^\d$/.test(key)) { if (pad.buf.replace(".", "").length < 8) pad.buf = pad.buf === "0" ? key : pad.buf + key; pad.flag = null; }
   padRefresh();
 }
+/* Sheet cells that use the large number pad: the value is written to the sheet like a typed entry */
+PADS.sheet = {
+  flags: [],
+  unit: () => S.pad.unit,
+  entry: () => { const sec = sectionById(S.screen), sh = sheetGet(S.client, sheetRoomKey(sec), sec.id), [, tk, , key, ck] = S.pad.path.split("|"); const v = ((((sh.t || {})[tk] || {}).cell || {})[key + "|" + ck]) ?? ""; return { v }; },
+  heading: () => [S.pad.label, S.pad.col],
+  filled: e => String(e.v ?? "") !== "",
+  text: e => `${e.v} ${S.pad.unit}`,
+  confirm: pad => {
+    const sec = sectionById(S.screen), room = sheetRoomKey(sec); if (!sec || !room) return;
+    setSheet(S.client, room, sec.id, pad.path, pad.buf);
+    const [, tk, , key, ck] = pad.path.split("|"), tb = sec.tables.find(t => t.k === tk), cols = tb.cols.filter(c => c.pad), nx = cols[cols.findIndex(c => c.k === ck) + 1];
+    const sh = sheetGet(S.client, room, sec.id), nextEmpty = nx && String(((((sh.t || {})[tk] || {}).cell || {})[key + "|" + nx.k]) ?? "") === "";
+    toast(`${pad.label}, ${pad.col.toLowerCase()} saved`);
+    if (nextEmpty) { openPad(0, "sheet", { path: `t|${tk}|cell|${key}|${nx.k}`, label: pad.label, col: nx.label, unit: nx.unit || "" }); return; }
+    S.modal = null; S.pad = null; render(); document.getElementById(`sc-${sec.id}-${tk}-${key}-${ck}`)?.focus();
+  },
+  back: () => {}
+};
 function openPad(k, kind = "mt", extra = {}) { S.pad = { kind, k, buf: "", flag: null, reason: "", ...extra }; S.modal = "pad"; S.modalCtx = {}; render(); document.querySelector(".modal.pad .pad-key")?.focus(); }
 function padConfirm() { if (!padValid()) return; const r = document.getElementById("pad-reason"); if (r) S.pad.reason = r.value.trim(); PADS[S.pad.kind].confirm(S.pad); }
 
@@ -3389,6 +3410,7 @@ const ACT = {
   },
   lfview: d => { S.lf.viewRun = S.lf.viewRun === +d.run ? null : +d.run; render(); },
   timenow: d => { const el = document.getElementById(d.for); if (!el) return; const t = new Date(); el.value = `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`; el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); toast(`Time set to ${el.value}`); },
+  sheetpad: (d, el) => { const row = el.closest("tr"), inp = row && row.querySelector(".rowlabel input"), label = (inp ? inp.value.trim() : "") || d.label; openPad(0, "sheet", { path: d.path, label, col: d.col, unit: d.unit }); },
   padkey: d => padKey(d.key),
   padflag: d => { S.pad.flag = S.pad.flag === d.flag ? null : d.flag; if (S.pad.flag) S.pad.buf = ""; padRefresh(); if (S.pad.flag === "nm") document.getElementById("pad-reason")?.focus(); },
   padconfirm: () => padConfirm(),
