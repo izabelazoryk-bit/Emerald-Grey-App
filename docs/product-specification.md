@@ -80,7 +80,7 @@ Every time field on the assessment sheets has a Now action that fills in the cur
 
 ### A5. Radio frequency: two band tables
 
-Units are µW/m² or mW/m² (V/m is not offered on A5). There are two tables, 700 MHz to 2.6 GHz and 2.4 GHz to 6 GHz, each with one row per rest area (Bed by default, with Add a row) and the columns Rest area, Peak, North, East, South, West and 3D resultant. The resultant is √(N² + E² + S² + W²), calculated as the four directions are entered and never typed. The source on and off table follows unchanged.
+Units are µW/m² or mW/m² (V/m is not offered on A5). There are two tables, 700 MHz to 2.6 GHz and 2.4 GHz to 6 GHz, each with one row per rest area (Bed by default, with Add a row) and the columns Rest area, Peak, North, East, South, West and 3D resultant. The resultant is √(N² + E² + S² + W²), calculated as the four directions are entered and never typed. The source on and off table follows unchanged. A5 shows no equipment-coverage panel; the meters and their ranges are kept in the equipment register.
 
 ### A2. Nine-point mattress test: guided entry
 
@@ -193,7 +193,7 @@ Service packages pre-select points. The prototype uses the services named in the
 - **Electric fields** are measured with the ME3951A using the earthed method, and evaluated only against the earthed-method reference entry. Potential-free readings have their own method and reference entry, ready if a potential-free meter is added.
 - **Bedroom grid** uses nine fixed positions (head, middle, foot by left, centre, right). Positions not measured are drawn hatched and labelled "Not measured".
 - **Magnetic fields** store X, Y and Z; the resultant is calculated, never typed.
-- **RF** stores the detector (peak or average) and which meters were used. The HF38B-W (about 700 MHz to 2.4 GHz) and HFW35C (about 2.4 to 6 GHz) together cover about 700 MHz to 6 GHz. Sources outside that range (FM, DAB, TETRA, Wi-Fi 6E) produce an automatic caveat on the finding and report.
+- **RF** stores the detector (peak or average) and which meters were used. The HF38B (about 700 MHz to 2.7 GHz) and HFW35C (about 2.4 to 6 GHz) together cover about 700 MHz to 6 GHz. Sources outside that range (FM, DAB, TETRA, Wi-Fi 6E) produce an automatic caveat on the finding and report.
 - **Before and after** readings share a comparison group with a description of the change (for example "circuit 7 switched off at consumer unit"). Repeat visits link to the earlier visit so comparable readings appear side by side.
 - **CSV import** accepts logger exports (the Aranet4 first), maps columns to quantities, previews the series and saves it as overnight monitoring linked to a room and instrument.
 - **Room templates**: a room's structure (points, prompts, measurement positions) can be duplicated without its readings.

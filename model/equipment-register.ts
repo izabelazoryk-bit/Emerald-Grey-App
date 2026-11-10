@@ -38,9 +38,9 @@ export const EQUIPMENT_REGISTER: EquipmentSeed[] = [
     limitations: ["Not a substitute for a qualified gas-safety investigation. Any alarm or suspected gas escape: leave the property, call the gas emergency line (0800 111 999) and refer to a Gas Safe registered engineer."], usageGuidance: [] },
 
   /* 2. Electromagnetic fields and electrical environment */
-  { key: "hf38", category: "emf", kind: "instrument", name: "Gigahertz Solutions HF38B-W", defaultResultClass: "instrument_reading", points: ["A3"],
-    purpose: "Radio-frequency measurements, approximately 700 MHz to 2.4 GHz.",
-    parameters: [p("rf_power_density", "RF power density, peak and average", "µW/m²", "approx. 700 MHz to 2.4 GHz")], frequencyCoverageMHz: { min: 700, max: 2400 },
+  { key: "hf38", category: "emf", kind: "instrument", name: "Gigahertz Solutions HF38B", defaultResultClass: "instrument_reading", points: ["A3"],
+    purpose: "Radio-frequency measurements, approximately 700 MHz to 2.7 GHz.",
+    parameters: [p("rf_power_density", "RF power density, peak and average", "µW/m²", "approx. 700 MHz to 2.7 GHz")], frequencyCoverageMHz: { min: 700, max: 2700 },
     requiredChecks: ["calibration"], detailsToConfirm: [], limitations: [], usageGuidance: [] },
   { key: "hfw35", category: "emf", kind: "instrument", name: "Gigahertz Solutions HFW35C", defaultResultClass: "instrument_reading", points: ["A3"],
     purpose: "Higher-frequency RF measurements, approximately 2.4 to 6 GHz.",

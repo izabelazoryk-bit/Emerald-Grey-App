@@ -853,8 +853,8 @@ const EQUIPMENT = [
     purpose: "Detects combustible gases (LEL), hydrogen sulphide (H₂S), carbon monoxide (CO) and oxygen (O₂), subject to the installed sensor configuration. Relevant to suspected gas hazards, drainage-related concerns and combustion issues.",
     params: "LEL (%) · H₂S (ppm) · CO (ppm) · O₂ (% vol)", confirm: ["Installed sensor configuration"],
     limits: ["Not a substitute for a qualified gas-safety investigation. Any alarm or suspected gas escape: leave the property, call the gas emergency line (0800 111 999) and refer to a Gas Safe registered engineer."] },
-  { id: "hf38", cat: "emf", name: "Gigahertz Solutions HF38B-W", kind: "instrument", result: "reading", check: "calibration", points: ["A3"], fmin: 700, fmax: 2400,
-    purpose: "Radio-frequency measurements, approximately 700 MHz to 2.4 GHz.", params: "RF power density (µW/m²), peak and average" },
+  { id: "hf38", cat: "emf", name: "Gigahertz Solutions HF38B", kind: "instrument", result: "reading", check: "calibration", points: ["A3"], fmin: 700, fmax: 2700,
+    purpose: "Radio-frequency measurements, approximately 700 MHz to 2.7 GHz.", params: "RF power density (µW/m²), peak and average" },
   { id: "hfw35", cat: "emf", name: "Gigahertz Solutions HFW35C", kind: "instrument", result: "reading", check: "calibration", points: ["A3"], fmin: 2400, fmax: 6000,
     purpose: "Higher-frequency RF measurements, approximately 2.4 to 6 GHz.", params: "RF power density (µW/m²), peak and average" },
   { id: "me3951", cat: "emf", name: "Gigahertz Solutions ME3951A", kind: "instrument", result: "reading", check: "calibration", points: ["A1", "A2"],
@@ -942,7 +942,7 @@ const ROOMS = [
     points: { C1: "inaccessible", S2: "inaccessible", S3: "inaccessible" } }
 ];
 const PROMPTS = {
-  bedroom: { title: "Bedroom checks around the bed", items: ["Nine-point mattress grid: electric field (earthed method) and magnetic field with the ME3951A", "Body voltage in usual sleeping position, before and after switching off bedside circuits", "RF peak and average at pillow height with the HF38B-W and HFW35C", "Line noise at bedside sockets with the EM100", "Overnight CO₂, temperature and humidity with the Aranet4 beside the bed", "Light at night: bedside lighting spectrum with the OHSP-350IR; street light and standby LEDs"], cta: "Open the A2 mattress grid" },
+  bedroom: { title: "Bedroom checks around the bed", items: ["Nine-point mattress grid: electric field (earthed method) and magnetic field with the ME3951A", "Body voltage in usual sleeping position, before and after switching off bedside circuits", "RF peak and average at pillow height with the HF38B and HFW35C", "Line noise at bedside sockets with the EM100", "Overnight CO₂, temperature and humidity with the Aranet4 beside the bed", "Light at night: bedside lighting spectrum with the OHSP-350IR; street light and standby LEDs"], cta: "Open the A2 mattress grid" },
   bathroom: { title: "Bathroom extraction and moisture", items: ["Humidity decay after a shower with the Aranet4, door closed", "Extractor overrun after the light is switched off; does it clear steam?", "Moisture at the window reveal, ceiling corners and behind the WC with the Protimeter", "Thermal images of reveals and corners with the HIKMICRO E01", "Mould swab from any visible growth; sealant and grout condition"] },
   kitchen: { title: "Kitchen water and cooking air", items: ["Water strips at the cold tap, first draw and flushed (TESPERT); hardness (Varify)", "Filtered water from the jug, if used for drinking", "Any lead, copper or iron indication: take a bottle sample for accredited laboratory analysis", "Cooker hood: extracting or recirculating, filter condition", "Particles during and after cooking with the Temtop, if the household agrees", "Gas hob: CO screening with the four-gas detector, bump-tested before the visit. Concerns go to a Gas Safe registered engineer"] },
   living: { title: "Living room materials", items: ["Formaldehyde and VOC screening with the PCE-VOC 1, windows closed beforehand where possible", "New furniture, flooring or treatments in the last 12 months", "Wireless devices and their usual positions", "Older paintwork before refurbishment: lead swab screening is optional and indicative only"] },
@@ -1766,7 +1766,7 @@ function screenFinding() {
         <h3 id="h-ref">Reference criteria</h3>
         <p class="xsmall muted">Classifications appear only where the method and available information support them. SBM guidance is shown separately from statutory and other references.</p>
         ${refsFor.length ? refsFor.map(refCard).join("") : `<div class="ref-card"><b class="small">No applicable numerical guideline</b><span class="small">Write a professional assessment. It will be labelled as such in the report.</span><textarea class="input" rows="4" aria-label="Professional assessment">Flow at the grille is below the rate expected for a bathroom, and surface moisture at the window reveal is elevated the morning after showering.</textarea></div>`}
-        ${main && main.inst === "hf38" ? `<div class="notice notice-warn">${icon("info")}<span class="small">Combined coverage of the HF38B-W and HFW35C is about 700 MHz to 6 GHz. Sources outside that range, including Wi-Fi 6E, are not captured. Caveat included in the report text.</span></div>` : ""}
+        ${main && main.inst === "hf38" ? `<div class="notice notice-warn">${icon("info")}<span class="small">Combined coverage of the HF38B and HFW35C is about 700 MHz to 6 GHz. Sources outside that range, including Wi-Fi 6E, are not captured. Caveat included in the report text.</span></div>` : ""}
         <div class="notice notice-muted">${icon("info")}<span class="xsmall">Reference values in this prototype are placeholders for design review. Each entry is confirmed against the licensed edition before release.</span></div>
       </aside>
     </div>`);
@@ -2187,7 +2187,7 @@ const SECTIONS = [
     fields: [sel("units", "Units", UNIT_OPTS.rf5)],
     tables: [rfBandTable("b1", "700 MHz to 2.6 GHz"), rfBandTable("b2", "2.4 GHz to 6 GHz"),
       { k: "onoff", head: "Source", free: true, rows: ["Router or extender", "Cordless phone base", "Smart device", "Phone (airplane mode check)", ""], cols: [n("on", "Reading on"), n("off", "Reading off")] }],
-    coverage: true },
+    quietFooter: true },
   { id: "a6", part: "A", code: "A6", title: "Plug loads and local sources", scope: "room", points: ["A1", "A2"],
     tables: [{ k: "plug", head: "Device", free: true, rows: ["", "", "", "", "", ""],
       cols: [tx("pos", "Position to bed"), sel("state", "On, off or standby", ["", "On", "Off", "Standby"]), n("dist", "Distance", "cm"), n("vm", "Electric field", "V/m"), n("nt", "Magnetic field", "nT"), tm(), tx("notes", "Notes")] }] },
@@ -2497,7 +2497,7 @@ function screenSection(sec) {
       ${(sec.tables || []).map(tb => sheetTable(sec, tb, sh)).join("")}
       ${sec.coverage ? rfCoverage() : ""}
       ${(sec.texts || []).map(t => `<div class="field"><label for="sx-${sec.id}-${t.k}">${t.label}</label><textarea id="sx-${sec.id}-${t.k}" class="input" rows="${t.rows || 5}" data-sheet="x|${t.k}">${esc((sh.x || {})[t.k] || "")}</textarea></div>`).join("")}
-      <p class="xsmall muted">Saves as you type, against ${c.ref}${sec.covers ? ", room by room" : sec.scope === "property" ? " (whole property)" : ` · ${esc(roomName(c.ref, roomKey))}`}.${derived.length ? ` ${derived.length} result${derived.length === 1 ? "" : "s"} from this section feed the client record and report.` : ""}</p>
+      ${sec.quietFooter ? "" : `<p class="xsmall muted">Saves as you type, against ${c.ref}${sec.covers ? ", room by room" : sec.scope === "property" ? " (whole property)" : ` · ${esc(roomName(c.ref, roomKey))}`}.${derived.length ? ` ${derived.length} result${derived.length === 1 ? "" : "s"} from this section feed the client record and report.` : ""}</p>`}
     </fieldset>
     ${sectionNav(sec.id)}`);
 }
