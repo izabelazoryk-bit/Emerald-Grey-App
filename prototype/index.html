@@ -174,6 +174,9 @@ table.entry td.resultant { vertical-align: middle; background: var(--sunk); }
 .bv-step-n.is-done { background: var(--prog-done); border-color: var(--prog-done); color: #fff; }
 .bv-step-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--forest); margin: 0; }
 @container (max-width: 1100px) { .bv-rank .bv-hide-card { display: none; } table.bv-rank td { white-space: normal; } table.bv-rank td.num { text-align: left; } table.entry.bv-rank td.resultant { background: none; } table.bv-rank td.rowlabel::before { display: none; } table.bv-rank td.rowlabel b { font-family: var(--font-display); font-weight: 400; font-size: 1.15rem; color: var(--forest); } table.bv-rank td[data-label="Classification"] { grid-column: span 2; } }
+.notice-error { background: #FBEDEB; border: 1px solid #C4473D; color: var(--ink); }
+.bv-missing ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.bv-missing .btn-link { color: var(--forest); font-weight: 500; }
 .bv-nav { display: flex; justify-content: space-between; gap: 10px; }
 .bv-nav .btn { flex: 1 1 0; justify-content: center; max-width: 260px; }
 .bv-nav .btn-primary { margin-left: auto; }
@@ -1137,7 +1140,7 @@ S.alloc = { "EG-001": S.scope, "EG-002": allocFrom(PACKAGES["Home Health Analysi
 S.exRooms = { "EG-002": ROOM_TEMPLATES.t2.rooms, "EG-003": ROOM_TEMPLATES.t3.rooms, "EG-004": ROOM_TEMPLATES.t1.rooms };
 Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, navParts: {}, bedDraft: {},
   mt: { ds: "pf", idx: {}, pad: null, flash: null, reviewing: false, confirmNew: false, viewRun: null },
-  bv: { person: null, idx: {} },
+  bv: { person: null, idx: {}, showMissing: false },
   lf: { test: null, idx: {}, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   exBedrooms: { "EG-001": { bed1: { who: "Tom (left) and Harriet (right)", bed: "Upholstered divan, pocket-sprung mattress", size: "king" }, bed2: { who: "Their son, aged 6", bed: "Single pine bed, foam mattress", size: "single" } } } });
 const findingById = id => FINDINGS.find(f => f.id === id);
@@ -3369,6 +3372,18 @@ function bvRankTable(doc, pid) {
     ${rows.map(({ b, on, d }) => `<tr><th scope="row">${esc(bvBkName(b))}</th><td class="num">${num(base)}</td><td class="num">${on == null ? (b.on[pid] && b.on[pid].nm ? "Not measured" : "–") : num(on)}</td><td class="num resultant"><b>${bvSigned(d)}</b></td></tr>`).join("")}
   </tbody></table></div>`;
 }
+/* What still has to be recorded before the BBI test can be saved as complete */
+function bvMissing(doc) {
+  const out = [], who = list => list.map(p => bvPName(doc, p.id)).join(", ");
+  const need = (k, step, target, what) => { const m = doc.people.filter(p => !bvHas((doc.stage[p.id] || {})[k])); if (m.length) out.push({ step, target, text: `${what} for ${who(m)}` }); };
+  need("start", "Step 1", "bv-step-1", "Normal starting reading");
+  need("brk", "Step 3", "bv-step-3", "BBI baseline with all relevant breakers off");
+  if (!doc.breakers.length) out.push({ step: "Step 4–5", target: "bv-step-4", text: "Add at least one circuit to test" });
+  else { const open = doc.breakers.filter(b => !bvBreakerDone(doc, b));
+    if (open.length) out.push({ step: "Step 4–5", target: "bv-step-4", text: `${open.length} of ${doc.breakers.length} circuits still need a reading for every person: ${open.slice(0, 4).map(b => bvBkName(b)).join("; ")}${open.length > 4 ? ` and ${open.length - 4} more` : ""}. Remove any circuit that is not at the property from "Circuits at this property".` }); }
+  need("final", "Step 7", "bv-step-7", "Final overnight configuration reading");
+  return out;
+}
 function screenBV() {
   const c = C(), room = currentRoom();
   if (!room) return assessorShell("", `<div class="topline"><div><span class="eyebrow">Part A: EMF</span><h1>A7–A8. Body voltage and circuit investigation</h1></div></div>${clientBar()}`);
@@ -3397,7 +3412,7 @@ function screenBV() {
     <section class="card stack-l" aria-labelledby="h-bv-bbi">
       <div class="stack" style="gap:4px"><h3 id="h-bv-bbi">BBI Body Voltage Protocol: circuit investigation</h3><p class="small muted">This workflow uses an all-breakers-off baseline and tests one circuit on at a time.</p></div>
 
-      <div class="bv-step">${bvStepHead(1, "Record the normal starting reading", allIn("start"))}
+      <div class="bv-step" id="bv-step-1">${bvStepHead(1, "Record the normal starting reading", allIn("start"))}
         <p class="small muted">Place the person in their normal sleeping position, connect the person electrode and the verified reference earth, and record under normal room conditions.</p>
         ${bvStageRows(doc, ["start"], locked)}</div>
 
@@ -3405,7 +3420,7 @@ function screenBV() {
         <p class="small muted">Record with the relevant room devices switched on, then unplug lamps, chargers, extension leads and appliances and record again. Standby, or switching off at the device, does not count as unplugged.</p>
         ${bvStageRows(doc, ["devon", "unpl"], locked)}</div>
 
-      <div class="bv-step">${bvStepHead(3, "Establish the BBI circuit baseline", allIn("brk"))}
+      <div class="bv-step" id="bv-step-3">${bvStepHead(3, "Establish the BBI circuit baseline", allIn("brk"))}
         <p class="small muted">Switch off all relevant circuit breakers and record every person. This is the all-breakers-off baseline; the normal starting reading is never used in its place.</p>
         ${bvStageRows(doc, ["brk"], locked)}
         <details class="bv-ess" ${doc.essential.length ? "open" : ""}><summary class="small"><b>Essential circuits that could not be switched off</b> · ${doc.essential.length || "none recorded"}</summary>
@@ -3415,7 +3430,7 @@ function screenBV() {
             <button class="btn btn-quiet btn-s" data-action="bvdeless" data-i="${i}" ${locked ? "disabled" : ""}>Remove</button></div>`).join("")}
           <button class="btn btn-s" style="align-self:flex-start" data-action="bvaddess" ${locked ? "disabled" : ""}>${icon("plus")}Record a circuit that stayed on</button></div></details></div>
 
-      <div class="bv-step">${bvStepHead("4–5", "Test one circuit on at a time", tested)}
+      <div class="bv-step" id="bv-step-4">${bvStepHead("4–5", "Test one circuit on at a time", tested)}
         ${bvBreakerPanel(doc, locked)}
         ${bvBreakerList(doc, locked)}</div>
 
@@ -3425,7 +3440,7 @@ function screenBV() {
         ${ppl.length > 1 ? `<div class="field" style="max-width:320px"><label for="bv-person">Person</label><select id="bv-person" class="input" data-change="bvperson">${ppl.map(p => opt(p.id, bvPName(doc, p.id), p.id === pid)).join("")}</select></div>` : ""}
         ${bvRankTable(doc, pid)}</div>
 
-      <div class="bv-step">${bvStepHead(7, "Test the final overnight configuration", finalDone)}
+      <div class="bv-step" id="bv-step-7">${bvStepHead(7, "Test the final overnight configuration", finalDone)}
         <p class="bv-label">Final overnight configuration</p>
         <p class="small muted">The practical overnight arrangement, with essential circuits retained and selected contributing circuits isolated. Restore essential circuits, keep only the selected non-essential contributing circuits off, then measure every person again.</p>
         <fieldset class="bv-overnight"><legend class="label">Circuits switched off overnight</legend>
@@ -3462,7 +3477,11 @@ function screenBV() {
     </section>
 
     <div class="mt-actions">${doc.completedAt ? `<span class="small">Marked complete ${nowStampFrom(doc.completedAt)} by ${esc(doc.completedBy || "")}.</span>` : ""}
-      <button class="btn btn-primary btn-lg" data-action="bvfinish" ${!(bbiDone || suppUsed) || locked ? "disabled" : ""}>Save and continue to the next assessment section</button></div>
+      <button class="btn btn-primary btn-lg" data-action="bvfinish" ${locked ? "disabled" : ""}>Save and continue to the next assessment section</button></div>
+    ${S.bv.showMissing && !(bbiDone || suppUsed) ? (() => { const miss = bvMissing(doc); return `<div class="notice notice-error bv-missing" id="bv-missing" role="alert" tabindex="-1">${icon("info")}<div class="stack" style="gap:6px">
+      <b>This test cannot be saved as complete yet. Still to record:</b>
+      <ul>${miss.map(m => `<li><button class="btn-link" data-action="bvjump" data-target="${m.target}">${m.step}</button>: ${esc(m.text)}</li>`).join("")}</ul>
+      <span class="small">Steps 2, 6, the grounded reading and the breaker-off comparison are optional. Completing the breaker-off comparison on its own also allows the test to be saved.</span></div></div>`; })() : `<p class="xsmall muted" style="text-align:right">Required to save: the normal starting reading, the BBI baseline, a reading for every circuit, and the final overnight configuration, for each person.</p>`}
     ${sectionNav("a7")}`);
 }
 function bvSuppHTML(doc, locked) {
@@ -3655,7 +3674,7 @@ function markEdited() {
 }
 function go(screen) {
   const next = LEGACY[screen] || screen;
-  if (next !== S.screen) { S.mt.idx = {}; S.lf.idx = {}; S.lf.reviewing = false; S.lf.flash = null; S.lf.test = null; S.mt.reviewing = false; }
+  if (next !== S.screen) { S.mt.idx = {}; S.lf.idx = {}; S.lf.reviewing = false; S.lf.flash = null; S.lf.test = null; S.mt.reviewing = false; S.bv.showMissing = false; }
   S.screen = next; S.modal = null; S.pad = null;
   closeNav(false);
   try { history.replaceState(null, "", "#" + S.screen); } catch (e) { /* hash is optional */ }
@@ -3766,8 +3785,12 @@ const ACT = {
   bvsuppadd: () => bvUpdate(doc => { doc.supp.breakers.push({ id: bvNewKey("q"), num: String(doc.supp.breakers.length + 1), name: "", off: {}, restored: false }); }),
   bvsuppcopy: () => bvUpdate(doc => { doc.supp.breakers = doc.breakers.map(b => ({ id: bvNewKey("q"), num: b.num, name: b.name, off: {}, restored: false })); }),
   bvsuppon: d => bvUpdate(doc => { const b = doc.supp.breakers.find(x => x.id === d.id); b.restored = true; b.onAt = new Date().toISOString(); }, "Breaker confirmed back ON"),
+  bvjump: d => { const el = document.getElementById(d.target); el?.scrollIntoView({ behavior: "smooth", block: "start" }); const empty = el && [...el.querySelectorAll(".bv-cell")].find(x => /not entered/.test(x.getAttribute("aria-label") || "")); (empty || el?.querySelector("button, input, select"))?.focus({ preventScroll: true }); },
   async bvfinish() {
-    const done = !!bvDoc(S.client, currentRoom().id).completedAt;
+    const cur = bvDoc(S.client, currentRoom().id), done = !!cur.completedAt;
+    const suppUsed = cur.supp.enabled && (Object.values(cur.supp.base).some(bvHas) || cur.supp.breakers.some(b => Object.values(b.off).some(bvHas)));
+    if (!done && !suppUsed && bvMissing(cur).length) { S.bv.showMissing = true; render(); const el = document.getElementById("bv-missing"); el?.scrollIntoView({ behavior: "smooth", block: "center" }); el?.focus({ preventScroll: true }); return; }
+    S.bv.showMissing = false;
     if (!done && !(await bvUpdate(doc => { doc.completedAt = new Date().toISOString(); doc.completedBy = ASSESSOR; }))) return;
     toast("Body voltage and circuit investigation saved"); go("a9");
   },

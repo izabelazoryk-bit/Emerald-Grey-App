@@ -96,7 +96,7 @@ A7 and A8 are one connected page following the Building Biology Institute (BBI) 
 
 **Separate measurements.** "Body voltage while intentionally grounded" is optional and kept apart from the baseline, the final configuration and the circuit results. The supplementary breaker-off comparison is optional, labelled as not the BBI protocol, and has its own table. The summary lists each condition per person and which protocol, or both, was used.
 
-**Completion.** "Save and continue to the next assessment section" becomes available once the BBI steps (or the breaker-off comparison) are recorded. There is no separate restoration checklist.
+**Completion.** "Save and continue to the next assessment section" becomes available once the BBI steps (or the breaker-off comparison) are recorded. There is no separate restoration checklist. The button is always available: if something required is missing, a message lists each gap by step and person (normal starting reading, BBI baseline, a reading for every listed circuit, final overnight configuration), with a link that jumps to the first empty reading. A short line under the button states what is required.
 
 ### A2. Nine-point mattress test: guided entry
 
