@@ -218,6 +218,8 @@ table.bv-results thead th:first-child { width: 34%; }
   table.cards td:last-child { grid-column: span 2; }
   table.cards td:has(.time-now) { min-width: 0; }
   table.cards td.rowlabel .input { font-weight: 500; }
+  table.cards td.rowlabel:not(:has(input))::before { display: none; }
+  table.cards td.rowlabel:not(:has(input)) .small { font-family: var(--font-display); font-size: 1.15rem; color: var(--forest); }
   table.cards .mt-cell { min-height: 48px; font-size: 1.1rem; }
 }
 @container (max-width: 560px) { table.cards tr { grid-template-columns: repeat(2, minmax(0, 1fr)); } table.cards td:last-child, table.cards td:has(.time-now) { grid-column: 1 / -1; } }
@@ -2257,9 +2259,9 @@ const SECTIONS = [
       cols: [{ ...n("vm", "Electric field", "V/m"), pad: true }, { ...n("nt", "Magnetic field", "nT"), pad: true }, tx("pos", "Position to bed"), sel("state", "On, off or standby", ["", "On", "Off", "Standby"]), sel("dist", "Distance", ["", "<5 cm", "15 cm", "15 cm+"]), tm(), tx("notes", "Notes")], cards: true }], quietFooter: true },
   { id: "a7", part: "A", code: "A7–A8", title: "Body voltage and circuit investigation", scope: "room", points: ["A1"], custom: true },
   { id: "a9", part: "A", code: "A9", title: "Outdoor EMF", scope: "property", points: ["A1", "A2", "A3"],
-    intro: "Take these away from the house walls and metal fences. Measure on each side of the property and record the maximum values, facing away from the property. Note the time of each so it can be matched to the downloaded data.",
-    fields: [sel("units", "RF units", UNIT_OPTS.rf)],
-    tables: [{ k: "sides", head: "Side", rows: WALLS, cols: [tm(), n("rfl", "RF 700 MHz to 2 GHz"), n("rfh", "RF 2 GHz to 6 GHz"), n("vm", "Electric field", "V/m"), n("nt", "Magnetic field", "nT"), tx("notes", "Compass and notes")] },
+    intro: "Take these away from the house walls and metal fences. Measure on each side of the property and record the maximum values, facing away from the property. One time covers the set, as the readings are taken in quick succession.",
+    fields: [sel("units", "RF units", UNIT_OPTS.rf5), tm("time", "Time of readings")],
+    tables: [{ k: "sides", head: "Side", rows: WALLS, cards: true, noChain: true, cols: [{ ...n("rfl", "700 MHz to 2.6 GHz"), pad: true, unitField: "units", unitDefault: "µW/m²" }, { ...n("rfh", "2.4 GHz to 6 GHz"), pad: true, unitField: "units", unitDefault: "µW/m²" }, { ...n("vm", "Electric field", "V/m"), pad: true }, { ...n("nt", "Magnetic field", "nT"), pad: true }, tx("notes", "Compass and notes")] },
       { k: "sources", head: "Nearby source", free: true, rows: ["Mobile mast or antenna", "Overhead lines or pylon", "Substation or transformer", "Smart meter", "Solar inverter or battery", "Railway, tram or main road", "Other:"], cols: [sel("present", "Present", YESNO), tx("dist", "Distance and direction"), tx("notes", "Notes")] }] },
   { id: "a10", part: "A", code: "A10", title: "EMF observations", scope: "room", points: [],
     texts: [{ k: "obs", label: "Observations on fields, hot spots, wiring routes, appliances and what changed when circuits were switched", rows: 8 }] },
@@ -2410,8 +2412,8 @@ function deriveSheet(sh) {
       if (nt != null) add(`nt${i}`, { point: "A2", label: `Magnetic field, ${row}`, value: nt, unit: "nT", inst: "me3951", loc, time: cell("plug", i, "time"), note: cell("plug", i, "notes") });
     }); break;
     case "a9": each("sides", (row, i) => {
-      const u = f.units || "µW/m²", t = cell("sides", i, "time"), note = cell("sides", i, "notes");
-      [["rfl", "RF 700 MHz to 2 GHz", "hf38"], ["rfh", "RF 2 GHz to 6 GHz", "hfw35"]].forEach(([c, l, m]) => { const v = parseNum(cell("sides", i, c)); if (v != null) add(`${c}${i}`, { point: "A3", label: `${l}, ${row} side`, value: v, unit: u, method: "peak", inst: m, evalKey: "part", time: t, note }); });
+      const u = f.units === "mW/m²" ? "mW/m²" : "µW/m²", t = f.time || cell("sides", i, "time"), note = cell("sides", i, "notes");
+      [["rfl", "RF 700 MHz to 2.6 GHz", "hf38"], ["rfh", "RF 2.4 GHz to 6 GHz", "hfw35"]].forEach(([c, l, m]) => { const v = parseNum(cell("sides", i, c)); if (v != null) add(`${c}${i}`, { point: "A3", label: `${l}, ${row} side`, value: v, unit: u, method: "peak", inst: m, evalKey: "part", time: t, note }); });
       const vm = parseNum(cell("sides", i, "vm")), nt = parseNum(cell("sides", i, "nt"));
       if (vm != null) add(`vm${i}`, { point: "A1", label: `Electric field, ${row} side`, value: vm, unit: "V/m", method: "earthed", inst: "me3951", time: t, note });
       if (nt != null) add(`nt${i}`, { point: "A2", label: `Magnetic field, ${row} side`, value: nt, unit: "nT", inst: "me3951", time: t, note });
@@ -2484,7 +2486,7 @@ function sheetCell(sec, tb, sh, i, rowLabel, row, col) {
   if (type === "check") return `<td class="center"><input id="${id}" type="checkbox" ${v ? "checked" : ""} ${data} ${aria}></td>`;
   const bad = type === "num" && v !== "" && parseNum(v) == null;
   if (col.pad) { const label = rowLabel || `Row ${i + 1}`;
-    return `<td><button type="button" id="${id}" class="mt-cell" data-action="sheetpad" data-path="t|${tb.k}|cell|${key}|${col.k}" data-label="${esc(label)}" data-col="${esc(col.label)}" data-unit="${esc(col.unit || "")}" aria-label="${esc(label)}, ${esc(col.label.toLowerCase())}${col.unit ? " in " + esc(col.unit) : ""}: ${v === "" ? "not entered" : esc(v)}. Opens the number pad">${v === "" ? '<span class="muted">Enter</span>' : esc(v)}</button></td>`; }
+    return `<td><button type="button" id="${id}" class="mt-cell" data-action="sheetpad" data-path="t|${tb.k}|cell|${key}|${col.k}" data-label="${esc(label)}" data-col="${esc(col.label)}" data-unit="${esc(col.unit || "")}" data-unitfield="${esc(col.unitField || "")}" data-unitdefault="${esc(col.unitDefault || "")}" aria-label="${esc(label)}, ${esc(col.label.toLowerCase())}${col.unit ? " in " + esc(col.unit) : ""}: ${v === "" ? "not entered" : esc(v)}. Opens the number pad">${v === "" ? '<span class="muted">Enter</span>' : esc(v)}</button></td>`; }
   if (type === "time") return `<td><div class="time-now"><input id="${id}" class="input" type="time" value="${esc(v)}" ${data} ${aria}><button type="button" class="now-btn" data-action="timenow" data-for="${id}" aria-label="Set to now, ${esc(row.label || rowLabel || "")}">Now</button></div></td>`;
   return `<td><input id="${id}" class="input" ${type === "time" ? 'type="time"' : type === "num" ? 'inputmode="decimal" data-num' : 'type="text"'} value="${esc(v)}" ${bad ? 'aria-invalid="true"' : ""} ${data} ${aria}></td>`;
 }
@@ -2513,6 +2515,8 @@ function roomSectionsHTML(sec, tb, sh) {
 }
 function sheetTable(sec, tb, sh) {
   if (tb.byRoom) return roomSectionsHTML(sec, tb, sh);
+  /* Columns whose unit follows a units field show the unit currently selected */
+  if (tb.cols.some(c => c.unitField)) tb = { ...tb, cols: tb.cols.map(c => c.unitField ? { ...c, unit: (sh.f || {})[c.unitField] || c.unitDefault } : c) };
   const tdata = (sh.t || {})[tb.k] || {};
   const rows = (tb.rowsFn ? tb.rowsFn(sh.ref) : tb.rows).map(rowOf);
   const labels = tb.free ? (tdata.rows || rows.map(r => r.label)) : rows.map(r => r.label);
@@ -2883,7 +2887,7 @@ PADS.sheet = {
     const sec = sectionById(S.screen), room = sheetRoomKey(sec); if (!sec || !room) return;
     setSheet(S.client, room, sec.id, pad.path, pad.buf);
     const [, tk, , key, ck] = pad.path.split("|"), tb = sec.tables.find(t => t.k === tk), cols = tb.cols.filter(c => c.pad), nx = cols[cols.findIndex(c => c.k === ck) + 1];
-    const sh = sheetGet(S.client, room, sec.id), nextEmpty = nx && String(((((sh.t || {})[tk] || {}).cell || {})[key + "|" + nx.k]) ?? "") === "";
+    const sh = sheetGet(S.client, room, sec.id), nextEmpty = nx && !tb.noChain && String(((((sh.t || {})[tk] || {}).cell || {})[key + "|" + nx.k]) ?? "") === "";
     toast(`${pad.label}, ${pad.col.toLowerCase()} saved`);
     if (nextEmpty) { openPad(0, "sheet", { path: `t|${tk}|cell|${key}|${nx.k}`, label: pad.label, col: nx.label, unit: nx.unit || "" }); return; }
     S.modal = null; S.pad = null; render(); document.getElementById(`sc-${sec.id}-${tk}-${key}-${ck}`)?.focus();
@@ -3770,7 +3774,9 @@ const ACT = {
   },
   lfview: d => { S.lf.viewRun = S.lf.viewRun === +d.run ? null : +d.run; render(); },
   timenow: d => { const el = document.getElementById(d.for); if (!el) return; const t = new Date(); el.value = `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`; el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); toast(`Time set to ${el.value}`); },
-  sheetpad: (d, el) => { const row = el.closest("tr"), inp = row && row.querySelector(".rowlabel input"), label = (inp ? inp.value.trim() : "") || d.label; openPad(0, "sheet", { path: d.path, label, col: d.col, unit: d.unit }); },
+  sheetpad: (d, el) => { const row = el.closest("tr"), inp = row && row.querySelector(".rowlabel input"), label = (inp ? inp.value.trim() : "") || d.label;
+    const sec = sectionById(S.screen), unit = d.unitfield ? (((sheetGet(S.client, sheetRoomKey(sec), sec.id).f || {})[d.unitfield]) || d.unitdefault) : d.unit;
+    openPad(0, "sheet", { path: d.path, label, col: d.col, unit }); },
   bvpad: d => openPad(0, "bv", { path: d.path }),
   bvstep: d => { const doc = bvDoc(S.client, currentRoom().id), k = bvCurIndex(doc), n = doc.breakers.length, next = Math.max(0, Math.min(n, k + +d.dir));
     const b = doc.breakers[k];
@@ -4033,7 +4039,11 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const t = e.target, kind = t.dataset.change;
-  if (t.matches("select[data-sheet], input[type=checkbox][data-sheet]")) sheetInput(t);
+  if (t.matches("select[data-sheet], input[type=checkbox][data-sheet]")) {
+    sheetInput(t);
+    const sec = sectionById(S.screen), fk = (t.dataset.sheet || "").split("|");
+    if (sec && fk[0] === "f" && (sec.tables || []).some(tb => tb.cols.some(c => c.unitField === fk[1]))) { const id = t.id; render(); document.getElementById(id)?.focus(); }
+  }
   if (kind === "pickclient") { S.client = t.value; const rooms = siteRooms(S.client); if (!rooms.some(r => r.id === S.room)) S.room = (rooms[0] || {}).id; render(); document.getElementById("cb-client")?.focus(); toast(`Results will be saved to ${S.client}`); }
   if (kind === "picksize") { setBedroom(S.client, mtRoom(), "size", t.value, 0); render(); document.getElementById("cb-size")?.focus(); toast(t.value ? `Mattress size saved for ${bedName(mtRoom())}` : "Mattress size cleared"); }
   if (t.matches("select[data-bedroom]")) { const [ref, id, f] = t.dataset.bedroom.split("|"); setBedroom(ref, id, f, t.value, 0); }
