@@ -2263,8 +2263,6 @@ const SECTIONS = [
     fields: [sel("units", "RF units", UNIT_OPTS.rf5), tm("time", "Time of readings")],
     tables: [{ k: "sides", head: "Side", rows: WALLS, cards: true, noChain: true, cols: [{ ...n("rfl", "700 MHz to 2.6 GHz"), pad: true, unitField: "units", unitDefault: "µW/m²" }, { ...n("rfh", "2.4 GHz to 6 GHz"), pad: true, unitField: "units", unitDefault: "µW/m²" }, { ...n("vm", "Electric field", "V/m"), pad: true }, { ...n("nt", "Magnetic field", "nT"), pad: true }, tx("notes", "Compass and notes")] },
       { k: "sources", head: "Nearby source", free: true, rows: ["Mobile mast or antenna", "Overhead lines or pylon", "Substation or transformer", "Smart meter", "Solar inverter or battery", "Railway, tram or main road", "Other:"], cols: [sel("present", "Present", YESNO), tx("dist", "Distance and direction"), tx("notes", "Notes")] }] },
-  { id: "a10", part: "A", code: "A10", title: "EMF observations", scope: "room", points: [],
-    texts: [{ k: "obs", label: "Observations on fields, hot spots, wiring routes, appliances and what changed when circuits were switched", rows: 8 }] },
   { id: "b1", part: "B", code: "B1", title: "Light", scope: "room", points: ["A9"],
     intro: "Spectrometer readings are saved on the meter. Tick when taken and note anything the meter will not capture.",
     checks: ["Overhead lighting flicker checked", "Task and bedside lighting flicker checked", "Standby or indicator LEDs visible from the bed", "Light entering from outside or under the door at night"],
@@ -3537,7 +3535,7 @@ function navGroups() {
   ];
 }
 const NAV_OF = { room: "client", finding: "client", report: "client", questionnaire: "clientexp", portal: "clientexp" };
-const LEGACY_SECTIONS = { bedroom: "a2", mattress: "a2", walls: "a3", dirty: "a4", rf: "a5", onoff: "a5", plug: "a6", bodyvoltage: "a7", cu: "a7", a8: "a7", outdoor: "a9", light: "b1", air: "b2", noise: "b2", moisture: "b3" };
+const LEGACY_SECTIONS = { bedroom: "a2", mattress: "a2", walls: "a3", dirty: "a4", rf: "a5", onoff: "a5", plug: "a6", bodyvoltage: "a7", cu: "a7", a8: "a7", a10: "a9", outdoor: "a9", light: "b1", air: "b2", noise: "b2", moisture: "b3" };
 function navHTML() {
   const active = NAV_OF[S.screen] || S.screen;
   return `<div class="nav-head"><a class="wordmark" href="#dashboard" data-action="go" data-screen="dashboard" aria-label="Emerald Grey Assessment Studio, home">${logoInner("Assessment Studio")}</a>

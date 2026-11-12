@@ -48,7 +48,7 @@ One menu, in this order:
 - **Home**
 - **Clients:** Client and property (the current client's record), Client list (sorted by name)
 - **Assessment:** Overview, Visit details
-- **Part A: EMF:** A1 Screening, A2 Mattress grid, A3 Low-frequency fields, A4 Dirty electricity, A5 Radio frequency, A6 Plug loads and local sources, A7 Body voltage, A8 Breaker comparison, A9 Outdoor EMF, A10 EMF observations
+- **Part A: EMF:** A1 Screening, A2 Mattress grid, A3 Low-frequency fields, A4 Dirty electricity, A5 Radio frequency, A6 Plug loads and local sources, A7–A8 Body voltage and circuit investigation, A9 Outdoor EMF
 - **Part B: Light, air, moisture and room condition:** B1 Light, B2 Air, climate and noise, B3 Moisture and damp, B4 Room condition and materials, Findings and priorities, Further observations
 - **Part C: Outdoor air, damp and defects:** C1 Outdoor air and noise, C2 Outdoor damp and defects, C3 Outdoor observations
 - **Settings:** Room templates, Equipment register, Reference library, Services and tests, Assessors and access, Client experience, Data and storage
