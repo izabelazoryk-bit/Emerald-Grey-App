@@ -102,6 +102,10 @@ A7 and A8 are one connected page following the Building Biology Institute (BBI) 
 
 RF units are µW/m² or mW/m². One "Time of readings" field with a Now action sits beside the units, as the four sides are measured in quick succession. Each side (north, east, south, west) is a card with 700 MHz to 2.6 GHz, 2.4 GHz to 6 GHz, electric field (V/m), magnetic field (nT) and notes. Each reading opens the large number pad, which shows the unit in use; confirming closes the pad so the assessor chooses the next field. The nearby sources table is unchanged.
 
+### B2. Air, climate and noise
+
+A single Time field with a Now action sits beside "Door and window state at the start". The air table records CO₂, temperature, relative humidity, HCHO and TVOC for each location; it no longer has a time column or PM2.5 and PM10 columns. Air and noise locations show as cards, so nothing scrolls sideways.
+
 ### A2. Nine-point mattress test: guided entry
 
 A2 replaces typing into small table cells with guided entry, built for a tablet. The page has these parts:

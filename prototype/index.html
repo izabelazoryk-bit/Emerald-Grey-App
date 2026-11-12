@@ -215,7 +215,7 @@ table.bv-results thead th:first-child { width: 34%; }
   table.cards td { display: block; padding: 0; min-width: 0; border: 0; }
   table.cards td.rowlabel { grid-column: 1 / -1; min-width: 0; }
   table.cards td::before { content: attr(data-label); display: block; font-size: .78rem; font-weight: 500; color: var(--ink-2); margin-bottom: 4px; }
-  table.cards td:last-child { grid-column: span 2; }
+  table.cards td:last-child:has(input[type=text]) { grid-column: span 2; }
   table.cards td:has(.time-now) { min-width: 0; }
   table.cards td.rowlabel .input { font-weight: 500; }
   table.cards td.rowlabel:not(:has(input))::before { display: none; }
@@ -2273,10 +2273,10 @@ const SECTIONS = [
         cols: [sel("cond", "Condition", ["", "A", "B", "C", "D", "E (note it)"]), tm(), { k: "taken", label: "Taken", type: "check" }, tx("notes", "Notes")] }],
     texts: [{ k: "obs", label: "Light observations: glare, standby LEDs, light from outside, curtains and blinds" }] },
   { id: "b2", part: "B", code: "B2", title: "Air, climate and noise", scope: "room", points: ["B1", "B2", "B5", "B6", "A8", "S5"],
-    fields: [tx("doors", "Door and window state at the start"), sel("units", "Units for HCHO and TVOC", UNIT_OPTS.voc)],
+    fields: [tx("doors", "Door and window state at the start"), tm("time", "Time"), sel("units", "Units for HCHO and TVOC", UNIT_OPTS.voc)],
     tables: [{ k: "air", head: "Location", free: true, rows: ["Pillow height", "Room centre", "Beside wardrobe or large furniture", "Landing or adjacent space", "", ""],
-        cols: [tm(), n("co2", "CO₂", "ppm"), n("temp", "Temp", "°C"), n("rh", "RH", "%"), n("hcho", "HCHO"), n("tvoc", "TVOC"), n("pm25", "PM2.5", "µg/m³"), n("pm10", "PM10", "µg/m³")] },
-      { k: "noise", head: "Location", free: true, title: "Noise", rows: ["Pillow height", "Room centre", "", ""], cols: [tm(), n("dba", "dB(A)"), n("dbc", "dB(C)"), tx("notes", "Notes")] }],
+        cards: true, cols: [n("co2", "CO₂", "ppm"), n("temp", "Temp", "°C"), n("rh", "RH", "%"), n("hcho", "HCHO"), n("tvoc", "TVOC")] },
+      { k: "noise", head: "Location", free: true, cards: true, title: "Noise", rows: ["Pillow height", "Room centre", "", ""], cols: [tm(), n("dba", "dB(A)"), n("dbc", "dB(C)"), tx("notes", "Notes")] }],
     texts: [{ k: "obs", label: "Air, ventilation and noise observations" }] },
   { id: "b3", part: "B", code: "B3", title: "Moisture and damp", scope: "room", points: ["S2", "C1"],
     intro: "For each wall take three positions, with top, middle and base moisture and surface temperature.",
@@ -2420,7 +2420,7 @@ function deriveSheet(sh) {
     case "b2": case "c1": {
       const vu = f.units || "mg/m³";
       const spec = [["co2", "CO₂", "ppm", "B6", "aranet4"], ["temp", "Temperature", "°C", "B6", "aranet4"], ["rh", "Relative humidity", "%RH", "B6", "aranet4"], ["hcho", "Formaldehyde", vu, "B1", "pcevoc"], ["tvoc", "TVOC", sh.section === "c1" ? "mg/m³" : vu, "B2", "pcevoc"], ["pm25", "PM2.5", "µg/m³", "B5", "temtop"], ["pm10", "PM10", "µg/m³", "B5", "temtop"], ["dba", "Sound level", "dB(A)", "A8", "decibelx"]];
-      each("air", (row, i) => spec.forEach(([c, l, u, p, m]) => { const v = parseNum(cell("air", i, c)); if (v != null) add(`${c}${i}`, { point: p, label: `${l}, ${row}`, value: v, unit: u, inst: m, time: cell("air", i, "time"), loc: row }); }));
+      each("air", (row, i) => spec.forEach(([c, l, u, p, m]) => { const v = parseNum(cell("air", i, c)); if (v != null) add(`${c}${i}`, { point: p, label: `${l}, ${row}`, value: v, unit: u, inst: m, time: (sh.section === "b2" && f.time) || cell("air", i, "time"), loc: row }); }));
       if (sh.section === "b2") each("noise", (row, i) => [["dba", "dB(A)"], ["dbc", "dB(C)"]].forEach(([c, u]) => { const v = parseNum(cell("noise", i, c)); if (v != null) add(`${c}n${i}`, { point: "A8", label: `Sound level, ${row}`, value: v, unit: u, inst: "decibelx", time: cell("noise", i, "time"), note: cell("noise", i, "notes"), loc: row }); }));
       break;
     }
