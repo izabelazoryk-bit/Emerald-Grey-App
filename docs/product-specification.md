@@ -108,6 +108,8 @@ A single Time field with a Now action sits beside "Door and window state at the 
 
 **Particle counter upload.** The Temtop particle counter logs one-minute samples on site (date, time, PM2.5, PM10, TSP, 0.3, 0.5 and 1.0 µm particle counts per litre, temperature and humidity), and its CSV file is uploaded on the B2 page afterwards. The file carries times but no rooms and may contain other visits, so it is split into sessions: a new session starts after a gap the assessor chooses (2 minutes by default, or 5, 10 or 30) or on a new date. Each session shows its date, times, number of samples, average PM2.5 and whether it falls on the visit date recorded on Visit details. The assessor assigns each session to one of the client's rooms, with an optional location, or leaves it unassigned so it is not imported; one button assigns every visit-date session to the current room. Only assigned sessions are saved, one record per client and session with every sample kept, and uploading the same file again updates those records instead of duplicating them. The B2 page shows each saved session for the room with averages, and maximums for PM2.5, PM10 and TSP; the averages and PM maximums feed the client record and report. A file without DATE, TIME and PM2.5 columns is refused with an explanation.
 
+The client and room selector at the top of each assessment page shows only the two dropdowns; the reference, address and the Open record, Rooms and New client links are not shown there.
+
 ### A2. Nine-point mattress test: guided entry
 
 A2 replaces typing into small table cells with guided entry, built for a tablet. The page has these parts:
