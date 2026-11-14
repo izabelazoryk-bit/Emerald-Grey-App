@@ -2280,10 +2280,7 @@ const SECTIONS = [
     checksTitle: "Flicker check",
     checks: ["Overhead lighting flicker checked", "Task and bedside lighting flicker checked", "Standby or indicator LEDs visible from the bed", "Light entering from outside or under the door at night"],
     tables: [{ k: "src", head: "Source", free: true, rows: ["Overhead", "Bedside, left", "Bedside, right", "Lamp:", "Lamp:", "", ""],
-        cols: [n("e", "E", "lx"), n("cct", "CCT", "K"), n("ra", "Ra")] },
-      { k: "pos", head: "Position and facing", free: true, title: "Conditions: A lights off, blinds closed. B normal evening lighting. C single source on. D daylight.",
-        rows: ["Pillow, left · facing up", "Pillow, left · facing window", "Pillow, right · facing up", "Pillow, right · facing window", "Pillow · overhead light", "Pillow · bedside lamp", "Window · into room", "Standby LED or screen", "", ""],
-        cols: [sel("cond", "Condition", ["", "A", "B", "C", "D", "E (note it)"]), tm(), { k: "taken", label: "Taken", type: "check" }, tx("notes", "Notes")] }],
+        cols: [sel("flk", "Flicker", YESNO), n("e", "E", "lx"), n("cct", "CCT", "K"), n("ra", "Ra")] }],
     texts: [{ k: "obs", label: "Light observations: glare, standby LEDs, light from outside, curtains and blinds" }] },
   { id: "b2", part: "B", code: "B2", title: "Air, climate and noise", scope: "room", points: ["B1", "B2", "B5", "B6", "A8", "S5"],
     fields: [tx("doors", "Door and window state at the start"), tm("time", "Time"), sel("units", "Units for HCHO and TVOC", UNIT_OPTS.voc)],
@@ -2430,7 +2427,9 @@ function deriveSheet(sh) {
       if (vm != null) add(`vm${i}`, { point: "A1", label: `Electric field, ${row} side`, value: vm, unit: "V/m", method: "earthed", inst: "me3951", time: t, note });
       if (nt != null) add(`nt${i}`, { point: "A2", label: `Magnetic field, ${row} side`, value: nt, unit: "nT", inst: "me3951", time: t, note });
     }); break;
-    case "b1": each("src", (row, i) => [["e", "Illuminance (E)", "lx"], ["cct", "Colour temperature (CCT)", "K"], ["ra", "Colour rendering (Ra)", ""]].forEach(([c, l, u]) => { const v = parseNum(cell("src", i, c)); if (v != null) add(`${c}${i}`, { point: "A9", label: `${l}, ${row}`, value: v, unit: u, inst: "ohsp", evalKey: "noguide", loc: row }); })); break;
+    case "b1": each("src", (row, i) => { const flk = cell("src", i, "flk");
+      [["e", "Illuminance (E)", "lx"], ["cct", "Colour temperature (CCT)", "K"], ["ra", "Colour rendering (Ra)", ""]].forEach(([c, l, u]) => { const v = parseNum(cell("src", i, c)); if (v != null) add(`${c}${i}`, { point: "A9", label: `${l}, ${row}`, value: v, unit: u, inst: "ohsp", evalKey: "noguide", loc: row, note: flk ? `Flicker: ${flk}` : "" }); });
+      if (flk) add(`flk${i}`, { point: "A9", label: `Flicker, ${row}`, value: null, unit: "", result: "observation", evalKey: "pro", loc: row, note: `Flicker ${flk === "Yes" ? "observed" : "not observed"}` }); }); break;
     case "b2": case "c1": {
       const vu = f.units || "mg/m³";
       const spec = [["co2", "CO₂", "ppm", "B6", "aranet4"], ["temp", "Temperature", "°C", "B6", "aranet4"], ["rh", "Relative humidity", "%RH", "B6", "aranet4"], ["hcho", "Formaldehyde", vu, "B1", "pcevoc"], ["tvoc", "TVOC", sh.section === "c1" ? "mg/m³" : vu, "B2", "pcevoc"], ["pm25", "PM2.5", "µg/m³", "B5", "temtop"], ["pm10", "PM10", "µg/m³", "B5", "temtop"], ["dba", "Sound level", "dB(A)", "A8", "decibelx"]];
