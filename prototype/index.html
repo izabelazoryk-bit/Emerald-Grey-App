@@ -177,6 +177,13 @@ table.entry td.resultant { vertical-align: middle; background: var(--sunk); }
 .notice-error { background: #FBEDEB; border: 1px solid #C4473D; color: var(--ink); }
 .bv-missing ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .bv-missing .btn-link { color: var(--forest); font-weight: 500; }
+.pc-session { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: end; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+.pc-session.is-assigned { border-color: var(--prog-done); box-shadow: inset 4px 0 0 var(--prog-done); }
+.pc-saved { border: 1px solid var(--line); border-radius: var(--r-m); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
+.pc-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px 16px; margin: 0; }
+.pc-stats dt { font-size: .78rem; color: var(--ink-3); } .pc-stats dd { margin: 2px 0 0; font-variant-numeric: tabular-nums; }
+label.btn input[type=file] { position: absolute; }
+@container (max-width: 760px) { .pc-session { grid-template-columns: minmax(0, 1fr); } }
 .bv-nav { display: flex; justify-content: space-between; gap: 10px; }
 .bv-nav .btn { flex: 1 1 0; justify-content: center; max-width: 260px; }
 .bv-nav .btn-primary { margin-left: auto; }
@@ -1143,6 +1150,7 @@ S.exRooms = { "EG-002": ROOM_TEMPLATES.t2.rooms, "EG-003": ROOM_TEMPLATES.t3.roo
 Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, navParts: {}, bedDraft: {},
   mt: { ds: "pf", idx: {}, pad: null, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   bv: { person: null, idx: {}, showMissing: false },
+  pc: { upload: null, assign: {}, gap: 2 },
   lf: { test: null, idx: {}, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   exBedrooms: { "EG-001": { bed1: { who: "Tom (left) and Harriet (right)", bed: "Upholstered divan, pocket-sprung mattress", size: "king" }, bed2: { who: "Their son, aged 6", bed: "Single pine bed, foam mattress", size: "single" } } } });
 const findingById = id => FINDINGS.find(f => f.id === id);
@@ -1154,17 +1162,17 @@ const findingById = id => FINDINGS.find(f => f.id === id);
    built into the page and never written to storage.
    ========================================================================= */
 const LOCAL_KEY = "emerald-grey-studio-v1";
-const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress", "lf", "bv"];
+const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress", "lf", "bv", "particles"];
 const Store = {
   mode: "starting", note: "", readOnly: false, db: null, queue: {},
-  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {}, lf: {}, bv: {},
+  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {}, lf: {}, bv: {}, particles: {},
   loadLocal() {
     try { const d = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); COLLECTIONS.forEach(k => { this[k] = d[k] || {}; }); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   persistLocal() {
     if (this.mode !== "local") return;
-    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress, lf: this.lf, bv: this.bv })); }
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress, lf: this.lf, bv: this.bv, particles: this.particles })); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   async init() {
@@ -1249,7 +1257,7 @@ function roomsFor(ref) {
   return c.rooms && c.rooms.length ? c.rooms : DEFAULT_ROOMS;
 }
 const byTime = (a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || ""));
-function readingsFor(ref) { return (isFixture(ref) ? READINGS : []).concat(Object.values(Store.readings).filter(r => r.client === ref).sort(byTime), sheetReadings(ref), mattressReadings(ref), lfReadings(ref), bvReadings(ref)); }
+function readingsFor(ref) { return (isFixture(ref) ? READINGS : []).concat(Object.values(Store.readings).filter(r => r.client === ref).sort(byTime), sheetReadings(ref), mattressReadings(ref), lfReadings(ref), bvReadings(ref), pcReadings(ref)); }
 function samplesFor(ref) { return (isFixture(ref) ? SAMPLES : []).concat(Object.values(Store.samples).filter(s => s.client === ref).sort(byTime)); }
 function testStatus(ref, code) {
   if (!alloc(ref)[code]) return "excluded";
@@ -2548,6 +2556,7 @@ function screenSection(sec) {
       ${(sec.texts || []).map(t => `<div class="field"><label for="sx-${sec.id}-${t.k}">${t.label}</label><textarea id="sx-${sec.id}-${t.k}" class="input" rows="${t.rows || 5}" data-sheet="x|${t.k}">${esc((sh.x || {})[t.k] || "")}</textarea></div>`).join("")}
       ${sec.quietFooter ? "" : `<p class="xsmall muted">Saves as you type, against ${c.ref}${sec.covers ? ", room by room" : sec.scope === "property" ? " (whole property)" : ` · ${esc(roomName(c.ref, roomKey))}`}.${derived.length ? ` ${derived.length} result${derived.length === 1 ? "" : "s"} from this section feed the client record and report.` : ""}</p>`}
     </fieldset>
+    ${sec.id === "b2" ? pcCard() : ""}
     ${sectionNav(sec.id)}`);
 }
 /* Back and Next at the foot of every assessment page, in the order of the form */
@@ -3521,6 +3530,123 @@ function bvReadings(ref) {
 }
 
 /* =========================================================================
+   B2. Particle counter upload (Temtop CSV)
+   The counter logs one-minute samples on site; the file is uploaded afterwards.
+   It holds timestamps but no rooms, and may contain other visits, so the file is
+   split into sessions (a new session after a gap the assessor chooses, 2 minutes by
+   default as the counter logs every minute, or a new date) and the assessor assigns each session to one of this client's rooms.
+   Only assigned sessions are saved: one record per client and session, with every
+   sample kept. Uploading the same file again updates those records, never duplicates.
+   ========================================================================= */
+const PC_GAP_MIN = 2, PC_GAPS = [2, 5, 10, 30];
+const PC_FIELDS = [
+  ["pm25", "PM2.5", "µg/m³", 1], ["pm10", "PM10", "µg/m³", 1], ["tsp", "TSP", "µg/m³", 1],
+  ["p03", "0.3 µm", "particles/L", 0], ["p05", "0.5 µm", "particles/L", 0], ["p10", "1.0 µm", "particles/L", 0],
+  ["temp", "Temperature", "°C", 1], ["rh", "Humidity", "%RH", 1]
+];
+const pcId = (ref, sid) => `${ref}__${VISIT.id}__pc__${sid.replace(/[^0-9]/g, "")}`;
+function pcParse(text, gapMin = PC_GAP_MIN) {
+  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return { error: "The file has no readings." };
+  const head = lines[0].split(",").map(h => h.trim().toLowerCase());
+  const col = test => head.findIndex(test);
+  const ix = { date: col(h => h === "date"), time: col(h => h === "time"), pm25: col(h => h.startsWith("pm2.5")), pm10: col(h => h.startsWith("pm10")), tsp: col(h => h.startsWith("tsp")),
+    p03: col(h => h.startsWith("0.3")), p05: col(h => h.startsWith("0.5")), p10: col(h => h.startsWith("1.0")), mins: col(h => h.startsWith("sample time")),
+    temp: col(h => h.startsWith("temperature")), unit: col(h => h === "unit"), rh: col(h => h.startsWith("humidity")) };
+  if (ix.date < 0 || ix.time < 0 || ix.pm25 < 0) return { error: "This does not look like a particle counter file. It needs DATE, TIME and PM2.5 columns." };
+  const num = v => { const x = parseFloat(v); return isNaN(x) ? null : x; };
+  const rows = [], skipped = [];
+  lines.slice(1).forEach((l, n) => {
+    const c = l.split(",").map(x => x.trim()), date = c[ix.date], time = c[ix.time];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "") || !/^\d{1,2}:\d{2}(:\d{2})?$/.test(time || "")) { skipped.push(n + 2); return; }
+    const fahr = ix.unit >= 0 && /F/i.test(c[ix.unit] || "");
+    const r = { ts: `${date}T${time.length === 5 ? time + ":00" : time}` };
+    ["pm25", "pm10", "tsp", "p03", "p05", "p10", "rh"].forEach(k => { r[k] = ix[k] >= 0 ? num(c[ix[k]]) : null; });
+    const t = ix.temp >= 0 ? num(c[ix.temp]) : null; r.temp = t == null ? null : fahr ? Math.round((t - 32) * 5 / 9 * 10) / 10 : t;
+    r.mins = ix.mins >= 0 ? num(c[ix.mins]) : null;
+    rows.push(r);
+  });
+  rows.sort((a, b) => a.ts.localeCompare(b.ts));
+  const sessions = [];
+  rows.forEach(r => {
+    const last = sessions[sessions.length - 1], prev = last && last.rows[last.rows.length - 1];
+    const gap = prev ? (new Date(r.ts) - new Date(prev.ts)) / 60000 : Infinity;
+    if (!last || gap > gapMin || r.ts.slice(0, 10) !== prev.ts.slice(0, 10)) sessions.push({ sid: r.ts, rows: [r] });
+    else last.rows.push(r);
+  });
+  return { rows, sessions, skipped };
+}
+const pcStat = (rows, k) => { const v = rows.map(r => r[k]).filter(x => typeof x === "number"); return v.length ? { mean: v.reduce((a, b) => a + b, 0) / v.length, max: Math.max(...v), min: Math.min(...v), n: v.length } : null; };
+const pcClock = ts => ts.slice(11, 16);
+const pcDate = ts => { try { return new Date(ts.slice(0, 10) + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" }); } catch (e) { return ts.slice(0, 10); } };
+const pcDocs = ref => Object.values(Store.particles).filter(d => d.ref === ref && !d.removed);
+function pcVisitDates(ref) { return new Set(allSheets().filter(sh => sh.ref === ref && sh.section === "visit" && (sh.f || {}).date).map(sh => sh.f.date)); }
+
+/* Card on the B2 page: upload, assign, import, then the sessions saved for this room */
+function pcCard() {
+  const c = C(), room = currentRoom(), locked = Store.readOnly && !c.example, up = S.pc.upload;
+  const rooms = siteRooms(c.ref), visitDates = pcVisitDates(c.ref), saved = pcDocs(c.ref);
+  const here = saved.filter(d => d.room === (room && room.id)).sort((a, b) => a.sid.localeCompare(b.sid));
+  const statCell = (rows, k, d, withMax) => { const s = pcStat(rows, k); return s ? `${fmt(s.mean, d)}${withMax ? ` <span class="xsmall muted">max ${fmt(s.max, d)}</span>` : ""}` : "–"; };
+  const assignRow = s => { const a = S.pc.assign[s.sid] || {}, prior = Store.particles[pcId(c.ref, s.sid)], onVisit = visitDates.has(s.sid.slice(0, 10)), pm = pcStat(s.rows, "pm25");
+    return `<div class="pc-session ${a.room ? "is-assigned" : ""}" role="group" aria-label="Session ${pcDate(s.sid)} ${pcClock(s.sid)}">
+      <div class="stack" style="gap:2px"><b class="small">${pcDate(s.sid)} · ${pcClock(s.rows[0].ts)} to ${pcClock(s.rows[s.rows.length - 1].ts)}</b>
+        <span class="xsmall muted">${s.rows.length} sample${s.rows.length === 1 ? "" : "s"} · PM2.5 average ${pm ? fmt(pm.mean, 1) : "–"} µg/m³${onVisit ? " · <b>on the visit date</b>" : ""}${prior && !prior.removed ? ` · already saved to ${esc(roomName(c.ref, prior.room))}` : ""}</span></div>
+      <div class="field"><label class="xsmall" for="pc-room-${s.sid}">Room</label><select id="pc-room-${s.sid}" class="input" data-pcassign="${s.sid}|room" ${locked ? "disabled" : ""}>${opt("", "Not this client, do not import", !a.room)}${rooms.map(r => opt(r.id, r.name, a.room === r.id)).join("")}</select></div>
+      <div class="field"><label class="xsmall" for="pc-loc-${s.sid}">Location in the room (optional)</label><input id="pc-loc-${s.sid}" class="input" value="${esc(a.loc || "")}" placeholder="For example, pillow height" data-pcassign="${s.sid}|loc" ${locked ? "disabled" : ""}></div>
+    </div>`; };
+  const chosen = up && up.sessions ? up.sessions.filter(s => (S.pc.assign[s.sid] || {}).room).length : 0;
+  return `<section class="card stack" aria-labelledby="h-pc"><div class="spread"><div class="stack" style="gap:4px"><span class="eyebrow">Particle counter</span><h3 id="h-pc">Particle data from the Temtop counter</h3></div>
+      <label class="btn ${locked ? "is-disabled" : ""}">${icon("plus")}Upload CSV file<input type="file" accept=".csv,text/csv" class="sr-only" data-change="pccsv" ${locked ? "disabled" : ""}></label></div>
+    <p class="small muted">Upload the counter's file after the visit. The file has times but no rooms, so it is split into sessions and you choose the room for each. Sessions you leave unassigned, such as other clients' visits on other dates, are not imported.</p>
+    ${up ? (up.error ? `<div class="notice notice-error" role="alert">${icon("info")}<span class="small">${esc(up.name)}: ${esc(up.error)}</span></div>` : `
+      <div class="pc-upload stack">
+        <div class="field" style="max-width:340px"><label for="pc-gap">Start a new session after a gap of</label><select id="pc-gap" class="input" data-change="pcgap">${PC_GAPS.map(g => opt(String(g), `More than ${g} minutes`, g === S.pc.gap)).join("")}</select></div>
+        <div class="spread"><span class="small"><b>${esc(up.name)}</b> · ${up.rows.length} samples in ${up.sessions.length} session${up.sessions.length === 1 ? "" : "s"}${up.skipped.length ? ` · ${up.skipped.length} line${up.skipped.length === 1 ? "" : "s"} could not be read` : ""}</span>
+          <button class="btn btn-quiet btn-s" data-action="pcassignvisit">Assign visit-date sessions to ${esc(room ? room.name : "this room")}</button></div>
+        ${up.sessions.map(assignRow).join("")}
+        <div class="mt-actions"><button class="btn" data-action="pccancel">Cancel upload</button><button class="btn btn-primary" data-action="pcimport" ${chosen && !locked ? "" : "disabled"}>Save ${chosen} session${chosen === 1 ? "" : "s"} to ${c.ref}</button></div>
+      </div>`) : ""}
+    <h4>Saved for ${esc(room ? room.name : "this room")}</h4>
+    ${here.length ? here.map(d => `<div class="pc-saved">
+        <div class="spread"><b class="small">${pcDate(d.sid)} · ${pcClock(d.rows[0].ts)} to ${pcClock(d.rows[d.rows.length - 1].ts)}${d.location ? ` · ${esc(d.location)}` : ""}</b>
+          <span class="row"><span class="xsmall muted">${d.rows.length} sample${d.rows.length === 1 ? "" : "s"} · ${esc(d.file)}</span><button class="btn btn-quiet btn-s" data-action="pcremove" data-id="${pcId(d.ref, d.sid)}" ${locked ? "disabled" : ""}>Remove</button></span></div>
+        <dl class="pc-stats">${PC_FIELDS.map(([k, l, u, dp]) => `<div><dt>${l} <span class="unit">${u}</span></dt><dd>${statCell(d.rows, k, dp, ["pm25", "pm10", "tsp"].includes(k))}</dd></div>`).join("")}</dl>
+      </div>`).join("") : `<p class="small muted">No particle sessions saved for this room yet.</p>`}
+    <p class="xsmall muted">Values are averages of the one-minute samples in each session; PM figures also show the maximum. Every sample is kept with the client record.</p>
+  </section>`;
+}
+async function pcImport() {
+  const c = C(), up = S.pc.upload; if (!up || !up.sessions) return;
+  const now = new Date().toISOString(); let n = 0;
+  for (const s of up.sessions) {
+    const a = S.pc.assign[s.sid] || {}; if (!a.room) continue;
+    const body = { ref: c.ref, visit: VISIT.id, sid: s.sid, room: a.room, location: a.loc || "", rows: s.rows, file: up.name, instrument: "temtop", tempUnit: "°C",
+      customer: c.name, roomName: roomName(c.ref, a.room), test: "B2 Particle counter", uploadedAt: now, uploadedBy: ASSESSOR, updatedAt: now, updatedBy: ASSESSOR, removed: false };
+    if (await Store.put("particles", pcId(c.ref, s.sid), body)) n++;
+  }
+  if (n) { const al = alloc(c.ref); if (!al.B5) await setAlloc(c.ref, { ...al, B5: true }); }
+  S.pc.upload = null; S.pc.assign = {}; render();
+  toast(n ? `${n} particle session${n === 1 ? "" : "s"} saved to ${c.ref}` : "Nothing was saved. Please try again.");
+}
+
+/* Results for the client record and report: one set per session */
+function pcReadings(ref) {
+  const out = [];
+  pcDocs(ref).forEach(d => {
+    const first = d.rows[0], last = d.rows[d.rows.length - 1], where = d.location || roomName(ref, d.room);
+    const base = { client: ref, room: d.room, roomType: roomTypeOf(ref, d.room), test: "b2", inst: "temtop", timing: "spot", result: "reading", by: d.uploadedBy, createdAt: first.ts,
+      when: `${pcDate(first.ts)}, ${pcClock(first.ts)} to ${pcClock(last.ts)}`, cond: {}, note: `${d.rows.length} one-minute samples from ${d.file}`, loc: where, grid: null, phase: null, ref: null, method: "any" };
+    PC_FIELDS.forEach(([k, l, u]) => { const s = pcStat(d.rows, k); if (!s) return;
+      const point = k === "temp" || k === "rh" ? "B6" : "B5";
+      out.push({ ...base, id: `${pcId(ref, d.sid)}:${k}`, point, label: `${l}${point === "B6" ? " (particle counter)" : ""}, ${where}, session average`, value: Math.round(s.mean * 10) / 10, unit: u, methodLabel: "Particle counter, CSV upload, session average", evalKey: "noguide" });
+      if (["pm25", "pm10"].includes(k)) out.push({ ...base, id: `${pcId(ref, d.sid)}:${k}max`, point, label: `${l}, ${where}, session maximum`, value: s.max, unit: u, methodLabel: "Particle counter, CSV upload, highest one-minute sample", evalKey: "noguide" });
+    });
+  });
+  return out;
+}
+
+/* =========================================================================
    Menu: left-hand on desktop, behind the menu button on tablet and phone
    ========================================================================= */
 const SETTINGS = [["templates", "grid", "Room templates"], ["equipment", "gauge", "Equipment register"], ["references", "book", "Reference library"], ["services", "list", "Services and tests"], ["access", "lock", "Assessors and access"], ["clientexp", "phone", "Client experience"], ["data", "shield", "Data and storage"]];
@@ -3613,7 +3739,7 @@ function screenClientExp() {
 function screenData() {
   const n = k => Object.keys(Store[k]).length;
   return assessorShell("", `${settingsHead("Data and storage", "Where saved records live in this prototype.")}
-    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets") + n("mattress") + n("lf") + n("bv")}</b><span>Assessment sections and tests saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
+    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets") + n("mattress") + n("lf") + n("bv") + n("particles")}</b><span>Assessment sections and tests saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
     <section class="card stack"><h3>Storage</h3><p class="small">${Store.mode === "shared" ? "Records are saved to shared storage for this page, so Iza and Alfie see the same clients and results." : Store.mode === "local" ? "Records are saved in this browser only. Open the published page to share them." : "Connecting to storage…"}</p>
       <p class="small muted">Please use test details only while this is a prototype. Example records EG-001 to EG-004 are built into the page and are not stored.</p>
       <div class="row"><button class="btn" data-action="copydata">${icon("copy")}Copy all saved data</button></div>
@@ -3798,6 +3924,12 @@ const ACT = {
     if (!done && !(await bvUpdate(doc => { doc.completedAt = new Date().toISOString(); doc.completedBy = ASSESSOR; }))) return;
     toast("Body voltage and circuit investigation saved"); go("a9");
   },
+  pcassignvisit: () => { const up = S.pc.upload, dates = pcVisitDates(S.client), room = currentRoom(); if (!up || !room) return;
+    let n = 0; up.sessions.forEach(x => { if (dates.has(x.sid.slice(0, 10))) { S.pc.assign[x.sid] = { ...(S.pc.assign[x.sid] || {}), room: room.id }; n++; } });
+    render(); toast(n ? `${n} session${n === 1 ? "" : "s"} on the visit date assigned to ${room.name}` : "No sessions match the visit date recorded on Visit details"); },
+  pccancel: () => { S.pc.upload = null; S.pc.assign = {}; render(); },
+  pcimport: () => pcImport(),
+  async pcremove(d) { const doc = Store.particles[d.id]; if (!doc) return; if (await Store.put("particles", d.id, { ...doc, removed: true, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR })) { render(); toast("Particle session removed from this room"); } },
   padkey: d => padKey(d.key),
   padflag: d => { S.pad.flag = S.pad.flag === d.flag ? null : d.flag; if (S.pad.flag) S.pad.buf = ""; padRefresh(); if (S.pad.flag === "nm") document.getElementById("pad-reason")?.focus(); },
   padconfirm: () => padConfirm(),
@@ -3818,7 +3950,7 @@ const ACT = {
     toast(`${t.name} applied${keep.length ? `. ${keep.length} room${keep.length === 1 ? "" : "s"} with saved results kept` : ""}`);
   },
   copydata: () => {
-    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress, lf: Store.lf, bv: Store.bv }, null, 2);
+    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress, lf: Store.lf, bv: Store.bv, particles: Store.particles }, null, 2);
     const box = document.getElementById("data-copy");
     const fallback = () => { box.value = text; box.hidden = false; box.focus(); box.select(); toast("Select all and copy the text below"); };
     try { navigator.clipboard.writeText(text).then(() => toast("All saved data copied"), fallback); } catch (e) { fallback(); }
@@ -4024,6 +4156,7 @@ document.addEventListener("input", e => {
   if (t.matches("[data-note]")) saveNote(S.client, t.dataset.note, t.value);
   if (t.matches("[data-lfnote]")) { const [test, p] = t.dataset.lfnote.split("|"), ref = S.client, room = currentRoom().id; markEdited(); debounce(`lfnote:${ref}:${room}:${test}:${p}`, () => { const doc = lfClone(ref, room); doc[test].notes = { ...(doc[test].notes || {}), [p]: t.value }; lfSave(doc); }); }
   if (t.matches("[data-bvtext]")) { const path = t.dataset.bvtext, ref = S.client, room = currentRoom().id; markEdited(); debounce(`bv:${ref}:${room}:${path}`, async () => { const doc = bvClone(ref, room); bvSetPath(doc, path, t.value); doc.startedAt = doc.startedAt || new Date().toISOString(); await bvSave(doc); }); }
+  if (t.matches("input[data-pcassign]")) { const [sid, k] = t.dataset.pcassign.split("|"); S.pc.assign[sid] = { ...(S.pc.assign[sid] || {}), [k]: t.value }; }
   if (t.matches("[data-lfnotes]")) { const ref = S.client, room = currentRoom().id; markEdited(); debounce(`lfnotes:${ref}:${room}`, () => { const doc = lfClone(ref, room); doc.notes = t.value; lfSave(doc); }); }
   if (t.matches("[data-intnote]")) {
     const ref = t.dataset.intnote, c = getClient(ref); markEdited();
@@ -4062,6 +4195,9 @@ document.addEventListener("change", e => {
   if (kind === "qfile" && t.files.length) { S.qFiles.push(...[...t.files].map(f => f.name)); render(); }
   if (kind === "roomphoto" && t.files.length) { markEdited(); toast(`Photograph attached to ${currentRoom().name}${S.online ? "" : ", queued for upload"}`); }
   if (kind === "progress" && t.files[0]) { const id = t.dataset.id; const rd = new FileReader(); rd.onload = () => { S.photos[id] = rd.result; render(); toast("Progress photo shared with Iza and Alfie"); }; rd.readAsDataURL(t.files[0]); }
+  if (kind === "pccsv" && t.files[0]) { const f = t.files[0], rd = new FileReader(); rd.onload = () => { const text = String(rd.result).slice(0, 2000000), r = pcParse(text, S.pc.gap); S.pc.upload = { name: f.name, text, ...r }; S.pc.assign = {}; render(); document.getElementById("h-pc")?.scrollIntoView({ block: "start" }); }; rd.readAsText(f); t.value = ""; }
+  if (kind === "pcgap" && S.pc.upload) { S.pc.gap = +t.value; S.pc.upload = { ...S.pc.upload, ...pcParse(S.pc.upload.text, S.pc.gap) }; S.pc.assign = {}; render(); document.getElementById("pc-gap")?.focus(); }
+  if (t.matches("select[data-pcassign]")) { const [sid, k] = t.dataset.pcassign.split("|"), id = t.id; S.pc.assign[sid] = { ...(S.pc.assign[sid] || {}), [k]: t.value }; render(); document.getElementById(id)?.focus(); }
   if (kind === "csv" && t.files[0]) { const f = t.files[0]; const rd = new FileReader(); rd.onload = () => { const text = String(rd.result).slice(0, 200000); S.csv = { text, name: f.name }; document.getElementById("csv-preview").innerHTML = csvPreview(text, f.name); }; rd.readAsText(f); }
 });
 document.addEventListener("submit", e => {
