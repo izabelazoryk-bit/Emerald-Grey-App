@@ -2282,9 +2282,9 @@ const SECTIONS = [
     texts: [{ k: "obs", label: "Light observations: glare, standby LEDs, light from outside, curtains and blinds" }] },
   { id: "b2", part: "B", code: "B2", title: "Air, climate and noise", scope: "room", points: ["B1", "B2", "B5", "B6", "A8", "S5"],
     fields: [tx("doors", "Door and window state at the start"), tm("time", "Time"), sel("units", "Units for HCHO and TVOC", UNIT_OPTS.voc)],
-    tables: [{ k: "air", head: "Location", free: true, rows: ["Pillow height", "Room centre", "Beside wardrobe or large furniture", "Landing or adjacent space", "", ""],
+    tables: [{ k: "air", head: "Location", free: true, rows: [""],
         cards: true, cols: [n("co2", "CO₂", "ppm"), n("temp", "Temp", "°C"), n("rh", "RH", "%"), n("hcho", "HCHO"), n("tvoc", "TVOC")] },
-      { k: "noise", head: "Location", free: true, cards: true, title: "Noise", rows: ["Pillow height", "Room centre", "", ""], cols: [tm(), n("dba", "dB(A)"), n("dbc", "dB(C)"), tx("notes", "Notes")] }],
+      { k: "noise", head: "Location", free: true, cards: true, title: "Noise", rows: [""], cols: [tm(), n("dba", "dB(A)"), n("dbc", "dB(C)"), tx("notes", "Notes")] }],
     texts: [{ k: "obs", label: "Air, ventilation and noise observations" }] },
   { id: "b3", part: "B", code: "B3", title: "Moisture and damp", scope: "room", points: ["S2", "C1"],
     intro: "For each wall take three positions, with top, middle and base moisture and surface temperature.",
@@ -2390,7 +2390,8 @@ function deriveSheet(sh) {
   const xyz = (k, i, keys) => { const v = keys.map(c => parseNum(cell(k, i, c))); return v.every(x => x != null) ? v : null; };
   const res3 = a => Math.round(resultant(a) * 10) / 10;
   const f = sh.f || {};
-  const each = (k, fn) => { const tb = sec.tables.find(t => t.k === k); rowsOf(tb).forEach((label, i) => fn(label || `Row ${i + 1}`, i)); };
+  /* An unnamed first row is the room's main reading point, so it takes the room's name */
+  const each = (k, fn) => { const tb = sec.tables.find(t => t.k === k); rowsOf(tb).forEach((label, i) => fn(label || (i === 0 && sh.room !== "property" ? roomName(ref, sh.room) : `Row ${i + 1}`), i)); };
   switch (sh.section) {
     case "a4":
       deSavedRows(ref, T("rooms").cell).forEach(r => { const v = parseNum(cell("rooms", r.k, "reading")); if (v != null) add(`room-${r.k}`, { point: "A1", label: `Dirty electricity, ${r.label}`, value: v, unit: "mV p-p", inst: "em100", time: cell("rooms", r.k, "time"), note: cell("rooms", r.k, "notes"), loc: r.label, room: r.room }); });
@@ -2529,7 +2530,7 @@ function sheetTable(sec, tb, sh) {
   const unitNote = col => col.unit ? `<br><span class="unit">${col.unit}</span>` : "";
   return `<div class="stack" style="gap:8px">${tb.title ? (tb.plainTitle ? `<h3 class="tb-title">${tb.title}</h3>` : `<h4>${tb.title}</h4>`) : ""}
     <div class="table-wrap${tb.cards ? " wrap-cards" : ""}"><table class="entry${tb.cards ? " cards" : ""}"><thead><tr><th>${tb.head}</th>${tb.cols.map(c => `<th>${c.label}${unitNote(c)}</th>`).join("")}</tr></thead><tbody>
-      ${labels.map((label, i) => { const row = rows[i] || { label }; return `<tr${row.room && i && rows[i - 1].room !== row.room ? ' class="group-start"' : ""}><td class="rowlabel"${tb.cards ? ` data-label="${esc(tb.head)}"` : ""}>${tb.free ? `<input class="input" value="${esc(label)}" aria-label="${tb.head} ${i + 1}" placeholder="${tb.head}" data-sheet="t|${tb.k}|row|${i}">` : `<span class="small">${esc(label)}</span>`}</td>${tb.cols.map(col => { const td = sheetCell(sec, tb, sh, i, label, row, col); return tb.cards ? td.replace(/^<td/, `<td data-label="${esc(col.label + (col.unit ? ` (${col.unit})` : ""))}"`) : td; }).join("")}</tr>`; }).join("")}
+      ${labels.map((label, i) => { const row = rows[i] || { label }; return `<tr${row.room && i && rows[i - 1].room !== row.room ? ' class="group-start"' : ""}><td class="rowlabel"${tb.cards ? ` data-label="${esc(tb.head)}"` : ""}>${tb.free ? `<input class="input" value="${esc(label)}" aria-label="${tb.head} ${i + 1}" placeholder="${tb.free && i === 0 && sec.scope !== "property" ? "Main reading point (optional)" : tb.head}" data-sheet="t|${tb.k}|row|${i}">` : `<span class="small">${esc(label)}</span>`}</td>${tb.cols.map(col => { const td = sheetCell(sec, tb, sh, i, label, row, col); return tb.cards ? td.replace(/^<td/, `<td data-label="${esc(col.label + (col.unit ? ` (${col.unit})` : ""))}"`) : td; }).join("")}</tr>`; }).join("")}
     </tbody></table></div>
     ${tb.free ? `<button class="btn btn-s" style="align-self:flex-start" data-action="addsheetrow" data-table="${tb.k}">${icon("plus")}Add a row</button>` : ""}</div>`;
 }
