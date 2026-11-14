@@ -102,6 +102,10 @@ A7 and A8 are one connected page following the Building Biology Institute (BBI) 
 
 RF units are µW/m² or mW/m². One "Time of readings" field with a Now action sits beside the units, as the four sides are measured in quick succession. Each side (north, east, south, west) is a card with 700 MHz to 2.6 GHz, 2.4 GHz to 6 GHz, electric field (V/m), magnetic field (nT) and notes. Each reading opens the large number pad, which shows the unit in use; confirming closes the pad so the assessor chooses the next field. The nearby sources table is unchanged.
 
+### B1. Light
+
+The four tick boxes sit under the heading "Flicker check". The source table shows only E (lx), CCT (K) and Ra for each light source. Spectrometer files (HopooColor OHSP-350IR CSV, one measurement per file) are uploaded directly under the table, several at once if needed; each is matched to a source row, or added as a new row, and fills that row's E, CCT and Ra. Every other value in the file (around 48 results, including Duv, CIE coordinates, R1 to R15, S/P, peak and dominant wavelengths and TLCI) and the full spectrum from 380 to 1050 nm are saved with the client and room, and can be opened under "Saved for [room]" with a spectrum chart. Uploading the same measurement again updates it rather than duplicating it. E, CCT and Ra feed the client record and report.
+
 ### B2. Air, climate and noise
 
 A single Time field with a Now action sits beside "Door and window state at the start". Air and climate start with one reading point for the room (CO₂, temperature, relative humidity, HCHO and TVOC); its location label is optional and, if left blank, results carry the room name. Noise also starts with one row. Each has Add a row, with an editable location, for any secondary location. Air and noise locations show as cards, so nothing scrolls sideways.

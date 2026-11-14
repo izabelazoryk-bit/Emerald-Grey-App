@@ -179,6 +179,10 @@ table.entry td.resultant { vertical-align: middle; background: var(--sunk); }
 .bv-missing .btn-link { color: var(--forest); font-weight: 500; }
 .pc-session { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: end; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
 .pc-session.is-assigned { border-color: var(--prog-done); box-shadow: inset 4px 0 0 var(--prog-done); }
+.spec-block { border: 1px solid var(--line); border-radius: var(--r-m); background: var(--cream); padding: 14px 16px; }
+.spec-saved summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.spec-saved[open] summary { margin-bottom: 8px; }
+.spec-chart { width: 100%; max-width: 520px; height: auto; display: block; }
 .pc-saved { border: 1px solid var(--line); border-radius: var(--r-m); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
 .pc-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px 16px; margin: 0; }
 .pc-stats dt { font-size: .78rem; color: var(--ink-3); } .pc-stats dd { margin: 2px 0 0; font-variant-numeric: tabular-nums; }
@@ -1151,6 +1155,7 @@ Object.assign(S, { screen: "dashboard", frame: "desktop", sheetDraft: {}, navPar
   mt: { ds: "pf", idx: {}, pad: null, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   bv: { person: null, idx: {}, showMissing: false },
   pc: { upload: null, assign: {}, gap: 2 },
+  spec: { upload: null, assign: {} },
   lf: { test: null, idx: {}, flash: null, reviewing: false, confirmNew: false, viewRun: null },
   exBedrooms: { "EG-001": { bed1: { who: "Tom (left) and Harriet (right)", bed: "Upholstered divan, pocket-sprung mattress", size: "king" }, bed2: { who: "Their son, aged 6", bed: "Single pine bed, foam mattress", size: "single" } } } });
 const findingById = id => FINDINGS.find(f => f.id === id);
@@ -1162,17 +1167,17 @@ const findingById = id => FINDINGS.find(f => f.id === id);
    built into the page and never written to storage.
    ========================================================================= */
 const LOCAL_KEY = "emerald-grey-studio-v1";
-const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress", "lf", "bv", "particles"];
+const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress", "lf", "bv", "particles", "spectra"];
 const Store = {
   mode: "starting", note: "", readOnly: false, db: null, queue: {},
-  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {}, lf: {}, bv: {}, particles: {},
+  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {}, lf: {}, bv: {}, particles: {}, spectra: {},
   loadLocal() {
     try { const d = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); COLLECTIONS.forEach(k => { this[k] = d[k] || {}; }); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   persistLocal() {
     if (this.mode !== "local") return;
-    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress, lf: this.lf, bv: this.bv, particles: this.particles })); }
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress, lf: this.lf, bv: this.bv, particles: this.particles, spectra: this.spectra })); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   async init() {
@@ -2271,10 +2276,11 @@ const SECTIONS = [
     tables: [{ k: "sides", head: "Side", rows: WALLS, cards: true, noChain: true, cols: [{ ...n("rfl", "700 MHz to 2.6 GHz"), pad: true, unitField: "units", unitDefault: "µW/m²" }, { ...n("rfh", "2.4 GHz to 6 GHz"), pad: true, unitField: "units", unitDefault: "µW/m²" }, { ...n("vm", "Electric field", "V/m"), pad: true }, { ...n("nt", "Magnetic field", "nT"), pad: true }, tx("notes", "Compass and notes")] },
       { k: "sources", head: "Nearby source", free: true, rows: ["Mobile mast or antenna", "Overhead lines or pylon", "Substation or transformer", "Smart meter", "Solar inverter or battery", "Railway, tram or main road", "Other:"], cols: [sel("present", "Present", YESNO), tx("dist", "Distance and direction"), tx("notes", "Notes")] }] },
   { id: "b1", part: "B", code: "B1", title: "Light", scope: "room", points: ["A9"],
-    intro: "Spectrometer readings are saved on the meter. Tick when taken and note anything the meter will not capture.",
+    intro: "Upload the spectrometer's CSV files to fill E, CCT and Ra for each source; every other value is saved with the client record.",
+    checksTitle: "Flicker check",
     checks: ["Overhead lighting flicker checked", "Task and bedside lighting flicker checked", "Standby or indicator LEDs visible from the bed", "Light entering from outside or under the door at night"],
     tables: [{ k: "src", head: "Source", free: true, rows: ["Overhead", "Bedside, left", "Bedside, right", "Lamp:", "Lamp:", "", ""],
-        cols: [sel("bulb", "Bulb type", ["", "LED", "Halogen", "Other"]), n("cct", "Colour temp", "K"), sel("dim", "Dimmable", YESNO), tx("flk", "Flicker"), sel("night", "On at night", YESNO)] },
+        cols: [n("e", "E", "lx"), n("cct", "CCT", "K"), n("ra", "Ra")] },
       { k: "pos", head: "Position and facing", free: true, title: "Conditions: A lights off, blinds closed. B normal evening lighting. C single source on. D daylight.",
         rows: ["Pillow, left · facing up", "Pillow, left · facing window", "Pillow, right · facing up", "Pillow, right · facing window", "Pillow · overhead light", "Pillow · bedside lamp", "Window · into room", "Standby LED or screen", "", ""],
         cols: [sel("cond", "Condition", ["", "A", "B", "C", "D", "E (note it)"]), tm(), { k: "taken", label: "Taken", type: "check" }, tx("notes", "Notes")] }],
@@ -2424,7 +2430,7 @@ function deriveSheet(sh) {
       if (vm != null) add(`vm${i}`, { point: "A1", label: `Electric field, ${row} side`, value: vm, unit: "V/m", method: "earthed", inst: "me3951", time: t, note });
       if (nt != null) add(`nt${i}`, { point: "A2", label: `Magnetic field, ${row} side`, value: nt, unit: "nT", inst: "me3951", time: t, note });
     }); break;
-    case "b1": each("src", (row, i) => { const v = parseNum(cell("src", i, "cct")); if (v != null) add(`cct${i}`, { point: "A9", label: `Colour temperature, ${row}`, value: v, unit: "K", inst: "ohsp", note: [cell("src", i, "bulb"), cell("src", i, "flk") ? "Flicker: " + cell("src", i, "flk") : ""].filter(Boolean).join(", ") }); }); break;
+    case "b1": each("src", (row, i) => [["e", "Illuminance (E)", "lx"], ["cct", "Colour temperature (CCT)", "K"], ["ra", "Colour rendering (Ra)", ""]].forEach(([c, l, u]) => { const v = parseNum(cell("src", i, c)); if (v != null) add(`${c}${i}`, { point: "A9", label: `${l}, ${row}`, value: v, unit: u, inst: "ohsp", evalKey: "noguide", loc: row }); })); break;
     case "b2": case "c1": {
       const vu = f.units || "mg/m³";
       const spec = [["co2", "CO₂", "ppm", "B6", "aranet4"], ["temp", "Temperature", "°C", "B6", "aranet4"], ["rh", "Relative humidity", "%RH", "B6", "aranet4"], ["hcho", "Formaldehyde", vu, "B1", "pcevoc"], ["tvoc", "TVOC", sh.section === "c1" ? "mg/m³" : vu, "B2", "pcevoc"], ["pm25", "PM2.5", "µg/m³", "B5", "temtop"], ["pm10", "PM10", "µg/m³", "B5", "temtop"], ["dba", "Sound level", "dB(A)", "A8", "decibelx"]];
@@ -2550,8 +2556,9 @@ function screenSection(sec) {
     <fieldset class="card stack-l sheet" ${locked ? "disabled" : ""} data-section="${sec.id}">
       <legend class="sr-only">${sectionName(sec)}</legend>
       ${sec.fields ? `<div class="grid-3">${sec.fields.map(fd => sheetField(sec, sh, fd)).join("")}</div>` : ""}
+      ${sec.checksTitle ? `<h3 class="tb-title">${sec.checksTitle}</h3>` : ""}
       ${sec.checks ? `<div class="checks">${sec.checks.map((label, k) => `<label class="tickrow"><input type="checkbox" ${(sh.c || {})["k" + k] ? "checked" : ""} data-sheet="c|k${k}"><span>${label}</span></label>`).join("")}</div>` : ""}
-      ${(sec.tables || []).map(tb => sheetTable(sec, tb, sh)).join("")}
+      ${(sec.tables || []).map(tb => sheetTable(sec, tb, sh) + (sec.id === "b1" && tb.k === "src" ? specCard(sec, sh) : "")).join("")}
       ${sec.coverage ? rfCoverage() : ""}
       ${(sec.texts || []).map(t => `<div class="field"><label for="sx-${sec.id}-${t.k}">${t.label}</label><textarea id="sx-${sec.id}-${t.k}" class="input" rows="${t.rows || 5}" data-sheet="x|${t.k}">${esc((sh.x || {})[t.k] || "")}</textarea></div>`).join("")}
       ${sec.quietFooter ? "" : `<p class="xsmall muted">Saves as you type, against ${c.ref}${sec.covers ? ", room by room" : sec.scope === "property" ? " (whole property)" : ` · ${esc(roomName(c.ref, roomKey))}`}.${derived.length ? ` ${derived.length} result${derived.length === 1 ? "" : "s"} from this section feed the client record and report.` : ""}</p>`}
@@ -3647,6 +3654,84 @@ function pcReadings(ref) {
 }
 
 /* =========================================================================
+   B1. Spectrometer upload (HopooColor OHSP-350IR CSV)
+   One file is one measurement: a block of named results followed by the spectrum
+   (mW/m²/nm per nanometre). The assessor matches each file to a light source in
+   the room. E (lx), CCT (K) and Ra fill that source's row on the page; every value
+   in the file, and the full spectrum, is saved with the client and room.
+   ========================================================================= */
+const SPEC_SHOW = [["E(lx)", "e"], ["CCT(K)", "cct"], ["Ra", "ra"]];
+const specId = (ref, room, key) => `${ref}__${VISIT.id}__${room}__spec__${key}`;
+function specParse(text, name) {
+  const lines = String(text).split(/\r?\n/), metrics = [], spectrum = []; let inSpec = false, meta = {};
+  for (const raw of lines) {
+    const l = raw.trim(); if (!l) continue;
+    const parts = l.split(",").map(x => x.trim());
+    if (/^wava\(nm\)/i.test(parts[0])) { inSpec = true; continue; }
+    if (inSpec) { const nm = parseFloat(parts[0]), v = parseFloat(parts[1]); if (!isNaN(nm) && !isNaN(v)) spectrum.push([nm, v]); continue; }
+    let key = parts[0], val = parts[1] ?? "";
+    if (/^ee\(/i.test(key)) key = "Ee(mW/cm²)";
+    if (/^types$/i.test(key)) meta.device = val.replace(/[^\x20-\x7E]+/g, " ").trim(); else if (/^version$/i.test(key)) meta.version = val; else if (/^describe$/i.test(key)) meta.describe = val;
+    else if (/^test date$/i.test(key)) meta.date = val; else if (/^test time$/i.test(key)) meta.time = val;
+    else metrics.push([key, isNaN(parseFloat(val)) ? val : parseFloat(val)]);
+  }
+  const get = k => (metrics.find(m => m[0].toLowerCase() === k.toLowerCase()) || [])[1];
+  if (get("E(lx)") == null && get("CCT(K)") == null) return { name, error: "This does not look like a spectrometer file. It needs E(lx) and CCT(K) values." };
+  return { name, ...meta, metrics, spectrum, e: get("E(lx)"), cct: get("CCT(K)"), ra: get("Ra"), key: `${(meta.date || "").replace(/-/g, "")}${(meta.time || "").replace(/:/g, "")}` || String(Date.now()) };
+}
+const specDocs = (ref, room) => Object.values(Store.spectra).filter(d => d.ref === ref && d.room === room && !d.removed);
+function specChart(spectrum) {
+  const pts = spectrum.filter(([nm]) => nm >= 380 && nm <= 780); if (!pts.length) return "";
+  const max = Math.max(...pts.map(p => p[1])) || 1, W = 400, H = 90;
+  const path = pts.map(([nm, v], i) => `${i ? "L" : "M"}${((nm - 380) / 400 * W).toFixed(1)},${(H - v / max * (H - 6)).toFixed(1)}`).join(" ");
+  return `<svg class="spec-chart" viewBox="0 0 ${W} ${H + 16}" role="img" aria-label="Spectrum from 380 to 780 nanometres, peak at ${pts.reduce((a, b) => b[1] > a[1] ? b : a)[0]} nm">
+    <defs><linearGradient id="spec-grad" x1="0" x2="1"><stop offset="0" stop-color="#7a3fbf"/><stop offset=".2" stop-color="#3355ff"/><stop offset=".33" stop-color="#00b3c8"/><stop offset=".45" stop-color="#3fbf4a"/><stop offset=".55" stop-color="#e6d42c"/><stop offset=".67" stop-color="#f08a24"/><stop offset=".85" stop-color="#d63a2f"/><stop offset="1" stop-color="#7a1f1a"/></linearGradient></defs>
+    <path d="${path} L${W},${H} L0,${H} Z" fill="url(#spec-grad)" opacity=".28"/><path d="${path}" fill="none" stroke="var(--forest)" stroke-width="1.5"/>
+    ${[400, 500, 600, 700].map(nm => `<text x="${(nm - 380) / 400 * W}" y="${H + 13}" font-size="10" fill="var(--ink-3)" text-anchor="middle">${nm}</text>`).join("")}
+  </svg>`;
+}
+function specCard(sec, sh) {
+  const c = C(), room = currentRoom(); if (!room) return "";
+  const locked = Store.readOnly && !c.example, up = S.spec.upload;
+  const tb = sec.tables.find(t => t.k === "src"), labels = (((sh.t || {}).src || {}).rows) || tb.rows;
+  const srcName = (i, d) => (labels[i] || "").trim() || (d && d.rowLabel) || `Source ${i + 1}`;
+  const saved = specDocs(c.ref, room.id).sort((a, b) => a.rowIndex - b.rowIndex);
+  const num = (v, d = 0) => typeof v === "number" ? fmt(v, d) : "–";
+  return `<section class="spec-block stack" aria-labelledby="h-spec"><div class="spread"><div class="stack" style="gap:4px"><span class="eyebrow">Spectrometer</span><h3 id="h-spec">Light measurements from the spectrometer</h3></div>
+      <label class="btn">${icon("plus")}Upload CSV files<input type="file" accept=".csv,text/csv" multiple class="sr-only" data-change="speccsv" ${locked ? "disabled" : ""}></label></div>
+    <p class="small muted">Each file is one measurement. Choose the light source it belongs to: E (lx), CCT (K) and Ra fill that source's row above, and every other value in the file, with the full spectrum, is saved to ${c.ref} for ${esc(room.name)}.</p>
+    ${up ? `<div class="stack">${up.map((f, j) => f.error ? `<div class="notice notice-error" role="alert">${icon("info")}<span class="small">${esc(f.name)}: ${esc(f.error)}</span></div>` : `
+      <div class="pc-session ${S.spec.assign[j] != null && S.spec.assign[j] !== "" ? "is-assigned" : ""}" role="group" aria-label="${esc(f.name)}">
+        <div class="stack" style="gap:2px"><b class="small">${esc(f.name)}</b><span class="xsmall muted">${esc(f.date || "")} ${esc(f.time || "")} · E ${num(f.e, 1)} lx · CCT ${num(f.cct)} K · Ra ${num(f.ra, 1)}</span></div>
+        <div class="field"><label class="xsmall" for="spec-src-${j}">Light source</label><select id="spec-src-${j}" class="input" data-specassign="${j}">${opt("", "Choose a source", S.spec.assign[j] == null || S.spec.assign[j] === "")}${labels.map((l, i) => opt(String(i), srcName(i), String(S.spec.assign[j]) === String(i))).join("")}${opt("new", "Add as a new source row", S.spec.assign[j] === "new")}</select></div>
+        <span></span></div>`).join("")}
+      <div class="mt-actions"><button class="btn" data-action="speccancel">Cancel upload</button><button class="btn btn-primary" data-action="specimport" ${up.some((f, j) => !f.error && S.spec.assign[j] != null && S.spec.assign[j] !== "") && !locked ? "" : "disabled"}>Save to ${esc(room.name)}</button></div></div>` : ""}
+    <h4>Saved for ${esc(room.name)}</h4>
+    ${saved.length ? saved.map(d => `<details class="pc-saved spec-saved"><summary><span class="small"><b>${esc(srcName(d.rowIndex, d))}</b> · E ${num(d.e, 1)} lx · CCT ${num(d.cct)} K · Ra ${num(d.ra, 1)}</span><span class="xsmall muted">${esc(d.date || "")} ${esc(d.time || "")} · ${esc(d.file)}</span></summary>
+        ${specChart(d.spectrum)}
+        <dl class="pc-stats">${d.metrics.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${typeof v === "number" ? v : esc(v)}</dd></div>`).join("")}</dl>
+        <div class="row"><span class="xsmall muted">${esc(d.device || "")}${d.version ? " · version " + esc(d.version) : ""} · ${d.spectrum.length} spectrum points, ${d.spectrum.length ? `${d.spectrum[0][0]} to ${d.spectrum[d.spectrum.length - 1][0]} nm` : ""}</span><span class="grow"></span><button class="btn btn-quiet btn-s" data-action="specremove" data-id="${specId(d.ref, d.room, d.key)}" ${locked ? "disabled" : ""}>Remove</button></div>
+      </details>`).join("") : `<p class="small muted">No spectrometer files saved for this room yet.</p>`}
+  </section>`;
+}
+async function specImport() {
+  const c = C(), room = currentRoom(), sec = sectionById("b1"), roomKey = room.id, now = new Date().toISOString(); let n = 0;
+  for (const [j, f] of S.spec.upload.entries()) {
+    let a = S.spec.assign[j]; if (f.error || a == null || a === "") continue;
+    const sh = sheetGet(c.ref, roomKey, "b1"), tb = sec.tables.find(t => t.k === "src"), rows = (((sh.t || {}).src || {}).rows) || tb.rows.map(r => rowOf(r).label);
+    let i = +a;
+    if (a === "new") { i = rows.length; setSheet(c.ref, roomKey, "b1", `t|src|row|${i}`, (f.describe && f.describe !== "OHS" ? f.describe : "") || `Measured ${f.time || ""}`.trim()); }
+    [["e", f.e], ["cct", f.cct], ["ra", f.ra]].forEach(([k, v]) => { if (typeof v === "number") setSheet(c.ref, roomKey, "b1", `t|src|cell|${i}|${k}`, String(v)); });
+    const body = { ref: c.ref, visit: VISIT.id, room: roomKey, rowIndex: i, rowLabel: (rows[i] || "").trim(), key: f.key, file: f.name, device: f.device || "", version: f.version || "", date: f.date || "", time: f.time || "",
+      e: f.e, cct: f.cct, ra: f.ra, metrics: f.metrics, spectrum: f.spectrum, spectrumUnit: "mW/m²/nm", instrument: "ohsp", customer: c.name, roomName: room.name, test: "B1 Light",
+      uploadedAt: now, uploadedBy: ASSESSOR, updatedAt: now, updatedBy: ASSESSOR, removed: false };
+    if (await Store.put("spectra", specId(c.ref, roomKey, f.key), body)) n++;
+  }
+  S.spec.upload = null; S.spec.assign = {}; render();
+  toast(n ? `${n} spectrometer file${n === 1 ? "" : "s"} saved to ${c.ref}` : "Nothing was saved. Please try again.");
+}
+
+/* =========================================================================
    Menu: left-hand on desktop, behind the menu button on tablet and phone
    ========================================================================= */
 const SETTINGS = [["templates", "grid", "Room templates"], ["equipment", "gauge", "Equipment register"], ["references", "book", "Reference library"], ["services", "list", "Services and tests"], ["access", "lock", "Assessors and access"], ["clientexp", "phone", "Client experience"], ["data", "shield", "Data and storage"]];
@@ -3739,7 +3824,7 @@ function screenClientExp() {
 function screenData() {
   const n = k => Object.keys(Store[k]).length;
   return assessorShell("", `${settingsHead("Data and storage", "Where saved records live in this prototype.")}
-    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets") + n("mattress") + n("lf") + n("bv") + n("particles")}</b><span>Assessment sections and tests saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
+    <div class="tiles"><div class="tile"><b class="num">${n("clients")}</b><span>Clients saved</span></div><div class="tile"><b class="num">${n("readings")}</b><span>Results saved</span></div><div class="tile"><b class="num">${n("sheets") + n("mattress") + n("lf") + n("bv") + n("particles") + n("spectra")}</b><span>Assessment sections and tests saved</span></div><div class="tile"><b class="num">${fmtRef(Store.nextNum())}</b><span>Next reference</span></div></div>
     <section class="card stack"><h3>Storage</h3><p class="small">${Store.mode === "shared" ? "Records are saved to shared storage for this page, so Iza and Alfie see the same clients and results." : Store.mode === "local" ? "Records are saved in this browser only. Open the published page to share them." : "Connecting to storage…"}</p>
       <p class="small muted">Please use test details only while this is a prototype. Example records EG-001 to EG-004 are built into the page and are not stored.</p>
       <div class="row"><button class="btn" data-action="copydata">${icon("copy")}Copy all saved data</button></div>
@@ -3930,6 +4015,9 @@ const ACT = {
   pccancel: () => { S.pc.upload = null; S.pc.assign = {}; render(); },
   pcimport: () => pcImport(),
   async pcremove(d) { const doc = Store.particles[d.id]; if (!doc) return; if (await Store.put("particles", d.id, { ...doc, removed: true, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR })) { render(); toast("Particle session removed from this room"); } },
+  speccancel: () => { S.spec.upload = null; S.spec.assign = {}; render(); },
+  specimport: () => specImport(),
+  async specremove(d) { const doc = Store.spectra[d.id]; if (!doc) return; if (await Store.put("spectra", d.id, { ...doc, removed: true, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR })) { render(); toast("Spectrometer file removed. Values already in the source row stay until edited."); } },
   padkey: d => padKey(d.key),
   padflag: d => { S.pad.flag = S.pad.flag === d.flag ? null : d.flag; if (S.pad.flag) S.pad.buf = ""; padRefresh(); if (S.pad.flag === "nm") document.getElementById("pad-reason")?.focus(); },
   padconfirm: () => padConfirm(),
@@ -3950,7 +4038,7 @@ const ACT = {
     toast(`${t.name} applied${keep.length ? `. ${keep.length} room${keep.length === 1 ? "" : "s"} with saved results kept` : ""}`);
   },
   copydata: () => {
-    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress, lf: Store.lf, bv: Store.bv, particles: Store.particles }, null, 2);
+    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress, lf: Store.lf, bv: Store.bv, particles: Store.particles, spectra: Store.spectra }, null, 2);
     const box = document.getElementById("data-copy");
     const fallback = () => { box.value = text; box.hidden = false; box.focus(); box.select(); toast("Select all and copy the text below"); };
     try { navigator.clipboard.writeText(text).then(() => toast("All saved data copied"), fallback); } catch (e) { fallback(); }
@@ -4195,6 +4283,9 @@ document.addEventListener("change", e => {
   if (kind === "qfile" && t.files.length) { S.qFiles.push(...[...t.files].map(f => f.name)); render(); }
   if (kind === "roomphoto" && t.files.length) { markEdited(); toast(`Photograph attached to ${currentRoom().name}${S.online ? "" : ", queued for upload"}`); }
   if (kind === "progress" && t.files[0]) { const id = t.dataset.id; const rd = new FileReader(); rd.onload = () => { S.photos[id] = rd.result; render(); toast("Progress photo shared with Iza and Alfie"); }; rd.readAsDataURL(t.files[0]); }
+  if (kind === "speccsv" && t.files.length) { const files = [...t.files].slice(0, 20); Promise.all(files.map(f => new Promise(res => { const rd = new FileReader(); rd.onload = () => res(specParse(String(rd.result).slice(0, 2000000), f.name)); rd.onerror = () => res({ name: f.name, error: "The file could not be read." }); rd.readAsText(f, "windows-1252"); })))
+      .then(list => { S.spec.upload = list; S.spec.assign = {}; render(); document.getElementById("h-spec")?.scrollIntoView({ block: "start" }); }); t.value = ""; }
+  if (t.matches("select[data-specassign]")) { const id = t.id; S.spec.assign[t.dataset.specassign] = t.value; render(); document.getElementById(id)?.focus(); }
   if (kind === "pccsv" && t.files[0]) { const f = t.files[0], rd = new FileReader(); rd.onload = () => { const text = String(rd.result).slice(0, 2000000), r = pcParse(text, S.pc.gap); S.pc.upload = { name: f.name, text, ...r }; S.pc.assign = {}; render(); document.getElementById("h-pc")?.scrollIntoView({ block: "start" }); }; rd.readAsText(f); t.value = ""; }
   if (kind === "pcgap" && S.pc.upload) { S.pc.gap = +t.value; S.pc.upload = { ...S.pc.upload, ...pcParse(S.pc.upload.text, S.pc.gap) }; S.pc.assign = {}; render(); document.getElementById("pc-gap")?.focus(); }
   if (t.matches("select[data-pcassign]")) { const [sid, k] = t.dataset.pcassign.split("|"), id = t.id; S.pc.assign[sid] = { ...(S.pc.assign[sid] || {}), [k]: t.value }; render(); document.getElementById(id)?.focus(); }
