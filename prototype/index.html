@@ -3745,11 +3745,15 @@ async function specImport() {
    Each valid reading fills the selected moisture cell, then moves to the next.
    ========================================================================= */
 const PM_TESTED = { model: "BLD5375", firmware: "1.1.0.0" };
+/* Read from the meter with nRF Connect: the SurveyMaster's data service (Microchip transparent UART).
+   Its notifying characteristics are listened to and only packets that pass validation are used, so
+   the app does not depend on which one carries readings; the one that does is recorded. */
+const PM_DEFAULT_SERVICE = "49535343-fe7d-4ae5-8fa9-9fafd205e455", PM_LIKELY_CHAR = "49535343-1e4d-4bd9-ba61-23c647249616";
 const PM_KEY = "eg-protimeter-ble";
 const PM_UNIT_OF = { WME: "WME %", REL: "Relative (non-invasive)" };
 const PM_CELLS = ["top", "mid", "base"];
 const PM = { settingsOpen: false, device: null, chr: null, status: "idle", error: "", model: "", firmware: "", last: null, target: null, count: 0 };
-function pmSettings() { try { return { service: "", characteristic: "", ...JSON.parse(localStorage.getItem(PM_KEY) || "{}") }; } catch (e) { return { service: "", characteristic: "" }; } }
+function pmSettings() { try { return { service: PM_DEFAULT_SERVICE, characteristic: "", ...JSON.parse(localStorage.getItem(PM_KEY) || "{}") }; } catch (e) { return { service: PM_DEFAULT_SERVICE, characteristic: "" }; } }
 function pmSaveSettings(o) { try { localStorage.setItem(PM_KEY, JSON.stringify({ ...pmSettings(), ...o })); } catch (e) { /* settings stay for this visit only */ } }
 /* Web Bluetooth takes 16-bit UUIDs as numbers and 128-bit UUIDs as lowercase strings */
 function pmUuid(v) {
@@ -3789,7 +3793,7 @@ function pmMark() {
 async function pmConnect() {
   const st = pmSettings(), svc = pmUuid(st.service), chr = pmUuid(st.characteristic);
   if (!navigator.bluetooth) { PM.status = "unsupported"; render(); return; }
-  if (svc == null || chr == null) { PM.status = "error"; PM.error = "Enter the meter's service and measurement characteristic UUIDs under Bluetooth settings first."; render(); return; }
+  if (svc == null || (st.characteristic && chr == null)) { PM.status = "error"; PM.error = "Check the service and characteristic UUIDs under Bluetooth settings. Each should look like 49535343-fe7d-4ae5-8fa9-9fafd205e455."; render(); return; }
   try {
     PM.status = "connecting"; PM.error = ""; render();
     const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [svc, "device_information"] });
@@ -3799,22 +3803,26 @@ async function pmConnect() {
       PM.model = dec.decode(await (await info.getCharacteristic("model_number_string")).readValue()).trim();
       PM.firmware = dec.decode(await (await info.getCharacteristic("firmware_revision_string")).readValue()).trim();
     } catch (e) { PM.model = ""; PM.firmware = ""; }
-    const ch = await (await server.getPrimaryService(svc)).getCharacteristic(chr);
-    ch.addEventListener("characteristicvaluechanged", e => pmReceive(new Uint8Array(e.target.value.buffer.slice(e.target.value.byteOffset, e.target.value.byteOffset + e.target.value.byteLength)), "bluetooth"));
-    await ch.startNotifications();
-    PM.device = device; PM.chr = ch; PM.status = "connected"; render(); toast(`Connected to ${device.name || "the Protimeter"}`);
+    const service = await server.getPrimaryService(svc);
+    const chars = chr != null ? [await service.getCharacteristic(chr)] : (await service.getCharacteristics()).filter(c => c.properties && (c.properties.notify || c.properties.indicate));
+    if (!chars.length) throw new Error("No notifying characteristic was found in this service.");
+    for (const ch of chars) {
+      ch.addEventListener("characteristicvaluechanged", e => { const v = e.target.value; pmReceive(new Uint8Array(v.buffer.slice(v.byteOffset, v.byteOffset + v.byteLength)), "bluetooth", ch.uuid); });
+      await ch.startNotifications();
+    }
+    PM.device = device; PM.chrs = chars; PM.chr = chars[0]; PM.status = "connected"; render(); toast(`Connected to ${device.name || "the Protimeter"}`);
   } catch (e) {
     PM.status = e && e.name === "NotFoundError" ? "idle" : "error";
     PM.error = e && e.name === "NotFoundError" ? "" : e && e.name === "SecurityError" ? "This page is not allowed to use Bluetooth here. Open the app directly in Chrome or Edge rather than inside another page." : `Could not connect: ${(e && e.message) || e}`;
     render();
   }
 }
-async function pmDisconnect() { try { if (PM.chr) await PM.chr.stopNotifications(); } catch (e) { /* already gone */ } try { PM.device && PM.device.gatt.disconnect(); } catch (e) { /* already gone */ } PM.status = "idle"; PM.chr = null; PM.device = null; render(); }
-async function pmReceive(bytes, source) {
+async function pmDisconnect() { for (const ch of PM.chrs || []) { try { await ch.stopNotifications(); } catch (e) { /* already gone */ } } try { PM.device && PM.device.gatt.disconnect(); } catch (e) { /* already gone */ } PM.status = "idle"; PM.chr = null; PM.device = null; render(); }
+async function pmReceive(bytes, source, charUuid = "") {
   const c = C(), room = currentRoom(), d = decodeProtimeterNotification(bytes), now = new Date().toISOString();
-  const rec = { ...d, receivedAt: now, deviceModel: PM.model || PM_TESTED.model, firmware: PM.firmware || PM_TESTED.firmware, modelReported: !!PM.model, source,
+  const rec = { ...d, receivedAt: now, deviceModel: PM.model || PM_TESTED.model, firmware: PM.firmware || PM_TESTED.firmware, modelReported: !!PM.model, source, characteristic: charUuid,
     client: c.ref, room: room ? room.id : "", section: "b3", by: ASSESSOR };
-  PM.last = rec; PM.count++;
+  PM.last = rec; PM.count++; if (d.valid && charUuid) PM.validOn = charUuid;
   if (!d.valid || S.screen !== "b3" || !room) { await Store.put("meterlog", `${c.ref}__${now.replace(/\D/g, "")}__${PM.count}`, { ...rec, filled: null }); if (S.screen === "b3") render(); if (!d.valid) toast(`Packet not recognised: ${d.reason}`); return; }
   const sh = sheetGet(c.ref, room.id, "b3"), units = (sh.f || {}).units, want = PM_UNIT_OF[d.mode];
   const anyMoisture = Object.entries((((sh.t || {}).walls || {}).cell) || {}).some(([k, v]) => PM_CELLS.includes(k.split("|")[1]) && String(v ?? "").trim() !== "");
@@ -3839,14 +3847,15 @@ function pmPanel() {
     ${untested ? `<div class="notice notice-warn">${icon("info")}<span class="small">This meter reports model ${esc(PM.model)}, firmware ${esc(PM.firmware || "unknown")}. The app was tested with ${PM_TESTED.model}, firmware ${PM_TESTED.firmware}; check the first readings against the meter's display.</span></div>` : ""}
     <div class="row">${s === "connected" ? `<button class="btn" data-action="pmdisconnect">Disconnect</button>` : `<button class="btn btn-primary" data-action="pmconnect" ${!supported || s === "connecting" ? "disabled" : ""}>Connect the meter</button>`}
       <button class="btn btn-quiet btn-s" data-action="pmstart">Start at the first empty cell</button></div>
+    ${PM.validOn ? `<p class="xsmall muted">Readings are arriving on characteristic <span class="mono">${esc(PM.validOn)}</span>.${pmSettings().characteristic ? "" : ` <button class="btn-link" data-action="pmpin">Use only this one</button>`}</p>` : s === "connected" ? `<p class="xsmall muted">Listening on ${(PM.chrs || []).length} characteristic${(PM.chrs || []).length === 1 ? "" : "s"}. Take a reading on the meter.</p>` : ""}
     <p class="small">Next reading goes to: <b id="pm-target">${PM.target ? esc(pmLabel(PM.target)) : "the first empty moisture cell"}</b>. Select any moisture cell to send the next reading there.</p>
     ${last ? `<p class="small muted">Last packet ${esc(nowStampFrom(last.receivedAt))}: ${last.valid ? `<b>${last.mode} ${last.mode === "WME" ? fmt(last.value, 1) + " %" : last.value}</b>` : `<b>not recognised</b> (${esc(last.reason)})`} · <span class="mono">${esc(last.rawPacket)}</span></p>` : ""}
-    <details class="pm-settings" ${PM.settingsOpen || !(st.service && st.characteristic) ? "open" : ""}><summary class="small"><b>Bluetooth settings</b>${st.service && st.characteristic ? " · saved on this device" : " · needed before the first connection"}</summary>
+    <details class="pm-settings" ${PM.settingsOpen ? "open" : ""}><summary class="small"><b>Bluetooth settings</b>${st.service === PM_DEFAULT_SERVICE && !st.characteristic ? " · set for the SurveyMaster" : " · saved on this device"}</summary>
       <div class="grid-3" style="margin-top:10px">
         <div class="field"><label for="pm-svc">Service UUID</label><input id="pm-svc" class="input mono" value="${esc(st.service)}" placeholder="e.g. 0000xxxx-0000-1000-8000-00805f9b34fb" data-pmset="service"></div>
-        <div class="field"><label for="pm-chr">Measurement characteristic UUID</label><input id="pm-chr" class="input mono" value="${esc(st.characteristic)}" placeholder="The characteristic that notifies readings" data-pmset="characteristic"></div>
+        <div class="field"><label for="pm-chr">Measurement characteristic UUID (optional)</label><input id="pm-chr" class="input mono" value="${esc(st.characteristic)}" placeholder="Blank: listen to every notifying characteristic" data-pmset="characteristic"></div>
       </div>
-      <p class="xsmall muted">The app finds the measurement characteristic by these UUIDs, not by its handle, which can change with firmware. Tested with ${PM_TESTED.model}, firmware ${PM_TESTED.firmware}.</p>
+      <p class="xsmall muted">Set for the SurveyMaster's data service. With the characteristic blank, the app listens to every notifying characteristic in the service and uses only packets that pass validation; readings are expected on ${PM_LIKELY_CHAR}. The app never relies on the ATT handle, which can change with firmware. Tested with ${PM_TESTED.model}, firmware ${PM_TESTED.firmware}.</p>
       <div class="field"><label for="pm-test">Test the decoder with a packet</label><div class="row" style="flex-wrap:nowrap"><input id="pm-test" class="input mono" placeholder="FF FF 0C 00 04 05 00 00 89 83"><button class="btn btn-s" data-action="pmtest">Send</button></div>
         <span class="xsmall muted">A test packet is handled exactly like one from the meter, including saving to the selected cell, and is logged as a test.</span></div>
     </details>
@@ -4142,6 +4151,7 @@ const ACT = {
   specimport: () => specImport(),
   async specremove(d) { const doc = Store.spectra[d.id]; if (!doc) return; if (await Store.put("spectra", d.id, { ...doc, removed: true, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR })) { render(); toast("Spectrometer file removed. Values already in the source row stay until edited."); } },
   pmconnect: () => pmConnect(),
+  pmpin: () => { if (!PM.validOn) return; pmSaveSettings({ characteristic: PM.validOn }); render(); toast("Saved. The app will listen only to this characteristic from the next connection."); },
   pmdisconnect: () => pmDisconnect(),
   pmstart: () => { const room = currentRoom(); if (!room) return; PM.target = pmFirstEmpty(sheetGet(S.client, room.id, "b3")); pmMark(); toast(PM.target ? `Next reading goes to ${pmLabel(PM.target)}` : "Every moisture cell is filled"); },
   pmtest: () => { const el = document.getElementById("pm-test"), hex = (el.value || "").replace(/[^0-9a-f]/gi, ""); if (!hex || hex.length % 2) { toast("Enter the packet as pairs of hexadecimal digits"); return; } pmReceive(new Uint8Array(hex.match(/../g).map(h => parseInt(h, 16))), "test"); },
