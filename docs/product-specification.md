@@ -106,6 +106,18 @@ RF units are µW/m² or mW/m². One "Time of readings" field with a Now action s
 
 The four tick boxes sit under the heading "Flicker check". A "Time of readings" field with a Now action sits directly above the source table and is saved with each source's readings. The source table shows Flicker (Yes or No), E (lx), CCT (K) and Ra for each light source; a flicker answer is recorded as a professional observation for that source. The former conditions table (positions A to D) has been removed. Spectrometer files (HopooColor OHSP-350IR CSV, one measurement per file) are uploaded directly under the table, several at once if needed; each is matched to a source row, or added as a new row, and fills that row's E, CCT and Ra. Every other value in the file (around 48 results, including Duv, CIE coordinates, R1 to R15, S/P, peak and dominant wavelengths and TLCI) and the full spectrum from 380 to 1050 nm are saved with the client and room, and can be opened under "Saved for [room]" with a spectrum chart. Uploading the same measurement again updates it rather than duplicating it. E, CCT and Ra feed the client record and report.
 
+### B3. Moisture and damp: Protimeter over Bluetooth
+
+B3 can take readings straight from a Protimeter SurveyMaster (tested: model BLD5375, firmware 1.1.0.0) over Bluetooth Low Energy, using Web Bluetooth. This works in Chrome or Edge on Android, Windows, macOS and ChromeOS; iPhone and iPad browsers do not support it, and the page must be opened directly rather than embedded in another page. Typing readings in remains available everywhere.
+
+**Connection.** The meter's measurement characteristic is found by its service and characteristic UUIDs, entered once under Bluetooth settings and kept on that device; the ATT handle (0x00A2 in testing) is never used, as it can change with firmware. Model and firmware are read from the standard Device Information service where the meter offers it; if they differ from the tested versions, the page asks the assessor to check the first readings against the meter's display.
+
+**Decoding.** Packets must be at least 10 bytes, start FF FF 0C 00 04, and have mode byte 0x04 (REL, value = byte 8) or 0x05 (WME, value = byte 8 / 10). Byte 9 is never used. Anything else is logged as not recognised and never guessed at.
+
+**Filling the table.** Each valid reading fills the selected moisture cell (top, middle or base) and the selection moves to the next one; selecting any moisture cell sends the next reading there, and "Start at the first empty cell" resets it. The first reading sets the sheet's units to match the meter (WME % or Relative). If the meter is switched to the other mode once readings exist, the reading is not entered and the assessor is told why.
+
+**Record.** Every packet, valid or not, is saved with the client, room, section, mode, value, unit, raw value, check byte, the full packet in hexadecimal, the time received, the device model and firmware, the cell it filled, and the assessor. A test field lets a packet be entered by hand to check the decoder; it is logged as a test.
+
 ### B2. Air, climate and noise
 
 A single Time field with a Now action sits beside "Door and window state at the start". Air and climate start with one reading point for the room (CO₂, temperature, relative humidity, HCHO and TVOC); its location label is optional and, if left blank, results carry the room name. Noise also starts with one row. Each has Add a row, with an editable location, for any secondary location. Air and noise locations show as cards, so nothing scrolls sideways.

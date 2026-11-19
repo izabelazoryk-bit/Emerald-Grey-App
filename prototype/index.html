@@ -179,6 +179,9 @@ table.entry td.resultant { vertical-align: middle; background: var(--sunk); }
 .bv-missing .btn-link { color: var(--forest); font-weight: 500; }
 .pc-session { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: end; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
 .pc-session.is-assigned { border-color: var(--prog-done); box-shadow: inset 4px 0 0 var(--prog-done); }
+.pm-panel { border: 1px solid var(--line); border-radius: var(--r-m); background: var(--cream); padding: 14px 16px; }
+.pm-settings summary { cursor: pointer; }
+table.entry .input.pm-target { border: 2px solid var(--gold); box-shadow: 0 0 0 3px rgba(181, 154, 90, .25); background: #FFFDF6; }
 .spec-block { border: 1px solid var(--line); border-radius: var(--r-m); background: var(--cream); padding: 14px 16px; }
 .spec-saved summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .spec-saved[open] summary { margin-bottom: 8px; }
@@ -1168,17 +1171,17 @@ const findingById = id => FINDINGS.find(f => f.id === id);
    built into the page and never written to storage.
    ========================================================================= */
 const LOCAL_KEY = "emerald-grey-studio-v1";
-const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress", "lf", "bv", "particles", "spectra"];
+const COLLECTIONS = ["clients", "readings", "samples", "refs", "sheets", "mattress", "lf", "bv", "particles", "spectra", "meterlog"];
 const Store = {
   mode: "starting", note: "", readOnly: false, db: null, queue: {},
-  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {}, lf: {}, bv: {}, particles: {}, spectra: {},
+  clients: {}, readings: {}, samples: {}, refs: {}, sheets: {}, mattress: {}, lf: {}, bv: {}, particles: {}, spectra: {}, meterlog: {},
   loadLocal() {
     try { const d = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); COLLECTIONS.forEach(k => { this[k] = d[k] || {}; }); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   persistLocal() {
     if (this.mode !== "local") return;
-    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress, lf: this.lf, bv: this.bv, particles: this.particles, spectra: this.spectra })); }
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ clients: this.clients, readings: this.readings, samples: this.samples, refs: this.refs, sheets: this.sheets, mattress: this.mattress, lf: this.lf, bv: this.bv, particles: this.particles, spectra: this.spectra, meterlog: this.meterlog })); }
     catch (e) { this.note = "This browser is not keeping data, so changes last until the page is closed."; }
   },
   async init() {
@@ -2558,6 +2561,7 @@ function screenSection(sec) {
       ${sec.fields ? `<div class="grid-3">${sec.fields.map(fd => sheetField(sec, sh, fd)).join("")}</div>` : ""}
       ${sec.checksTitle ? `<h3 class="tb-title">${sec.checksTitle}</h3>` : ""}
       ${sec.checks ? `<div class="checks">${sec.checks.map((label, k) => `<label class="tickrow"><input type="checkbox" ${(sh.c || {})["k" + k] ? "checked" : ""} data-sheet="c|k${k}"><span>${label}</span></label>`).join("")}</div>` : ""}
+      ${sec.id === "b3" ? pmPanel() : ""}
       ${(sec.tables || []).map(tb => sheetTable(sec, tb, sh) + (sec.id === "b1" && tb.k === "src" ? specCard(sec, sh) : "")).join("")}
       ${sec.coverage ? rfCoverage() : ""}
       ${(sec.texts || []).map(t => `<div class="field"><label for="sx-${sec.id}-${t.k}">${t.label}</label><textarea id="sx-${sec.id}-${t.k}" class="input" rows="${t.rows || 5}" data-sheet="x|${t.k}">${esc((sh.x || {})[t.k] || "")}</textarea></div>`).join("")}
@@ -3732,6 +3736,124 @@ async function specImport() {
 }
 
 /* =========================================================================
+   B3. Protimeter SurveyMaster (BLD5375) over Bluetooth Low Energy
+   Tested with firmware 1.1.0.0. Readings arrive as notifications on one
+   characteristic, found by its UUID (never by ATT handle, which can change).
+   Packet: FF FF 0C 00 04 MODE SUBMODE 00 VALUE CHECK. MODE 0x04 is REL (value as
+   is), 0x05 is WME (value / 10). Byte 9 is a check byte and is never decoded.
+   Packets that fail validation are logged, never guessed at.
+   Each valid reading fills the selected moisture cell, then moves to the next.
+   ========================================================================= */
+const PM_TESTED = { model: "BLD5375", firmware: "1.1.0.0" };
+const PM_KEY = "eg-protimeter-ble";
+const PM_UNIT_OF = { WME: "WME %", REL: "Relative (non-invasive)" };
+const PM_CELLS = ["top", "mid", "base"];
+const PM = { settingsOpen: false, device: null, chr: null, status: "idle", error: "", model: "", firmware: "", last: null, target: null, count: 0 };
+function pmSettings() { try { return { service: "", characteristic: "", ...JSON.parse(localStorage.getItem(PM_KEY) || "{}") }; } catch (e) { return { service: "", characteristic: "" }; } }
+function pmSaveSettings(o) { try { localStorage.setItem(PM_KEY, JSON.stringify({ ...pmSettings(), ...o })); } catch (e) { /* settings stay for this visit only */ } }
+/* Web Bluetooth takes 16-bit UUIDs as numbers and 128-bit UUIDs as lowercase strings */
+function pmUuid(v) {
+  const s = String(v || "").trim().toLowerCase().replace(/^0x/, "");
+  if (/^[0-9a-f]{4}$/.test(s)) return parseInt(s, 16);
+  if (/^[0-9a-f]{8}$/.test(s)) return parseInt(s, 16);
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(s)) return s;
+  return null;
+}
+function toHex(bytes) { return Array.from(bytes).map(v => v.toString(16).padStart(2, "0")).join(" ").toUpperCase(); }
+function decodeProtimeterNotification(data) {
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  if (bytes.length < 10) return { valid: false, reason: "Packet is shorter than 10 bytes", rawPacket: toHex(bytes) };
+  const validPrefix = bytes[0] === 0xff && bytes[1] === 0xff && bytes[2] === 0x0c && bytes[3] === 0x00 && bytes[4] === 0x04;
+  if (!validPrefix) return { valid: false, reason: "Unrecognised Protimeter packet prefix", rawPacket: toHex(bytes) };
+  const modeByte = bytes[5], rawValue = bytes[8];
+  if (modeByte === 0x04) return { valid: true, mode: "REL", value: rawValue, unit: "REL", rawValue, checkByte: bytes[9], rawPacket: toHex(bytes) };
+  if (modeByte === 0x05) return { valid: true, mode: "WME", value: rawValue / 10, unit: "%WME", rawValue, checkByte: bytes[9], rawPacket: toHex(bytes) };
+  return { valid: false, reason: `Unknown measurement mode 0x${modeByte.toString(16).padStart(2, "0")}`, rawPacket: toHex(bytes) };
+}
+const pmLabel = path => { const [, , , i, c] = path.split("|"); return `${wallPositions[+i] || `Row ${+i + 1}`}, ${{ top: "top", mid: "middle", base: "base" }[c]}`; };
+function pmFirstEmpty(sh, from = 0) {
+  const cells = (((sh.t || {}).walls || {}).cell) || {}, order = wallPositions.flatMap((_, i) => PM_CELLS.map(c => `${i}|${c}`));
+  for (let k = 0; k < order.length; k++) { const key = order[(from + k) % order.length]; if (String(cells[key] ?? "").trim() === "") return `t|walls|cell|${key}`; }
+  return null;
+}
+function pmNextAfter(path) {
+  const [, , , i, c] = path.split("|"), order = wallPositions.flatMap((_, r) => PM_CELLS.map(x => `${r}|${x}`)), k = order.indexOf(`${i}|${c}`);
+  return k >= 0 && k < order.length - 1 ? `t|walls|cell|${order[k + 1]}` : null;
+}
+function pmMark() {
+  document.querySelectorAll(".pm-target").forEach(el => el.classList.remove("pm-target"));
+  if (!PM.target || S.screen !== "b3") return;
+  const [, , , i, c] = PM.target.split("|"); document.getElementById(`sc-b3-walls-${i}-${c}`)?.classList.add("pm-target");
+  const lab = document.getElementById("pm-target"); if (lab) lab.textContent = pmLabel(PM.target);
+}
+async function pmConnect() {
+  const st = pmSettings(), svc = pmUuid(st.service), chr = pmUuid(st.characteristic);
+  if (!navigator.bluetooth) { PM.status = "unsupported"; render(); return; }
+  if (svc == null || chr == null) { PM.status = "error"; PM.error = "Enter the meter's service and measurement characteristic UUIDs under Bluetooth settings first."; render(); return; }
+  try {
+    PM.status = "connecting"; PM.error = ""; render();
+    const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [svc, "device_information"] });
+    device.addEventListener("gattserverdisconnected", () => { PM.status = "disconnected"; PM.chr = null; render(); toast("The Protimeter disconnected"); });
+    const server = await device.gatt.connect();
+    try { const info = await server.getPrimaryService("device_information"), dec = new TextDecoder();
+      PM.model = dec.decode(await (await info.getCharacteristic("model_number_string")).readValue()).trim();
+      PM.firmware = dec.decode(await (await info.getCharacteristic("firmware_revision_string")).readValue()).trim();
+    } catch (e) { PM.model = ""; PM.firmware = ""; }
+    const ch = await (await server.getPrimaryService(svc)).getCharacteristic(chr);
+    ch.addEventListener("characteristicvaluechanged", e => pmReceive(new Uint8Array(e.target.value.buffer.slice(e.target.value.byteOffset, e.target.value.byteOffset + e.target.value.byteLength)), "bluetooth"));
+    await ch.startNotifications();
+    PM.device = device; PM.chr = ch; PM.status = "connected"; render(); toast(`Connected to ${device.name || "the Protimeter"}`);
+  } catch (e) {
+    PM.status = e && e.name === "NotFoundError" ? "idle" : "error";
+    PM.error = e && e.name === "NotFoundError" ? "" : e && e.name === "SecurityError" ? "This page is not allowed to use Bluetooth here. Open the app directly in Chrome or Edge rather than inside another page." : `Could not connect: ${(e && e.message) || e}`;
+    render();
+  }
+}
+async function pmDisconnect() { try { if (PM.chr) await PM.chr.stopNotifications(); } catch (e) { /* already gone */ } try { PM.device && PM.device.gatt.disconnect(); } catch (e) { /* already gone */ } PM.status = "idle"; PM.chr = null; PM.device = null; render(); }
+async function pmReceive(bytes, source) {
+  const c = C(), room = currentRoom(), d = decodeProtimeterNotification(bytes), now = new Date().toISOString();
+  const rec = { ...d, receivedAt: now, deviceModel: PM.model || PM_TESTED.model, firmware: PM.firmware || PM_TESTED.firmware, modelReported: !!PM.model, source,
+    client: c.ref, room: room ? room.id : "", section: "b3", by: ASSESSOR };
+  PM.last = rec; PM.count++;
+  if (!d.valid || S.screen !== "b3" || !room) { await Store.put("meterlog", `${c.ref}__${now.replace(/\D/g, "")}__${PM.count}`, { ...rec, filled: null }); if (S.screen === "b3") render(); if (!d.valid) toast(`Packet not recognised: ${d.reason}`); return; }
+  const sh = sheetGet(c.ref, room.id, "b3"), units = (sh.f || {}).units, want = PM_UNIT_OF[d.mode];
+  const anyMoisture = Object.entries((((sh.t || {}).walls || {}).cell) || {}).some(([k, v]) => PM_CELLS.includes(k.split("|")[1]) && String(v ?? "").trim() !== "");
+  if (units && units !== want && anyMoisture) { await Store.put("meterlog", `${c.ref}__${now.replace(/\D/g, "")}__${PM.count}`, { ...rec, filled: null, note: `Not filled: meter in ${d.mode}, sheet records ${units}` }); render(); toast(`The meter is in ${d.mode} mode but this sheet records ${units}. Switch the meter's mode, or start a new room.`); return; }
+  if (units !== want) setSheet(c.ref, room.id, "b3", "f|units", want);
+  const target = PM.target || pmFirstEmpty(sh);
+  if (!target) { await Store.put("meterlog", `${c.ref}__${now.replace(/\D/g, "")}__${PM.count}`, { ...rec, filled: null }); render(); toast("Every moisture cell is filled. Select a cell to replace its value."); return; }
+  setSheet(c.ref, room.id, "b3", target, String(d.value));
+  await Store.put("meterlog", `${c.ref}__${now.replace(/\D/g, "")}__${PM.count}`, { ...rec, filled: target, filledLabel: pmLabel(target), roomName: room.name, customer: c.name });
+  PM.target = pmNextAfter(target);
+  render(); toast(`${d.mode} ${d.mode === "WME" ? fmt(d.value, 1) + " %" : d.value} saved to ${pmLabel(target)}`);
+}
+function pmPanel() {
+  const st = pmSettings(), supported = !!navigator.bluetooth, s = PM.status, last = PM.last;
+  const statusText = { idle: "Not connected", connecting: "Connecting…", connected: `Connected${PM.device && PM.device.name ? ` to ${PM.device.name}` : ""}`, disconnected: "Disconnected", error: "Not connected", unsupported: "Bluetooth not available" }[s] || "Not connected";
+  const untested = PM.model && (PM.model !== PM_TESTED.model || (PM.firmware && PM.firmware !== PM_TESTED.firmware));
+  return `<section class="pm-panel stack" aria-labelledby="h-pm">
+    <div class="spread"><div class="stack" style="gap:2px"><span class="eyebrow">Protimeter SurveyMaster</span><h3 id="h-pm" class="tb-title">Meter connection</h3></div>
+      <span class="chip ${s === "connected" ? "c-emerald" : "c-muted"}" role="status">${statusText}</span></div>
+    ${!supported ? `<div class="notice notice-warn">${icon("info")}<span class="small">This browser cannot connect to Bluetooth meters. Use Chrome or Edge on an Android tablet, Windows, Mac or Chromebook. iPhone and iPad browsers do not support it. Readings can still be typed in below.</span></div>` : ""}
+    ${PM.error ? `<div class="notice notice-error" role="alert">${icon("info")}<span class="small">${esc(PM.error)}</span></div>` : ""}
+    ${untested ? `<div class="notice notice-warn">${icon("info")}<span class="small">This meter reports model ${esc(PM.model)}, firmware ${esc(PM.firmware || "unknown")}. The app was tested with ${PM_TESTED.model}, firmware ${PM_TESTED.firmware}; check the first readings against the meter's display.</span></div>` : ""}
+    <div class="row">${s === "connected" ? `<button class="btn" data-action="pmdisconnect">Disconnect</button>` : `<button class="btn btn-primary" data-action="pmconnect" ${!supported || s === "connecting" ? "disabled" : ""}>Connect the meter</button>`}
+      <button class="btn btn-quiet btn-s" data-action="pmstart">Start at the first empty cell</button></div>
+    <p class="small">Next reading goes to: <b id="pm-target">${PM.target ? esc(pmLabel(PM.target)) : "the first empty moisture cell"}</b>. Select any moisture cell to send the next reading there.</p>
+    ${last ? `<p class="small muted">Last packet ${esc(nowStampFrom(last.receivedAt))}: ${last.valid ? `<b>${last.mode} ${last.mode === "WME" ? fmt(last.value, 1) + " %" : last.value}</b>` : `<b>not recognised</b> (${esc(last.reason)})`} · <span class="mono">${esc(last.rawPacket)}</span></p>` : ""}
+    <details class="pm-settings" ${PM.settingsOpen || !(st.service && st.characteristic) ? "open" : ""}><summary class="small"><b>Bluetooth settings</b>${st.service && st.characteristic ? " · saved on this device" : " · needed before the first connection"}</summary>
+      <div class="grid-3" style="margin-top:10px">
+        <div class="field"><label for="pm-svc">Service UUID</label><input id="pm-svc" class="input mono" value="${esc(st.service)}" placeholder="e.g. 0000xxxx-0000-1000-8000-00805f9b34fb" data-pmset="service"></div>
+        <div class="field"><label for="pm-chr">Measurement characteristic UUID</label><input id="pm-chr" class="input mono" value="${esc(st.characteristic)}" placeholder="The characteristic that notifies readings" data-pmset="characteristic"></div>
+      </div>
+      <p class="xsmall muted">The app finds the measurement characteristic by these UUIDs, not by its handle, which can change with firmware. Tested with ${PM_TESTED.model}, firmware ${PM_TESTED.firmware}.</p>
+      <div class="field"><label for="pm-test">Test the decoder with a packet</label><div class="row" style="flex-wrap:nowrap"><input id="pm-test" class="input mono" placeholder="FF FF 0C 00 04 05 00 00 89 83"><button class="btn btn-s" data-action="pmtest">Send</button></div>
+        <span class="xsmall muted">A test packet is handled exactly like one from the meter, including saving to the selected cell, and is logged as a test.</span></div>
+    </details>
+  </section>`;
+}
+
+/* =========================================================================
    Menu: left-hand on desktop, behind the menu button on tablet and phone
    ========================================================================= */
 const SETTINGS = [["templates", "grid", "Room templates"], ["equipment", "gauge", "Equipment register"], ["references", "book", "Reference library"], ["services", "list", "Services and tests"], ["access", "lock", "Assessors and access"], ["clientexp", "phone", "Client experience"], ["data", "shield", "Data and storage"]];
@@ -3861,6 +3983,7 @@ function render() {
   const frame = document.getElementById("frame");
   if (S.frame && S.frame !== "desktop") frame.dataset.frame = S.frame; else delete frame.dataset.frame;
   document.getElementById("screen").innerHTML = RENDER[S.screen]();
+  if (S.screen === "b3") pmMark();
   document.getElementById("overlay").innerHTML = (S.modal ? `<div class="modal-back" data-action="backdrop">${modalHTML(S.modal)}</div>` : "") + (S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : "");
   if (navOpen) document.getElementById("app").classList.add("nav-open");
   applySearch();
@@ -4018,6 +4141,10 @@ const ACT = {
   speccancel: () => { S.spec.upload = null; S.spec.assign = {}; render(); },
   specimport: () => specImport(),
   async specremove(d) { const doc = Store.spectra[d.id]; if (!doc) return; if (await Store.put("spectra", d.id, { ...doc, removed: true, updatedAt: new Date().toISOString(), updatedBy: ASSESSOR })) { render(); toast("Spectrometer file removed. Values already in the source row stay until edited."); } },
+  pmconnect: () => pmConnect(),
+  pmdisconnect: () => pmDisconnect(),
+  pmstart: () => { const room = currentRoom(); if (!room) return; PM.target = pmFirstEmpty(sheetGet(S.client, room.id, "b3")); pmMark(); toast(PM.target ? `Next reading goes to ${pmLabel(PM.target)}` : "Every moisture cell is filled"); },
+  pmtest: () => { const el = document.getElementById("pm-test"), hex = (el.value || "").replace(/[^0-9a-f]/gi, ""); if (!hex || hex.length % 2) { toast("Enter the packet as pairs of hexadecimal digits"); return; } pmReceive(new Uint8Array(hex.match(/../g).map(h => parseInt(h, 16))), "test"); },
   padkey: d => padKey(d.key),
   padflag: d => { S.pad.flag = S.pad.flag === d.flag ? null : d.flag; if (S.pad.flag) S.pad.buf = ""; padRefresh(); if (S.pad.flag === "nm") document.getElementById("pad-reason")?.focus(); },
   padconfirm: () => padConfirm(),
@@ -4038,7 +4165,7 @@ const ACT = {
     toast(`${t.name} applied${keep.length ? `. ${keep.length} room${keep.length === 1 ? "" : "s"} with saved results kept` : ""}`);
   },
   copydata: () => {
-    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress, lf: Store.lf, bv: Store.bv, particles: Store.particles, spectra: Store.spectra }, null, 2);
+    const text = JSON.stringify({ clients: Store.clients, readings: Store.readings, samples: Store.samples, refs: Store.refs, sheets: Store.sheets, mattress: Store.mattress, lf: Store.lf, bv: Store.bv, particles: Store.particles, spectra: Store.spectra, meterlog: Store.meterlog }, null, 2);
     const box = document.getElementById("data-copy");
     const fallback = () => { box.value = text; box.hidden = false; box.focus(); box.select(); toast("Select all and copy the text below"); };
     try { navigator.clipboard.writeText(text).then(() => toast("All saved data copied"), fallback); } catch (e) { fallback(); }
@@ -4245,6 +4372,7 @@ document.addEventListener("input", e => {
   if (t.matches("[data-lfnote]")) { const [test, p] = t.dataset.lfnote.split("|"), ref = S.client, room = currentRoom().id; markEdited(); debounce(`lfnote:${ref}:${room}:${test}:${p}`, () => { const doc = lfClone(ref, room); doc[test].notes = { ...(doc[test].notes || {}), [p]: t.value }; lfSave(doc); }); }
   if (t.matches("[data-bvtext]")) { const path = t.dataset.bvtext, ref = S.client, room = currentRoom().id; markEdited(); debounce(`bv:${ref}:${room}:${path}`, async () => { const doc = bvClone(ref, room); bvSetPath(doc, path, t.value); doc.startedAt = doc.startedAt || new Date().toISOString(); await bvSave(doc); }); }
   if (t.matches("input[data-pcassign]")) { const [sid, k] = t.dataset.pcassign.split("|"); S.pc.assign[sid] = { ...(S.pc.assign[sid] || {}), [k]: t.value }; }
+  if (t.matches("[data-pmset]")) pmSaveSettings({ [t.dataset.pmset]: t.value.trim() });
   if (t.matches("[data-lfnotes]")) { const ref = S.client, room = currentRoom().id; markEdited(); debounce(`lfnotes:${ref}:${room}`, () => { const doc = lfClone(ref, room); doc.notes = t.value; lfSave(doc); }); }
   if (t.matches("[data-intnote]")) {
     const ref = t.dataset.intnote, c = getClient(ref); markEdited();
@@ -4290,6 +4418,11 @@ document.addEventListener("change", e => {
   if (kind === "pcgap" && S.pc.upload) { S.pc.gap = +t.value; S.pc.upload = { ...S.pc.upload, ...pcParse(S.pc.upload.text, S.pc.gap) }; S.pc.assign = {}; render(); document.getElementById("pc-gap")?.focus(); }
   if (t.matches("select[data-pcassign]")) { const [sid, k] = t.dataset.pcassign.split("|"), id = t.id; S.pc.assign[sid] = { ...(S.pc.assign[sid] || {}), [k]: t.value }; render(); document.getElementById(id)?.focus(); }
   if (kind === "csv" && t.files[0]) { const f = t.files[0]; const rd = new FileReader(); rd.onload = () => { const text = String(rd.result).slice(0, 200000); S.csv = { text, name: f.name }; document.getElementById("csv-preview").innerHTML = csvPreview(text, f.name); }; rd.readAsText(f); }
+});
+document.addEventListener("toggle", e => { if (e.target.matches && e.target.matches(".pm-settings")) PM.settingsOpen = e.target.open; }, true);
+document.addEventListener("focusin", e => {
+  const m = S.screen === "b3" && e.target.id && /^sc-b3-walls-(\d+)-(top|mid|base)$/.exec(e.target.id);
+  if (m) { PM.target = `t|walls|cell|${m[1]}|${m[2]}`; pmMark(); }
 });
 document.addEventListener("submit", e => {
   if (e.target.matches("[data-form='ask']")) {
